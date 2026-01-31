@@ -38,7 +38,7 @@ public class RefertoDTO {
     private String testoReferto;
 
     @NotBlank(message = "Le conclusioni sono obbligatorie")
-    @Size(max = 4000, message = "Le conclusioni non possono superare i 4000 caratteri")
+    @Size(max = 4000, message = "Le conclusioni non possono superare 4000 caratteri")
     private String conclusioni;
 
     @NotBlank(message = "L'URL dell'immagine è obbligatorio")
