@@ -64,7 +64,7 @@ public class RefertoRepositoryTest {
             Referto referto = Referto.builder()
                     .nomePaziente("Luigi Bianchi")
                     .codiceFiscale("BNCLGU85B02F205X")
-                    .tipoEsame(TipoEsame.RADIOGRAFIA)
+                    .tipoEsame(TipoEsame.Radiografia)
                     .fileUrlImmagine("http://test/img.png")
                     .urlPdfGenerato("http://test/pdf.pdf")
                     .nomeFile("referto_bianchi")
@@ -88,7 +88,7 @@ public class RefertoRepositoryTest {
             Referto referto = Referto.builder()
                     .nomePaziente("Da Eliminare")
                     .codiceFiscale("ELMNRE80A01H501Z")
-                    .tipoEsame(TipoEsame.ECOGRAFIA)
+                    .tipoEsame(TipoEsame.Ecografia)
                     .fileUrlImmagine("http://test/img.png")
                     .urlPdfGenerato("http://test/pdf.pdf")
                     .nomeFile("referto_delete")
@@ -141,7 +141,7 @@ public class RefertoRepositoryTest {
             // Arrange
             String cf = "TSTCF080A01H501Z";
             Referto referto1 = createReferto("Paziente 1", cf, TipoEsame.TAC, "referto1");
-            Referto referto2 = createReferto("Paziente 1", cf, TipoEsame.ECOGRAFIA, "referto2");
+            Referto referto2 = createReferto("Paziente 1", cf, TipoEsame.Ecografia, "referto2");
             refertoRepository.save(referto1);
             refertoRepository.save(referto2);
 
@@ -159,14 +159,14 @@ public class RefertoRepositoryTest {
             // Arrange
             Referto referto1 = createReferto("Paziente TAC 1", "TSTTAC80A01H501A", TipoEsame.TAC, "referto_tac1");
             Referto referto2 = createReferto("Paziente TAC 2", "TSTTAC80A01H501B", TipoEsame.TAC, "referto_tac2");
-            Referto referto3 = createReferto("Paziente ECO", "TSTECO80A01H501C", TipoEsame.ECOGRAFIA, "referto_eco");
+            Referto referto3 = createReferto("Paziente ECO", "TSTECO80A01H501C", TipoEsame.Ecografia, "referto_eco");
             refertoRepository.save(referto1);
             refertoRepository.save(referto2);
             refertoRepository.save(referto3);
 
             // Act
             List<Referto> tacReferti = refertoRepository.findByTipoEsame(TipoEsame.TAC);
-            List<Referto> ecoReferti = refertoRepository.findByTipoEsame(TipoEsame.ECOGRAFIA);
+            List<Referto> ecoReferti = refertoRepository.findByTipoEsame(TipoEsame.Ecografia);
 
             // Assert
             assertEquals(2, tacReferti.size());
@@ -190,7 +190,7 @@ public class RefertoRepositoryTest {
             Referto referto2 = Referto.builder()
                     .nomePaziente("Paziente 2")
                     .codiceFiscale("PZNT0280A01H501B")
-                    .tipoEsame(TipoEsame.RADIOGRAFIA)
+                    .tipoEsame(TipoEsame.Radiografia)
                     .fileUrlImmagine("http://test/img2.png")
                     .urlPdfGenerato("http://test/pdf2.pdf")
                     .nomeFile("referto_email2")
@@ -215,7 +215,7 @@ public class RefertoRepositoryTest {
             Referto referto = Referto.builder()
                     .nomePaziente("Test NomeFile")
                     .codiceFiscale("TSTNMF80A01H501Z")
-                    .tipoEsame(TipoEsame.RISONANZA)
+                    .tipoEsame(TipoEsame.Risonanza)
                     .fileUrlImmagine("http://test/img.png")
                     .urlPdfGenerato("http://test/pdf.pdf")
                     .nomeFile(nomeFile)

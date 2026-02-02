@@ -2,10 +2,10 @@ package it.unisa.project.medsafe.entinty;
 
 public enum TipoEsame {
     TAC("TAC"),
-    RADIOGRAFIA("Radiografia"),
-    ECOGRAFIA("Ecografia"),
-    RISONANZA("Risonanza"),
-    ESAMI_LABORATORIO("Esami di Laboratorio");
+    Radiografia("Radiografia"),
+    Ecografia("Ecografia"),
+    Risonanza("Risonanza"),
+    Esami_Laboratorio("Esami di Laboratorio");
 
     private final String descrizione;
 

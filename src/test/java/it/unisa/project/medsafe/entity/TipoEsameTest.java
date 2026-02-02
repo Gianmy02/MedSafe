@@ -17,30 +17,30 @@ class TipoEsameTest extends BasePojoTest {
 
         assertEquals(5, values.length);
         assertNotNull(TipoEsame.TAC);
-        assertNotNull(TipoEsame.RADIOGRAFIA);
-        assertNotNull(TipoEsame.ECOGRAFIA);
-        assertNotNull(TipoEsame.RISONANZA);
-        assertNotNull(TipoEsame.ESAMI_LABORATORIO);
+        assertNotNull(TipoEsame.Radiografia);
+        assertNotNull(TipoEsame.Ecografia);
+        assertNotNull(TipoEsame.Risonanza);
+        assertNotNull(TipoEsame.Esami_Laboratorio);
     }
 
     @Test
     @DisplayName("Verifica descrizioni dei tipi esame")
     void testDescrizioni() {
         assertEquals("TAC", TipoEsame.TAC.getDescrizione());
-        assertEquals("Radiografia", TipoEsame.RADIOGRAFIA.getDescrizione());
-        assertEquals("Ecografia", TipoEsame.ECOGRAFIA.getDescrizione());
-        assertEquals("Risonanza", TipoEsame.RISONANZA.getDescrizione());
-        assertEquals("Esami di Laboratorio", TipoEsame.ESAMI_LABORATORIO.getDescrizione());
+        assertEquals("Radiografia", TipoEsame.Radiografia.getDescrizione());
+        assertEquals("Ecografia", TipoEsame.Ecografia.getDescrizione());
+        assertEquals("Risonanza", TipoEsame.Risonanza.getDescrizione());
+        assertEquals("Esami di Laboratorio", TipoEsame.Esami_Laboratorio.getDescrizione());
     }
 
     @Test
     @DisplayName("Verifica valueOf")
     void testValueOf() {
         assertEquals(TipoEsame.TAC, TipoEsame.valueOf("TAC"));
-        assertEquals(TipoEsame.RADIOGRAFIA, TipoEsame.valueOf("RADIOGRAFIA"));
-        assertEquals(TipoEsame.ECOGRAFIA, TipoEsame.valueOf("ECOGRAFIA"));
-        assertEquals(TipoEsame.RISONANZA, TipoEsame.valueOf("RISONANZA"));
-        assertEquals(TipoEsame.ESAMI_LABORATORIO, TipoEsame.valueOf("ESAMI_LABORATORIO"));
+        assertEquals(TipoEsame.Radiografia, TipoEsame.valueOf("Radiografia"));
+        assertEquals(TipoEsame.Ecografia, TipoEsame.valueOf("Ecografia"));
+        assertEquals(TipoEsame.Risonanza, TipoEsame.valueOf("Risonanza"));
+        assertEquals(TipoEsame.Esami_Laboratorio, TipoEsame.valueOf("Esami_Laboratorio"));
     }
 
     @Test
@@ -55,16 +55,16 @@ class TipoEsameTest extends BasePojoTest {
         assertEquals("TAC", TipoEsame.TAC.name());
         assertEquals(0, TipoEsame.TAC.ordinal());
 
-        assertEquals("RADIOGRAFIA", TipoEsame.RADIOGRAFIA.name());
-        assertEquals(1, TipoEsame.RADIOGRAFIA.ordinal());
+        assertEquals("Radiografia", TipoEsame.Radiografia.name());
+        assertEquals(1, TipoEsame.Radiografia.ordinal());
 
-        assertEquals("ECOGRAFIA", TipoEsame.ECOGRAFIA.name());
-        assertEquals(2, TipoEsame.ECOGRAFIA.ordinal());
+        assertEquals("Ecografia", TipoEsame.Ecografia.name());
+        assertEquals(2, TipoEsame.Ecografia.ordinal());
 
-        assertEquals("RISONANZA", TipoEsame.RISONANZA.name());
-        assertEquals(3, TipoEsame.RISONANZA.ordinal());
+        assertEquals("Risonanza", TipoEsame.Risonanza.name());
+        assertEquals(3, TipoEsame.Risonanza.ordinal());
 
-        assertEquals("ESAMI_LABORATORIO", TipoEsame.ESAMI_LABORATORIO.name());
-        assertEquals(4, TipoEsame.ESAMI_LABORATORIO.ordinal());
+        assertEquals("Esami_Laboratorio", TipoEsame.Esami_Laboratorio.name());
+        assertEquals(4, TipoEsame.Esami_Laboratorio.ordinal());
     }
 }

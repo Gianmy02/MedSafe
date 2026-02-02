@@ -287,5 +287,31 @@ public class RefertoServiceTest {
             assertEquals(2, result.size());
             verify(refertoRepository).findByAutoreEmail(email);
         }
+
+        @Test
+        public void getAllRefertiSuccessTest() {
+            Referto referto1 = Referto.builder().id(1).nomePaziente("Mario Rossi").build();
+            Referto referto2 = Referto.builder().id(2).nomePaziente("Anna Verdi").build();
+            Referto referto3 = Referto.builder().id(3).nomePaziente("Luigi Bianchi").build();
+            List<Referto> referti = Arrays.asList(referto1, referto2, referto3);
+
+            RefertoDTO dto1 = RefertoDTO.builder().id(1).nomePaziente("Mario Rossi").build();
+            RefertoDTO dto2 = RefertoDTO.builder().id(2).nomePaziente("Anna Verdi").build();
+            RefertoDTO dto3 = RefertoDTO.builder().id(3).nomePaziente("Luigi Bianchi").build();
+            List<RefertoDTO> dtos = Arrays.asList(dto1, dto2, dto3);
+
+            when(refertoRepository.findAll()).thenReturn(referti);
+            when(refertoMapper.refertiToRefertiDTO(referti)).thenReturn(dtos);
+
+            List<RefertoDTO> result = refertoService.getAllReferti();
+
+            assertNotNull(result);
+            assertEquals(3, result.size());
+            assertEquals("Mario Rossi", result.get(0).getNomePaziente());
+            assertEquals("Anna Verdi", result.get(1).getNomePaziente());
+            assertEquals("Luigi Bianchi", result.get(2).getNomePaziente());
+            verify(refertoRepository).findAll();
+            verify(refertoMapper).refertiToRefertiDTO(referti);
+        }
     }
 }

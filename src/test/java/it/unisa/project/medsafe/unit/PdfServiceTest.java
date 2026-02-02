@@ -56,7 +56,7 @@ public class PdfServiceTest {
             RefertoDTO dto = RefertoDTO.builder()
                     .nomePaziente("Luigi Bianchi")
                     .codiceFiscale("BNCLGU85B02F205X")
-                    .tipoEsame(TipoEsame.RADIOGRAFIA)
+                    .tipoEsame(TipoEsame.Radiografia)
                     .build();
 
             // Act
@@ -74,7 +74,7 @@ public class PdfServiceTest {
             RefertoDTO dto = RefertoDTO.builder()
                     .nomePaziente("Anna Verdi")
                     .codiceFiscale("VRDNNA90C03L219Y")
-                    .tipoEsame(TipoEsame.ECOGRAFIA)
+                    .tipoEsame(TipoEsame.Ecografia)
                     .testoReferto("Ecografia addome completo")
                     .conclusioni("Fegato, milza e reni nella norma")
                     .autoreEmail("dott.verdi@hospital.com")
@@ -96,7 +96,7 @@ public class PdfServiceTest {
             RefertoDTO dto = RefertoDTO.builder()
                     .nomePaziente("Franco Neri")
                     .codiceFiscale("NREFNC75D04G273W")
-                    .tipoEsame(TipoEsame.RISONANZA)
+                    .tipoEsame(TipoEsame.Risonanza)
                     .testoReferto("RMN encefalo con e senza mdc")
                     .conclusioni("Esame nella norma")
                     .autoreEmail("dott.neri@hospital.com")
@@ -112,13 +112,13 @@ public class PdfServiceTest {
         }
 
         @Test
-        @DisplayName("Genera PDF con tipo esame ESAMI_LABORATORIO")
+        @DisplayName("Genera PDF con tipo esame Esami_Laboratorio")
         void testGeneraPdfEsamiLaboratorio() throws IOException {
             // Arrange
             RefertoDTO dto = RefertoDTO.builder()
                     .nomePaziente("Carla Gialli")
                     .codiceFiscale("GLLCRL88E05H501V")
-                    .tipoEsame(TipoEsame.ESAMI_LABORATORIO)
+                    .tipoEsame(TipoEsame.Esami_Laboratorio)
                     .testoReferto("Emocromo completo, glicemia, colesterolo")
                     .conclusioni("Valori nella norma. Lieve aumento del colesterolo LDL.")
                     .autoreEmail("dott.gialli@hospital.com")
@@ -165,7 +165,7 @@ public class PdfServiceTest {
             RefertoDTO dto = RefertoDTO.builder()
                     .nomePaziente("José María O'Connor")
                     .codiceFiscale("CNRJSM80A01H501Z")
-                    .tipoEsame(TipoEsame.RADIOGRAFIA)
+                    .tipoEsame(TipoEsame.Radiografia)
                     .testoReferto("Esame con note: àèìòù, €, @, #, %, &")
                     .conclusioni("Conclusioni: OK — tutto bene «ottimo»")
                     .autoreEmail("jose.oconnor@hospital.com")
@@ -212,7 +212,7 @@ public class PdfServiceTest {
             RefertoDTO dto = RefertoDTO.builder()
                     .nomePaziente("Test Null Conclusioni")
                     .codiceFiscale("TSTNLL80A01H501Y")
-                    .tipoEsame(TipoEsame.ECOGRAFIA)
+                    .tipoEsame(TipoEsame.Ecografia)
                     .testoReferto("Testo presente")
                     .conclusioni(null)
                     .build();
@@ -232,7 +232,7 @@ public class PdfServiceTest {
             RefertoDTO dto = RefertoDTO.builder()
                     .nomePaziente(null)
                     .codiceFiscale("TSTNLL80A01H501X")
-                    .tipoEsame(TipoEsame.RADIOGRAFIA)
+                    .tipoEsame(TipoEsame.Radiografia)
                     .testoReferto("Testo")
                     .conclusioni("Conclusioni")
                     .build();

@@ -15,4 +15,5 @@ public interface RefertoService {
     RefertoDTO getRefertoByNomeFile(String nomeFile);
     List<RefertoDTO> getRefertiByTipoEsame(TipoEsame tipoEsame);
     List<RefertoDTO> getRefertiByAutoreEmail(String autoreEmail);
+    List<RefertoDTO> getAllReferti();
 }

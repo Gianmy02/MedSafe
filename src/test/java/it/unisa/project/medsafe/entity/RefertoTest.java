@@ -92,13 +92,13 @@ class RefertoTest extends BasePojoTest {
             Referto referto = Referto.builder()
                     .nomePaziente("Luigi Bianchi")
                     .codiceFiscale("BNCLGU85B02F205X")
-                    .tipoEsame(TipoEsame.RADIOGRAFIA)
+                    .tipoEsame(TipoEsame.Radiografia)
                     .build();
 
             assertEquals(0, referto.getId());
             assertEquals("Luigi Bianchi", referto.getNomePaziente());
             assertEquals("BNCLGU85B02F205X", referto.getCodiceFiscale());
-            assertEquals(TipoEsame.RADIOGRAFIA, referto.getTipoEsame());
+            assertEquals(TipoEsame.Radiografia, referto.getTipoEsame());
             assertNull(referto.getTestoReferto());
             assertNull(referto.getConclusioni());
         }
@@ -158,39 +158,39 @@ class RefertoTest extends BasePojoTest {
         }
 
         @Test
-        @DisplayName("Test con TipoEsame RADIOGRAFIA")
+        @DisplayName("Test con TipoEsame Radiografia")
         void testWithRadiografia() {
             Referto referto = Referto.builder()
-                    .tipoEsame(TipoEsame.RADIOGRAFIA)
+                    .tipoEsame(TipoEsame.Radiografia)
                     .build();
-            assertEquals(TipoEsame.RADIOGRAFIA, referto.getTipoEsame());
+            assertEquals(TipoEsame.Radiografia, referto.getTipoEsame());
         }
 
         @Test
-        @DisplayName("Test con TipoEsame ECOGRAFIA")
+        @DisplayName("Test con TipoEsame Ecografia")
         void testWithEcografia() {
             Referto referto = Referto.builder()
-                    .tipoEsame(TipoEsame.ECOGRAFIA)
+                    .tipoEsame(TipoEsame.Ecografia)
                     .build();
-            assertEquals(TipoEsame.ECOGRAFIA, referto.getTipoEsame());
+            assertEquals(TipoEsame.Ecografia, referto.getTipoEsame());
         }
 
         @Test
-        @DisplayName("Test con TipoEsame RISONANZA")
+        @DisplayName("Test con TipoEsame Risonanza")
         void testWithRisonanza() {
             Referto referto = Referto.builder()
-                    .tipoEsame(TipoEsame.RISONANZA)
+                    .tipoEsame(TipoEsame.Risonanza)
                     .build();
-            assertEquals(TipoEsame.RISONANZA, referto.getTipoEsame());
+            assertEquals(TipoEsame.Risonanza, referto.getTipoEsame());
         }
 
         @Test
-        @DisplayName("Test con TipoEsame ESAMI_LABORATORIO")
+        @DisplayName("Test con TipoEsame Esami_Laboratorio")
         void testWithEsamiLaboratorio() {
             Referto referto = Referto.builder()
-                    .tipoEsame(TipoEsame.ESAMI_LABORATORIO)
+                    .tipoEsame(TipoEsame.Esami_Laboratorio)
                     .build();
-            assertEquals(TipoEsame.ESAMI_LABORATORIO, referto.getTipoEsame());
+            assertEquals(TipoEsame.Esami_Laboratorio, referto.getTipoEsame());
         }
     }
 }

@@ -91,13 +91,13 @@ class RefertoDTOTest extends BasePojoTest {
             RefertoDTO dto = RefertoDTO.builder()
                     .nomePaziente("Luigi Bianchi")
                     .codiceFiscale("BNCLGU85B02F205X")
-                    .tipoEsame(TipoEsame.RADIOGRAFIA)
+                    .tipoEsame(TipoEsame.Radiografia)
                     .build();
 
             assertEquals(0, dto.getId());
             assertEquals("Luigi Bianchi", dto.getNomePaziente());
             assertEquals("BNCLGU85B02F205X", dto.getCodiceFiscale());
-            assertEquals(TipoEsame.RADIOGRAFIA, dto.getTipoEsame());
+            assertEquals(TipoEsame.Radiografia, dto.getTipoEsame());
             assertNull(dto.getTestoReferto());
             assertNull(dto.getConclusioni());
         }

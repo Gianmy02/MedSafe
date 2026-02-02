@@ -180,7 +180,7 @@ public class RefertoControllerTest {
             ResponseEntity<?> response = refertoController.addReferto(
                     "Luigi Bianchi",
                     "BNCLGU85B02F205X",
-                    TipoEsame.RADIOGRAFIA,
+                    TipoEsame.Radiografia,
                     "Testo referto",
                     "Conclusioni",
                     "medico@hospital.com",
@@ -201,7 +201,7 @@ public class RefertoControllerTest {
             ResponseEntity<?> response = refertoController.addReferto(
                     "Anna Verdi",
                     "VRDNNA90C03L219Y",
-                    TipoEsame.ECOGRAFIA,
+                    TipoEsame.Ecografia,
                     "Testo referto",
                     "Conclusioni",
                     "medico@hospital.com",
@@ -330,6 +330,44 @@ public class RefertoControllerTest {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             assertNotNull(response.getBody());
             verify(refertoService).getRefertoById(1);
+        }
+
+        @Test
+        public void getAllRefertiSuccessTest() {
+            RefertoDTO dto1 = RefertoDTO.builder()
+                    .id(1)
+                    .nomePaziente("Mario Rossi")
+                    .codiceFiscale("RSSMRA80A01H501Z")
+                    .tipoEsame(TipoEsame.TAC)
+                    .build();
+
+            RefertoDTO dto2 = RefertoDTO.builder()
+                    .id(2)
+                    .nomePaziente("Anna Verdi")
+                    .codiceFiscale("VRDNNA90C03L219Y")
+                    .tipoEsame(TipoEsame.Radiografia)
+                    .build();
+
+            RefertoDTO dto3 = RefertoDTO.builder()
+                    .id(3)
+                    .nomePaziente("Luigi Bianchi")
+                    .codiceFiscale("BNCLGU85B02F205X")
+                    .tipoEsame(TipoEsame.Ecografia)
+                    .build();
+
+            List<RefertoDTO> refertiList = Arrays.asList(dto1, dto2, dto3);
+
+            when(refertoService.getAllReferti()).thenReturn(refertiList);
+
+            ResponseEntity<List<RefertoDTO>> response = refertoController.getAllReferti();
+
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            assertNotNull(response.getBody());
+            assertEquals(3, response.getBody().size());
+            assertEquals("Mario Rossi", response.getBody().get(0).getNomePaziente());
+            assertEquals("Anna Verdi", response.getBody().get(1).getNomePaziente());
+            assertEquals("Luigi Bianchi", response.getBody().get(2).getNomePaziente());
+            verify(refertoService).getAllReferti();
         }
     }
 }

@@ -73,7 +73,7 @@ public class RefertoMapperTest {
                     .id(2)
                     .nomePaziente("Luigi Bianchi")
                     .codiceFiscale("BNCLGU85B02F205X")
-                    .tipoEsame(TipoEsame.RADIOGRAFIA)
+                    .tipoEsame(TipoEsame.Radiografia)
                     .testoReferto(null)
                     .conclusioni(null)
                     .fileUrlImmagine("http://blob/img.png")
@@ -111,7 +111,7 @@ public class RefertoMapperTest {
                     .id(2)
                     .nomePaziente("Paziente 2")
                     .codiceFiscale("PZNT0280A01H501B")
-                    .tipoEsame(TipoEsame.ECOGRAFIA)
+                    .tipoEsame(TipoEsame.Ecografia)
                     .fileUrlImmagine("http://test/img2.png")
                     .urlPdfGenerato("http://test/pdf2.pdf")
                     .nomeFile("referto2")
@@ -157,7 +157,7 @@ public class RefertoMapperTest {
                     .id(99) // Questo dovrebbe essere ignorato
                     .nomePaziente("Anna Verdi")
                     .codiceFiscale("VRDNNA90C03L219Y")
-                    .tipoEsame(TipoEsame.ECOGRAFIA)
+                    .tipoEsame(TipoEsame.Ecografia)
                     .testoReferto("Ecografia addome")
                     .conclusioni("Nella norma")
                     .fileUrlImmagine("http://blob/immagine.png")
@@ -175,7 +175,7 @@ public class RefertoMapperTest {
             assertEquals(0, referto.getId()); // ID ignorato, quindi 0
             assertEquals("Anna Verdi", referto.getNomePaziente());
             assertEquals("VRDNNA90C03L219Y", referto.getCodiceFiscale());
-            assertEquals(TipoEsame.ECOGRAFIA, referto.getTipoEsame());
+            assertEquals(TipoEsame.Ecografia, referto.getTipoEsame());
             assertEquals("Ecografia addome", referto.getTestoReferto());
             assertEquals("Nella norma", referto.getConclusioni());
             assertNull(referto.getDataCaricamento()); // dataCaricamento ignorato
@@ -188,7 +188,7 @@ public class RefertoMapperTest {
             RefertoDTO dto = RefertoDTO.builder()
                     .nomePaziente("Test Null")
                     .codiceFiscale("TSTNLL80A01H501Z")
-                    .tipoEsame(TipoEsame.RISONANZA)
+                    .tipoEsame(TipoEsame.Risonanza)
                     .testoReferto(null)
                     .conclusioni(null)
                     .fileUrlImmagine("http://test/img.png")
@@ -256,7 +256,7 @@ public class RefertoMapperTest {
         void testConRADIOGRAFIA() {
             Referto referto = Referto.builder()
                     .id(2)
-                    .tipoEsame(TipoEsame.RADIOGRAFIA)
+                    .tipoEsame(TipoEsame.Radiografia)
                     .nomePaziente("Test")
                     .codiceFiscale("TSTCF080A01H501Y")
                     .fileUrlImmagine("http://test/img.png")
@@ -266,7 +266,7 @@ public class RefertoMapperTest {
                     .build();
 
             RefertoDTO dto = refertoMapper.refertoToRefertoDTO(referto);
-            assertEquals(TipoEsame.RADIOGRAFIA, dto.getTipoEsame());
+            assertEquals(TipoEsame.Radiografia, dto.getTipoEsame());
         }
 
         @Test
@@ -274,7 +274,7 @@ public class RefertoMapperTest {
         void testConECOGRAFIA() {
             Referto referto = Referto.builder()
                     .id(3)
-                    .tipoEsame(TipoEsame.ECOGRAFIA)
+                    .tipoEsame(TipoEsame.Ecografia)
                     .nomePaziente("Test")
                     .codiceFiscale("TSTCF080A01H501X")
                     .fileUrlImmagine("http://test/img.png")
@@ -284,7 +284,7 @@ public class RefertoMapperTest {
                     .build();
 
             RefertoDTO dto = refertoMapper.refertoToRefertoDTO(referto);
-            assertEquals(TipoEsame.ECOGRAFIA, dto.getTipoEsame());
+            assertEquals(TipoEsame.Ecografia, dto.getTipoEsame());
         }
 
         @Test
@@ -292,7 +292,7 @@ public class RefertoMapperTest {
         void testConRISONANZA() {
             Referto referto = Referto.builder()
                     .id(4)
-                    .tipoEsame(TipoEsame.RISONANZA)
+                    .tipoEsame(TipoEsame.Risonanza)
                     .nomePaziente("Test")
                     .codiceFiscale("TSTCF080A01H501W")
                     .fileUrlImmagine("http://test/img.png")
@@ -302,15 +302,15 @@ public class RefertoMapperTest {
                     .build();
 
             RefertoDTO dto = refertoMapper.refertoToRefertoDTO(referto);
-            assertEquals(TipoEsame.RISONANZA, dto.getTipoEsame());
+            assertEquals(TipoEsame.Risonanza, dto.getTipoEsame());
         }
 
         @Test
-        @DisplayName("Conversione con TipoEsame ESAMI_LABORATORIO")
-        void testConESAMI_LABORATORIO() {
+        @DisplayName("Conversione con TipoEsame Esami_Laboratorio")
+        void testConEsamiLaboratorio() {
             Referto referto = Referto.builder()
                     .id(5)
-                    .tipoEsame(TipoEsame.ESAMI_LABORATORIO)
+                    .tipoEsame(TipoEsame.Esami_Laboratorio)
                     .nomePaziente("Test")
                     .codiceFiscale("TSTCF080A01H501V")
                     .fileUrlImmagine("http://test/img.png")
@@ -320,7 +320,7 @@ public class RefertoMapperTest {
                     .build();
 
             RefertoDTO dto = refertoMapper.refertoToRefertoDTO(referto);
-            assertEquals(TipoEsame.ESAMI_LABORATORIO, dto.getTipoEsame());
+            assertEquals(TipoEsame.Esami_Laboratorio, dto.getTipoEsame());
         }
     }
 }

@@ -1,6 +1,7 @@
 package it.unisa.project.medsafe.service;
 
 import it.unisa.project.medsafe.dto.RefertoDTO;
+import it.unisa.project.medsafe.entinty.Referto;
 import it.unisa.project.medsafe.entinty.TipoEsame;
 import it.unisa.project.medsafe.exception.RefertoNotFoundException;
 import it.unisa.project.medsafe.repository.RefertoRepository;
@@ -100,6 +101,12 @@ public class RefertoServiceImpl implements RefertoService {
         return refertoRepository.findById(id)
                 .map(refertoMapper::refertoToRefertoDTO)
                 .orElseThrow(() -> new RefertoNotFoundException("Referto non trovato per id: " + id));
+    }
+
+    @Override
+    public List<RefertoDTO> getAllReferti() {
+        var list = refertoRepository.findAll();
+        return refertoMapper.refertiToRefertiDTO(list);
     }
 
 }

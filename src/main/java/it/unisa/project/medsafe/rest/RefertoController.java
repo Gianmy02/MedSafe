@@ -42,7 +42,7 @@ public class RefertoController {
             @Parameter(description = "Codice Fiscale (16 caratteri)", required = true)
             @RequestParam String codiceFiscale,
 
-            @Parameter(description = "Tipo di esame (TAC, RADIOGRAFIA, ECOGRAFIA, RISONANZA, ESAMI_LABORATORIO)", required = true)
+            @Parameter(description = "Tipo di esame (TAC, Radiografia, Ecografia, Risonanza, Esami_Laboratorio)", required = true)
             @RequestParam TipoEsame tipoEsame,
 
             @Parameter(description = "Testo del referto medico", required = true)
@@ -136,7 +136,7 @@ public class RefertoController {
     @Operation(summary = "Cerca per Tipo Esame", description = "Restituisce tutti i referti di un tipo esame")
     @GetMapping("tipoEsame")
     public ResponseEntity<List<RefertoDTO>> getRefertiByTipoEsame(
-            @Parameter(description = "Tipo di esame (TAC, RADIOGRAFIA, ECOGRAFIA, RISONANZA, ESAMI_LABORATORIO)") @RequestParam TipoEsame value) {
+            @Parameter(description = "Tipo di esame (TAC, Radiografia, Ecografia, Risonanza, Esami_Laboratorio)") @RequestParam TipoEsame value) {
         return ResponseEntity.ok(refertoService.getRefertiByTipoEsame(value));
     }
 
@@ -145,6 +145,12 @@ public class RefertoController {
     public ResponseEntity<List<RefertoDTO>> getRefertiByAutoreEmail(
             @Parameter(description = "Email del medico") @RequestParam String value) {
         return ResponseEntity.ok(refertoService.getRefertiByAutoreEmail(value));
+    }
+
+    @Operation(summary = "Ottieni tutti i referti", description = "Restituisce tutti i referti presenti nel sistema")
+    @GetMapping
+    public ResponseEntity<List<RefertoDTO>> getAllReferti() {
+        return ResponseEntity.ok(refertoService.getAllReferti());
     }
 
     @Operation(summary = "Scarica PDF", description = "Scarica il PDF generato di un referto")

@@ -16,6 +16,4 @@ public interface RefertoRepository extends JpaRepository<Referto, Integer> {
     Referto findByNomeFile(String nomeFile);
 
     List<Referto> findByAutoreEmail(String autoreEmail);
-
-    List<Referto> findByTipoEsameAndAutoreEmail(TipoEsame tipoEsame, String autoreEmail);
 }
