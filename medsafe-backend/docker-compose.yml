@@ -1,0 +1,63 @@
+
+name: medsafe_suite
+
+services:
+  # ------------------------------------
+  # 1. L'APPLICAZIONE SPRING BOOT
+  # ------------------------------------
+  medsafe:
+    container_name: medsafe-app
+    build: .
+    image: medsafe:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      - azurite
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - medsafe_net
+
+  # ------------------------------------
+  # 2. IL DATABASE (MySQL)
+  # ------------------------------------
+  db:
+    container_name: medsafe-db
+    image: mysql:8.0
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: medsafe
+    volumes:
+      - medsafe_db_data:/var/lib/mysql
+    networks:
+      - medsafe_net
+
+  # ------------------------------------
+  # 3. LO STORAGE (Simulatore Azurite)
+  # ------------------------------------
+  azurite:
+    container_name: medsafe-azurite
+    image: mcr.microsoft.com/azure-storage/azurite
+    ports:
+      - "10000:10000"  # Porta Blob service
+      - "10001:10001"  # Porta Queue service
+      - "10002:10002"  # Porta Table service
+    volumes:
+      - medsafe_azurite_data:/data
+    networks:
+      - medsafe_net
+
+# Volumi persistenti
+volumes:
+  medsafe_db_data:
+    name: medsafe_db_data
+  medsafe_azurite_data:
+    name: medsafe_azurite_data
+
+# Rete condivisa
+networks:
+  medsafe_net:
+    name: medsafe_net

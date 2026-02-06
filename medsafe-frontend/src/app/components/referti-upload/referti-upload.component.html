@@ -1,0 +1,169 @@
+<div class="upload-wrapper">
+  <!-- Sidebar sinistra con info e suggerimenti -->
+  <aside class="sidebar sidebar-left">
+    <div class="info-card">
+      <div class="info-icon">💡</div>
+      <h3>Suggerimenti</h3>
+      <ul class="tips-list">
+        <li>
+          <span class="tip-icon">✓</span>
+          Verifica il codice fiscale
+        </li>
+        <li>
+          <span class="tip-icon">✓</span>
+          Allega file in formato PNG, JPG o PDF
+        </li>
+        <li>
+          <span class="tip-icon">✓</span>
+          Inserisci conclusioni dettagliate
+        </li>
+      </ul>
+    </div>
+
+    <div class="info-card quick-actions-card">
+      <div class="info-icon">⚡</div>
+      <h3>Azioni Rapide</h3>
+      <div class="quick-actions">
+        <button class="quick-btn" type="button" title="Vai ai miei referti">
+          <span class="quick-icon">📋</span>
+          <span>I miei referti</span>
+        </button>
+        <button class="quick-btn" type="button" title="Cerca referti">
+          <span class="quick-icon">🔍</span>
+          <span>Cerca</span>
+        </button>
+        <button class="quick-btn" type="button" title="Torna alla dashboard">
+          <span class="quick-icon">🏠</span>
+          <span>Dashboard</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Form centrale -->
+  <div class="container">
+    <h2>Nuovo Referto</h2>
+    
+    <form (ngSubmit)="onSubmit()" #uploadForm="ngForm">
+    <div class="form-group">
+      <label for="nomeFile">Nome File *</label>
+      <input 
+        type="text" 
+        id="nomeFile"
+        name="nomeFile"
+        [(ngModel)]="formData.nomeFile" 
+        required
+        placeholder="referto_001">
+    </div>
+
+    <div class="form-group">
+      <label for="nomePaziente">Nome Paziente *</label>
+      <input 
+        type="text" 
+        id="nomePaziente"
+        name="nomePaziente"
+        [(ngModel)]="formData.nomePaziente" 
+        required
+        placeholder="Mario Rossi">
+    </div>
+
+    <div class="form-group">
+      <label for="codiceFiscale">Codice Fiscale (16 caratteri) *</label>
+      <input 
+        type="text" 
+        id="codiceFiscale"
+        name="codiceFiscale"
+        [(ngModel)]="formData.codiceFiscale" 
+        required
+        maxlength="16"
+        pattern="[A-Z0-9]{16}"
+        placeholder="RSSMRA80A01H501U"
+        (input)="formData.codiceFiscale = formData.codiceFiscale.toUpperCase()">
+    </div>
+
+    <div class="form-group">
+      <label for="tipoEsame">Tipo Esame *</label>
+      <select 
+        id="tipoEsame"
+        name="tipoEsame"
+        [(ngModel)]="formData.tipoEsame" 
+        required>
+        <option value="">Seleziona tipo esame</option>
+        <option value="TAC">TAC</option>
+        <option value="Radiografia">Radiografia</option>
+        <option value="Ecografia">Ecografia</option>
+        <option value="Risonanza">Risonanza Magnetica</option>
+        <option value="Esami_Laboratorio">Esami di Laboratorio</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="testoReferto">Descrizione Referto *</label>
+      <textarea 
+        id="testoReferto"
+        name="testoReferto"
+        [(ngModel)]="formData.testoReferto"
+        rows="4"
+        required
+        placeholder="Descrizione del referto..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="conclusioni">Conclusioni *</label>
+      <textarea 
+        id="conclusioni"
+        name="conclusioni"
+        [(ngModel)]="formData.conclusioni"
+        rows="3"
+        required
+        placeholder="Conclusioni diagnostiche..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="file">Documento Esame (PNG, JPG, JPEG, PDF) *</label>
+      <input 
+        type="file" 
+        id="file"
+        name="file"
+        (change)="onFileSelected($event)"
+        accept=".png,.jpg,.jpeg,.pdf"
+        required>
+      <small *ngIf="selectedFile">File selezionato: {{ selectedFile.name }} ({{ formatFileSize(selectedFile.size) }})</small>
+    </div>
+
+    <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
+    <div class="success" *ngIf="successMessage">{{ successMessage }}</div>
+
+    <div class="form-actions">
+      <button type="submit" [disabled]="!uploadForm.form.valid || !selectedFile || loading">
+        {{ loading ? 'Caricamento...' : 'Carica Referto' }}
+      </button>
+      <button type="button" (click)="resetForm(uploadForm)">Reset</button>
+    </div>
+  </form>
+</div>
+
+  <!-- Sidebar destra con promemoria -->
+  <aside class="sidebar sidebar-right">
+    <div class="info-card">
+      <div class="info-icon">📋</div>
+      <h3>Tipi Esame</h3>
+      <div class="exam-types">
+        <div class="exam-badge badge-tac">TAC</div>
+        <div class="exam-badge badge-radiografia">Radiografia</div>
+        <div class="exam-badge badge-ecografia">Ecografia</div>
+        <div class="exam-badge badge-risonanza">Risonanza</div>
+        <div class="exam-badge badge-laboratorio">Laboratorio</div>
+      </div>
+    </div>
+
+    <div class="info-card reminder-card">
+      <div class="reminder-icon">⚕️</div>
+      <h3>Promemoria</h3>
+      <p class="reminder-text">
+        I referti vengono salvati automaticamente nel sistema con firma digitale 
+        e timestamp verificabile.
+      </p>
+    </div>
+  </aside>
+</div>
