@@ -4,9 +4,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unisa.project.medsafe.dto.RefertoDTO;
-import it.unisa.project.medsafe.entinty.TipoEsame;
+import it.unisa.project.medsafe.entity.TipoEsame;
 import it.unisa.project.medsafe.service.BlobStorageService;
 import it.unisa.project.medsafe.service.RefertoService;
+import it.unisa.project.medsafe.utils.JwtHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,9 @@ public class RefertoController {
     @Autowired
     private BlobStorageService blobStorageService;
 
+    @Autowired
+    private JwtHelper jwtHelper;
+
     @Operation(summary = "Carica nuovo referto", description = "Carica un referto medico con immagine diagnostica")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(code = HttpStatus.CREATED)
@@ -51,8 +55,8 @@ public class RefertoController {
             @Parameter(description = "Conclusioni del referto", required = true)
             @RequestParam(required = false) String conclusioni,
 
-            @Parameter(description = "Email del medico refertante", required = true)
-            @RequestParam String autoreEmail,
+            @Parameter(description = "Email del medico refertante (opzionale, estratta automaticamente dal JWT se presente)", required = false)
+            @RequestParam(required = false) String autoreEmail,
 
             @Parameter(description = "Nome del file referto da salvare", required = true)
             @RequestParam String nomeFile,
@@ -71,6 +75,15 @@ public class RefertoController {
                 && !extension.endsWith(".jpeg") && !extension.endsWith(".pdf")) {
             return ResponseEntity.badRequest()
                     .body("Formato file non supportato. Estensioni consentite: PNG, JPG, JPEG, PDF");
+        }
+
+        // Estrai email automaticamente dal JWT (Azure AD) se non fornita
+        if (autoreEmail == null || autoreEmail.isBlank()) {
+            autoreEmail = jwtHelper.getCurrentUserEmail();
+            if (autoreEmail == null) {
+                log.warn("⚠️  Nessuna email trovata nel JWT, usando email di default per testing");
+                autoreEmail = "test@medsafe.local";  // Fallback per ambiente local/docker
+            }
         }
 
         log.info("=== INIZIO addReferto ===");
@@ -201,19 +214,35 @@ public class RefertoController {
             return ResponseEntity.notFound().build();
         }
 
-        // Rileva il MediaType in base all'estensione del file
-        String nomeFile = referto.getNomeFile().toLowerCase();
+        // Estrai l'estensione originale dall'URL del file caricato
+        String estensione = "";
+        String urlLower = url.toLowerCase();
+        if (urlLower.contains(".")) {
+            estensione = url.substring(url.lastIndexOf("."));
+        }
+
+        // Costruisci il nome file con l'estensione originale
+        String nomeFile = referto.getNomeFile();
+        // Rimuovi eventuale estensione esistente dal nome
+        if (nomeFile.contains(".")) {
+            nomeFile = nomeFile.substring(0, nomeFile.lastIndexOf("."));
+        }
+        // Aggiungi l'estensione originale
+        String nomeFileCompleto = nomeFile + estensione;
+
+        // Rileva il MediaType in base all'estensione
         MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;
-        if (nomeFile.endsWith(".png")) {
+        String estensioneMinuscola = estensione.toLowerCase();
+        if (estensioneMinuscola.equals(".png")) {
             mediaType = MediaType.IMAGE_PNG;
-        } else if (nomeFile.endsWith(".jpg") || nomeFile.endsWith(".jpeg")) {
+        } else if (estensioneMinuscola.equals(".jpg") || estensioneMinuscola.equals(".jpeg")) {
             mediaType = MediaType.IMAGE_JPEG;
-        } else if (nomeFile.endsWith(".pdf")) {
+        } else if (estensioneMinuscola.equals(".pdf")) {
             mediaType = MediaType.APPLICATION_PDF;
         }
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + referto.getNomeFile() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + nomeFileCompleto + "\"")
                 .contentType(mediaType)
                 .body(content);
     }

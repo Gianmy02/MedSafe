@@ -1,7 +1,7 @@
 package it.unisa.project.medsafe.repository;
 
-import it.unisa.project.medsafe.entinty.Referto;
-import it.unisa.project.medsafe.entinty.TipoEsame;
+import it.unisa.project.medsafe.entity.Referto;
+import it.unisa.project.medsafe.entity.TipoEsame;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

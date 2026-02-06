@@ -1,4 +1,4 @@
-package it.unisa.project.medsafe.entinty;
+package it.unisa.project.medsafe.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

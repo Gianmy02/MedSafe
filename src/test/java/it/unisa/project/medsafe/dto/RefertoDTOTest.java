@@ -1,7 +1,7 @@
 package it.unisa.project.medsafe.dto;
 
 import it.unisa.project.medsafe.BasePojoTest;
-import it.unisa.project.medsafe.entinty.TipoEsame;
+import it.unisa.project.medsafe.entity.TipoEsame;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

@@ -1,8 +1,8 @@
 package it.unisa.project.medsafe.service;
 
 import it.unisa.project.medsafe.dto.RefertoDTO;
-import it.unisa.project.medsafe.entinty.Referto;
-import it.unisa.project.medsafe.entinty.TipoEsame;
+import it.unisa.project.medsafe.entity.Referto;
+import it.unisa.project.medsafe.entity.TipoEsame;
 import it.unisa.project.medsafe.exception.RefertoNotFoundException;
 import it.unisa.project.medsafe.repository.RefertoRepository;
 import it.unisa.project.medsafe.utils.RefertoMapper;
@@ -24,6 +24,7 @@ public class RefertoServiceImpl implements RefertoService {
     private final RefertoMapper refertoMapper;
     private final PdfService pdfService;
     private final BlobStorageService blobStorageService;
+    private final AuthorizationService authorizationService;
 
     public void addReferto(RefertoDTO dto, MultipartFile file) {
         // Setta i metadati
@@ -50,6 +51,14 @@ public class RefertoServiceImpl implements RefertoService {
 
     public boolean editReferto(RefertoDTO dto) {
         if(refertoRepository.existsById(dto.getId())) {
+            // Recupera il referto esistente
+            Referto referto = refertoRepository.findById(dto.getId())
+                    .orElseThrow(() -> new RefertoNotFoundException("Referto non trovato con ID: " + dto.getId()));
+
+            // 🔐 CONTROLLO AUTORIZZAZIONE: solo il proprietario o un admin può modificare
+            authorizationService.checkCanModifyReferto(referto, "modificare");
+
+            // Se autorizzato, procedi con la modifica
             refertoRepository.save(refertoMapper.refertoDTOToReferto(dto));
             return  true;
         }
@@ -58,6 +67,14 @@ public class RefertoServiceImpl implements RefertoService {
 
     public boolean removeReferto(int id) {
         if(refertoRepository.existsById(id)) {
+            // Recupera il referto esistente
+            Referto referto = refertoRepository.findById(id)
+                    .orElseThrow(() -> new RefertoNotFoundException("Referto non trovato con ID: " + id));
+
+            // 🔐 CONTROLLO AUTORIZZAZIONE: solo il proprietario o un admin può eliminare
+            authorizationService.checkCanModifyReferto(referto, "eliminare");
+
+            // Se autorizzato, procedi con l'eliminazione
             refertoRepository.deleteById(id);
             return true;
         }

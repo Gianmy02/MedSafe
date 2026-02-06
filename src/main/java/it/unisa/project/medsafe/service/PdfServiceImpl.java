@@ -6,6 +6,8 @@ import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import com.lowagie.text.pdf.draw.LineSeparator;
 import it.unisa.project.medsafe.dto.RefertoDTO;
+import it.unisa.project.medsafe.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.awt.Color;
@@ -16,7 +18,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Service
+@RequiredArgsConstructor
 public class PdfServiceImpl implements PdfService {
+
+    private final UserRepository userRepository;
 
     @Override
     public ByteArrayInputStream generaPdf(RefertoDTO dto) throws IOException {
@@ -36,6 +41,7 @@ public class PdfServiceImpl implements PdfService {
             Font fontSottotitolo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14);
             Font fontNormale = FontFactory.getFont(FontFactory.HELVETICA, 11);
             Font fontPiccolo = FontFactory.getFont(FontFactory.HELVETICA, 10);
+            Font fontFirmaCorsivo = FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 14, new Color(0, 0, 139)); // Corsivo blu scuro
 
             // === 1. INTESTAZIONE CON LOGO A SINISTRA E TITOLO CENTRATO ===
             PdfPTable headerTable = new PdfPTable(3);
@@ -179,13 +185,24 @@ public class PdfServiceImpl implements PdfService {
             medicoLabel.setAlignment(Element.ALIGN_RIGHT);
             cellFirma.addElement(medicoLabel);
 
-            Paragraph lineaFirma = new Paragraph("_____________________", fontNormale);
-            lineaFirma.setAlignment(Element.ALIGN_RIGHT);
-            cellFirma.addElement(lineaFirma);
+            // Recupera il nome completo del medico dal database
+            String nomeMedico = "[Nome non disponibile]";
+            if (dto.getAutoreEmail() != null) {
+                var userOpt = userRepository.findByEmail(dto.getAutoreEmail());
+                if (userOpt.isPresent() && userOpt.get().getFullName() != null && !userOpt.get().getFullName().isEmpty()) {
+                    nomeMedico = userOpt.get().getFullName();
+                    // Aggiungi "Dott." se non presente
+                    if (!nomeMedico.toLowerCase().startsWith("dott") && !nomeMedico.toLowerCase().startsWith("dr")) {
+                        nomeMedico = "Dott. " + nomeMedico;
+                    }
+                }
+            }
 
-            Paragraph firmaLabel = new Paragraph("(Firma)", fontPiccolo);
-            firmaLabel.setAlignment(Element.ALIGN_RIGHT);
-            cellFirma.addElement(firmaLabel);
+            // Firma digitale in corsivo
+            Paragraph firmaDigitale = new Paragraph(nomeMedico, fontFirmaCorsivo);
+            firmaDigitale.setAlignment(Element.ALIGN_RIGHT);
+            firmaDigitale.setSpacingBefore(5);
+            cellFirma.addElement(firmaDigitale);
 
             tabellaFirma.addCell(cellFirma);
 

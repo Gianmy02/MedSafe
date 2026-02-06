@@ -1,7 +1,7 @@
 package it.unisa.project.medsafe.service;
 
 import it.unisa.project.medsafe.dto.RefertoDTO;
-import it.unisa.project.medsafe.entinty.TipoEsame;
+import it.unisa.project.medsafe.entity.TipoEsame;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;

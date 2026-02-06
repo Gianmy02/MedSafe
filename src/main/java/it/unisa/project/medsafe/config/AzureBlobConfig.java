@@ -1,25 +1,37 @@
 package it.unisa.project.medsafe.config;
 
+import com.azure.identity.DefaultAzureCredentialBuilder;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
+/**
+ * Configurazione Azure Blob Storage con architettura Secretless.
+ * Usa DefaultAzureCredential che:
+ * - Su Azure App Service: usa Managed Identity
+ * - In locale: usa Azure CLI (az login)
+ * 
+ * NON sono necessarie connection-string o chiavi!
+ */
 @Configuration
+@Profile({ "azure", "prod" })
 public class AzureBlobConfig {
 
-    @Value("${azure.storage.connection-string}")
-    private String connectionString;
+    @Value("${spring.cloud.azure.storage.blob.endpoint}")
+    private String storageEndpoint;
 
-    @Value("${azure.storage.container-name:referti}")
+    @Value("${azure.storage.container-name:upload-dir}")
     private String containerName;
 
     @Bean
     public BlobServiceClient blobServiceClient() {
         return new BlobServiceClientBuilder()
-                .connectionString(connectionString)
+                .endpoint(storageEndpoint)
+                .credential(new DefaultAzureCredentialBuilder().build())
                 .buildClient();
     }
 

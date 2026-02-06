@@ -1,10 +1,9 @@
 package it.unisa.project.medsafe.utils;
 
 import it.unisa.project.medsafe.dto.RefertoDTO;
-import it.unisa.project.medsafe.entinty.Referto;
+import it.unisa.project.medsafe.entity.Referto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
 
 import java.util.List;
 

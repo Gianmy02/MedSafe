@@ -1,6 +1,7 @@
 package it.unisa.project.medsafe.dto;
 
-import it.unisa.project.medsafe.entinty.TipoEsame;
+import it.unisa.project.medsafe.entity.TipoEsame;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -50,8 +51,7 @@ public class RefertoDTO {
     private String nomeFile;
 
     @NotBlank(message = "L'email dell'autore è obbligatoria")
-    @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
-             message = "Formato email non valido")
+    @Email(message = "Formato email non valido")
     private String autoreEmail;
 
     private LocalDateTime dataCaricamento;

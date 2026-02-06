@@ -9,21 +9,22 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 @Configuration
-@Profile({"local", "dev", "docker"})  // Swagger attivo solo in ambiente local/dev/docker, disabilitato in prod
+@Profile({ "local", "dev", "docker", "azure" }) // Swagger attivo solo in ambiente local/dev/docker, disabilitato in
+                                                // prod
 public class OpenApiConfig {
 
-    @Bean
-    public OpenAPI medsafeOpenAPI() {
-        return new OpenAPI()
-                .info(new Info()
-                        .title("MedSafe API")
-                        .description("API per la gestione sicura di referti medici su Azure")
-                        .version("1.0.0")
-                        .contact(new Contact()
-                                .name("MedSafe Team")
-                                .email("support@medsafe.local"))
-                        .license(new License()
-                                .name("MIT License")
-                                .url("https://opensource.org/licenses/MIT")));
-    }
+        @Bean
+        public OpenAPI medsafeOpenAPI() {
+                return new OpenAPI()
+                                .info(new Info()
+                                                .title("MedSafe API")
+                                                .description("API per la gestione sicura di referti medici su Azure")
+                                                .version("1.0.0")
+                                                .contact(new Contact()
+                                                                .name("MedSafe Team")
+                                                                .email("support@medsafe.local"))
+                                                .license(new License()
+                                                                .name("MIT License")
+                                                                .url("https://opensource.org/licenses/MIT")));
+        }
 }
