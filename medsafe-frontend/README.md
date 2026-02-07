@@ -2,6 +2,21 @@
 
 Applicazione Angular per la gestione dei referti medici, integrata con un backend Spring Boot.
 
+## 🚀 Deploy su Azure
+
+**Per deployare l'applicazione su Azure Static Web Apps, consulta la guida completa:**
+
+👉 **[DEPLOY_GUIDE.md](./DEPLOY_GUIDE.md)** 👈
+
+La guida include:
+- ✅ Setup Azure Static Web Apps con GitHub Actions
+- ✅ Configurazione Microsoft Entra ID (Azure AD)  
+- ✅ EasyAuth (autenticazione gestita da Azure)
+- ✅ Integrazione con il backend Spring Boot
+- ✅ Troubleshooting e monitoraggio
+
+---
+
 ## Caratteristiche
 
 - **Lista Referti**: Visualizza e cerca referti per codice fiscale, email medico o tipo esame

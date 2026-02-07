@@ -2,15 +2,15 @@ export const environment = {
   production: true,
   
   // Backend API Configuration (Azure App Service)
-  apiUrl: 'https://medsafe-backend.azurewebsites.net',  // Replace with your Azure App Service URL
+  apiUrl: 'https://medsafe-api-cucqc2bydbezfsfy.italynorth-01.azurewebsites.net',
   
-  // Authentication Configuration (Azure Entra ID)
+  // Authentication Configuration (EasyAuth via Static Web Apps)
   auth: {
-    enabled: true,   // Enable authentication in production
-    clientId: 'YOUR_AZURE_AD_CLIENT_ID',  // Replace with your App Registration Client ID
-    authority: 'https://login.microsoftonline.com/YOUR_TENANT_ID',  // Replace with your Tenant ID
-    redirectUri: 'https://medsafe-frontend.azurestaticapps.net',  // Replace with your Static Web App URL
-    scopes: ['api://YOUR_BACKEND_APP_ID/access_as_user']  // Replace with your Backend App ID
+    enabled: true,   // Authentication managed by Azure Static Web Apps
+    clientId: 'b05b2d51-457f-4ae1-81e5-add2bf7c3718',
+    authority: 'https://login.microsoftonline.com/c30767db-3dda-4dd4-8a4d-097d22cb99d3',
+    redirectUri: 'https://medsafe.azurestaticapps.net',  // Will be updated after Static Web App creation
+    scopes: []  // EasyAuth handles scopes automatically
   },
   
   // Feature flags

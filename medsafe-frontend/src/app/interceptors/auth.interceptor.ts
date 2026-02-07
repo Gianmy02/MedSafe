@@ -21,20 +21,13 @@ export class AuthInterceptor implements HttpInterceptor {
       setHeaders: {
         'Content-Type': 'application/json',
         'X-App-Version': environment.appVersion
-      }
+      },
+      withCredentials: true  // Required for EasyAuth to send authentication cookies
     });
 
-    // TODO: Quando abiliti auth in Azure, aggiungi qui il token JWT
-    // if (environment.auth.enabled) {
-    //   const token = this.getAccessToken(); // Da implementare con MSAL
-    //   if (token) {
-    //     modifiedReq = modifiedReq.clone({
-    //       setHeaders: {
-    //         'Authorization': `Bearer ${token}`
-    //       }
-    //     });
-    //   }
-    // }
+    // Azure Static Web Apps EasyAuth automatically adds the user token
+    // via cookies and the X-MS-TOKEN-AAD-ACCESS-TOKEN header.
+    // The backend can validate this token to authorize requests.
 
     return next.handle(modifiedReq);
   }
