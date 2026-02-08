@@ -3,38 +3,26 @@ import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from '@angular/c
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
-/**
- * HTTP Interceptor per aggiungere header alle richieste.
- * In locale: aggiunge header standard.
- * In Azure: aggiunge token JWT di autenticazione da MSAL.
- */
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // Skip interception per richieste non-API (es. assets)
+    // Escludi assets e chiamate di auth
     if (!req.url.startsWith(environment.apiUrl)) {
       return next.handle(req);
     }
 
-    let modifiedReq = req.clone({
+    // Clona la richiesta per aggiungere header
+    const authReq = req.clone({
+      withCredentials: true, // Fondamentale per inviare i cookie di sessione di Easy Auth (se sullo stesso dominio)
       setHeaders: {
         'Content-Type': 'application/json',
         'X-App-Version': environment.appVersion
-      },
-      withCredentials: true  // Required for EasyAuth to send authentication cookies
+        // Nota: Con Easy Auth proxy/linked backend, il token viene iniettato da Azure.
+        // Se backend e frontend sono separati e non linkati, servirebbe estrarre il token manualmente.
+      }
     });
 
-    // Azure Static Web Apps EasyAuth automatically adds the user token
-    // via cookies and the X-MS-TOKEN-AAD-ACCESS-TOKEN header.
-    // The backend can validate this token to authorize requests.
-
-    return next.handle(modifiedReq);
+    return next.handle(authReq);
   }
-
-  // Placeholder per futuro MSAL integration
-  // private getAccessToken(): string | null {
-  //   // Ottieni token da MSAL service
-  //   return null;
-  // }
 }
