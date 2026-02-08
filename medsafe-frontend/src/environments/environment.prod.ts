@@ -9,7 +9,7 @@ export const environment = {
     enabled: true,   // Authentication managed by Azure App Service
     clientId: 'b05b2d51-457f-4ae1-81e5-add2bf7c3718',
     authority: 'https://login.microsoftonline.com/c30767db-3dda-4dd4-8a4d-097d22cb99d3',
-    redirectUri: 'https://medsafe-frontend.azurewebsites.net',
+    redirectUri: 'https://medsafe-frontend-bcf5cvfpcah2geh8.italynorth-01.azurewebsites.net',
     scopes: []  // EasyAuth handles scopes automatically
   },
   
