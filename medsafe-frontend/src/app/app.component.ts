@@ -44,7 +44,7 @@ export class AppComponent implements OnInit {
   title = 'medsafe-frontend';
   user: User | null = null;
   isLoading = true;
-  
+
   constructor(private userService: UserService) {
     console.log('AppComponent initialized!');
   }
@@ -55,7 +55,7 @@ export class AppComponent implements OnInit {
 
   getDoctorEmoji(): string {
     if (!this.user?.genere) return '🩺';
-    switch(this.user.genere) {
+    switch (this.user.genere) {
       case 'MASCHIO': return '👨‍⚕️';
       case 'FEMMINA': return '👩‍⚕️';
       case 'NON_SPECIFICATO': return '🩺';
@@ -65,7 +65,7 @@ export class AppComponent implements OnInit {
 
   getDoctorTitle(): string {
     if (!this.user?.genere) return 'Dr.';
-    switch(this.user.genere) {
+    switch (this.user.genere) {
       case 'MASCHIO': return 'Dr.';
       case 'FEMMINA': return 'Dott.ssa';
       case 'NON_SPECIFICATO': return 'Dr.';
@@ -74,36 +74,23 @@ export class AppComponent implements OnInit {
   }
 
   loadUser() {
-    // Simulazione temporanea per testare con admin
-    // TODO: Rimuovere quando il backend sarà pronto
-    this.user = {
-      email: 'admin@medsafe.local',
-      fullName: 'Admin Test',
-      role: 'ADMIN',
-      genere: 'NON_SPECIFICATO',
-      specializzazione: 'NESSUNA',
-      createdAt: '2024-01-15T10:00:00'
-    };
-    this.isLoading = false;
-
-    // Codice originale da riabilitare quando il backend è pronto:
-    /*
     this.userService.getCurrentUser().subscribe({
       next: (user) => {
         this.user = user;
         this.isLoading = false;
+        console.log('Utente caricato:', user);
       },
       error: (err) => {
-        console.log('Utente non autenticato, simulazione con Login');
+        console.log('Utente non autenticato o errore nel caricamento:', err);
+        this.user = null;
         this.isLoading = false;
       }
     });
-    */
   }
 
   logout(): void {
-    // TODO: Implementare logout con MSAL/Azure AD
-    console.log('Logout richiesto');
-    alert('Funzionalità di logout sarà implementata con Azure AD');
+    // Reindirizza all'endpoint di logout di Azure Easy Auth
+    // post_logout_redirect_uri riporta l'utente alla home dopo il logout
+    window.location.href = '/.auth/logout?post_logout_redirect_uri=/';
   }
 }

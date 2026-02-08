@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RefertiService, RefertoDTO } from '../../services/referti.service';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-referti-edit',
@@ -11,17 +12,15 @@ import { RefertiService, RefertoDTO } from '../../services/referti.service';
   styleUrl: './referti-edit.component.scss'
 })
 export class RefertiEditComponent implements OnInit {
-  // Simulazione utente loggato come admin
-  // TODO: Rimuovere quando il backend gestirà l'autenticazione
-  private readonly userEmail = 'admin@medsafe.local';
-  
+  private userEmail = '';
+
   // Results
   referti: RefertoDTO[] = [];
   selectedReferto: RefertoDTO | null = null;
   isLoading = false;
   errorMessage = '';
   successMessage = '';
-  
+
   // Edit mode
   isEditMode = false;
   editData = {
@@ -34,16 +33,40 @@ export class RefertiEditComponent implements OnInit {
   };
   selectedFile: File | null = null;
 
-  constructor(private refertiService: RefertiService) {}
+  constructor(
+    private refertiService: RefertiService,
+    private userService: UserService
+  ) { }
 
   ngOnInit() {
-    this.loadMyReferti();
+    this.isLoading = true;
+    this.userService.getCurrentUser().subscribe({
+      next: (user) => {
+        if (user) {
+          this.userEmail = user.email;
+          this.loadMyReferti();
+        } else {
+          this.isLoading = false;
+          this.errorMessage = 'Utente non autenticato';
+        }
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.errorMessage = 'Errore nel recupero utente';
+        console.error(err);
+      }
+    });
   }
 
   loadMyReferti() {
     this.isLoading = true;
     this.errorMessage = '';
     this.successMessage = '';
+
+    if (!this.userEmail) {
+      this.isLoading = false;
+      return;
+    }
 
     this.refertiService.getRefertiByAutoreEmail(this.userEmail).subscribe({
       next: (data) => {
@@ -74,7 +97,7 @@ export class RefertiEditComponent implements OnInit {
 
   enterEditMode() {
     if (!this.selectedReferto) return;
-    
+
     this.isEditMode = true;
     this.selectedFile = null;
     this.editData = {
@@ -142,7 +165,7 @@ export class RefertiEditComponent implements OnInit {
 
   deleteReferto() {
     if (!this.selectedReferto || !this.selectedReferto.id) return;
-    
+
     if (!confirm(`Sei sicuro di voler eliminare il referto "${this.selectedReferto.nomeFile}"?`)) {
       return;
     }
@@ -159,7 +182,7 @@ export class RefertiEditComponent implements OnInit {
         this.selectedReferto = null;
         this.isEditMode = false;
         this.isLoading = false;
-        
+
         // Se la lista è vuota, mostra messaggio appropriato dopo un attimo
         if (this.referti.length === 0) {
           setTimeout(() => {
@@ -177,7 +200,7 @@ export class RefertiEditComponent implements OnInit {
 
   getBadgeClass(tipoEsame: string): string {
     const tipo = tipoEsame?.toUpperCase() || '';
-    switch(tipo) {
+    switch (tipo) {
       case 'RADIOGRAFIA':
       case 'Radiografia'.toUpperCase():
         return 'badge-radiografia';

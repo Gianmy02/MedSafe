@@ -17,7 +17,7 @@ export class UserProfileComponent implements OnInit {
   error: string | null = null;
   successMessage: string | null = null;
   isEditMode = false;
-  
+
   // Dati per l'edit
   editData = {
     genere: '',
@@ -30,7 +30,7 @@ export class UserProfileComponent implements OnInit {
   filteredSpecializzazioni: any[] = [];
   showSpecializzazioniDropdown = false;
 
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService) { }
 
   ngOnInit() {
     this.loadUserProfile();
@@ -39,24 +39,15 @@ export class UserProfileComponent implements OnInit {
   }
 
   loadUserProfile() {
-    // Simulazione utente loggato come admin
-    // TODO: Rimuovere quando il backend gestirà l'autenticazione
-    this.user = {
-      email: 'admin@medsafe.local',
-      fullName: 'Admin Test',
-      role: 'ADMIN',
-      genere: 'NON_SPECIFICATO',
-      specializzazione: 'NESSUNA',
-      createdAt: '2024-01-15T10:00:00'
-    };
-    this.loading = false;
-
-    // Codice originale da riabilitare quando il backend è pronto:
-    /*
     this.userService.getCurrentUser().subscribe({
       next: (user) => {
         this.user = user;
         this.loading = false;
+
+        // Se non abbiamo ancora caricato specializzazioni, ricarichiamole per sicurezza
+        if (this.specializzazioni.length === 0) {
+          this.loadSpecializzazioni();
+        }
       },
       error: (err) => {
         this.error = 'Errore nel caricamento del profilo';
@@ -64,7 +55,6 @@ export class UserProfileComponent implements OnInit {
         console.error('Errore caricamento profilo:', err);
       }
     });
-    */
   }
 
   loadGeneri() {
@@ -116,8 +106,8 @@ export class UserProfileComponent implements OnInit {
   }
 
   isFormValid(): boolean {
-    return this.editData.genere.trim() !== '' && 
-           this.editData.specializzazione.trim() !== '';
+    return this.editData.genere.trim() !== '' &&
+      this.editData.specializzazione.trim() !== '';
   }
 
   getValidationError(): string | null {
@@ -183,7 +173,7 @@ export class UserProfileComponent implements OnInit {
 
   getGenereLabel(genere?: string): string {
     if (!genere) return 'Non specificato';
-    switch(genere) {
+    switch (genere) {
       case 'MASCHIO': return 'Maschio';
       case 'FEMMINA': return 'Femmina';
       case 'NON_SPECIFICATO': return 'Non specificato';

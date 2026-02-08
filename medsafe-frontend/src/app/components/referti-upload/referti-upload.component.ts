@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RefertiService } from '../../services/referti.service';
+
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-referti-upload',
@@ -10,10 +12,9 @@ import { RefertiService } from '../../services/referti.service';
   templateUrl: './referti-upload.component.html',
   styleUrl: './referti-upload.component.scss'
 })
-export class RefertiUploadComponent {
-  // TODO: Recuperare count reale quando si implementa l'autenticazione
+export class RefertiUploadComponent implements OnInit {
   refertiCount = 0;
-  
+
   formData = {
     nomePaziente: '',
     codiceFiscale: '',
@@ -28,7 +29,28 @@ export class RefertiUploadComponent {
   errorMessage = '';
   successMessage = '';
 
-  constructor(private refertiService: RefertiService) {}
+  constructor(
+    private refertiService: RefertiService,
+    private userService: UserService
+  ) { }
+
+  ngOnInit() {
+    this.updateRefertiCount();
+  }
+
+  updateRefertiCount() {
+    this.userService.getCurrentUser().subscribe({
+      next: (user) => {
+        if (user) {
+          this.refertiService.getRefertiByAutoreEmail(user.email).subscribe({
+            next: (referti) => {
+              this.refertiCount = referti.length;
+            }
+          });
+        }
+      }
+    });
+  }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -36,7 +58,7 @@ export class RefertiUploadComponent {
       const file = input.files[0];
       const validExtensions = ['.png', '.jpg', '.jpeg', '.pdf'];
       const fileName = file.name.toLowerCase();
-      
+
       if (!validExtensions.some(ext => fileName.endsWith(ext))) {
         this.errorMessage = 'Formato file non supportato. Estensioni consentite: PNG, JPG, JPEG, PDF';
         this.selectedFile = null;
@@ -59,32 +81,45 @@ export class RefertiUploadComponent {
     this.errorMessage = '';
     this.successMessage = '';
 
-    // Simulazione utente loggato come admin
-    // TODO: Rimuovere quando il backend gestirà l'autenticazione
-    const userEmail = 'admin@medsafe.local';
+    this.userService.getCurrentUser().subscribe({
+      next: (user) => {
+        if (!user) {
+          this.errorMessage = 'Utente non autenticato';
+          this.loading = false;
+          return;
+        }
 
-    const formDataToSend = new FormData();
-    formDataToSend.append('nomePaziente', this.formData.nomePaziente);
-    formDataToSend.append('codiceFiscale', this.formData.codiceFiscale.toUpperCase());
-    formDataToSend.append('tipoEsame', this.formData.tipoEsame);
-    formDataToSend.append('testoReferto', this.formData.testoReferto || '');
-    formDataToSend.append('conclusioni', this.formData.conclusioni || '');
-    formDataToSend.append('autoreEmail', userEmail); // Email presa automaticamente dall'utente loggato
-    formDataToSend.append('nomeFile', this.formData.nomeFile);
-    formDataToSend.append('file', this.selectedFile);
+        const userEmail = user.email;
 
-    this.refertiService.addReferto(formDataToSend).subscribe({
-      next: () => {
-        this.successMessage = 'Referto caricato con successo!';
-        this.loading = false;
-        setTimeout(() => {
-          this.resetForm();
-        }, 2000);
+        const formDataToSend = new FormData();
+        formDataToSend.append('nomePaziente', this.formData.nomePaziente);
+        formDataToSend.append('codiceFiscale', this.formData.codiceFiscale.toUpperCase());
+        formDataToSend.append('tipoEsame', this.formData.tipoEsame);
+        formDataToSend.append('testoReferto', this.formData.testoReferto || '');
+        formDataToSend.append('conclusioni', this.formData.conclusioni || '');
+        formDataToSend.append('autoreEmail', userEmail);
+        formDataToSend.append('nomeFile', this.formData.nomeFile);
+        formDataToSend.append('file', this.selectedFile!);
+
+        this.refertiService.addReferto(formDataToSend).subscribe({
+          next: () => {
+            this.successMessage = 'Referto caricato con successo!';
+            this.loading = false;
+            setTimeout(() => {
+              this.resetForm();
+            }, 2000);
+          },
+          error: (error) => {
+            this.errorMessage = 'Errore durante il caricamento del referto';
+            console.error('Error:', error);
+            this.loading = false;
+          }
+        });
       },
-      error: (error) => {
-        this.errorMessage = 'Errore durante il caricamento del referto';
-        console.error('Error:', error);
+      error: (err) => {
+        this.errorMessage = 'Errore nel recupero dati utente';
         this.loading = false;
+        console.error(err);
       }
     });
   }
@@ -111,6 +146,6 @@ export class RefertiUploadComponent {
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 }

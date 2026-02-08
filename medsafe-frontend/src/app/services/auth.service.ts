@@ -9,6 +9,8 @@ export interface ClientPrincipal {
     userId: string;
     userDetails: string;
     userRoles: string[];
+    access_token?: string;
+    id_token?: string;
 }
 
 @Injectable({
@@ -16,6 +18,7 @@ export interface ClientPrincipal {
 })
 export class AuthService {
     private authUrl = '/.auth';
+    private currentToken: string | null = null;
 
     constructor(private http: HttpClient) { }
 
@@ -33,10 +36,27 @@ export class AuthService {
             });
         }
 
-        return this.http.get<{ clientPrincipal: ClientPrincipal }>(`${this.authUrl}/me`).pipe(
-            map(response => response.clientPrincipal),
-            catchError(() => of(null))
+        return this.http.get<{ clientPrincipal: ClientPrincipal, access_token?: string, id_token?: string }>(`${this.authUrl}/me`).pipe(
+            map(response => {
+                // EasyAuth a volte restituisce il token nella root del JSON, a volte dentro clientPrincipal
+                // Dipende dalla configurazione specifica, ma spesso è 'id_token' per OpenID Connect
+                const possibleToken = response.id_token || response.access_token || (response.clientPrincipal as any)?.id_token;
+
+                if (possibleToken) {
+                    this.currentToken = possibleToken;
+                }
+
+                return response.clientPrincipal;
+            }),
+            catchError(() => {
+                this.currentToken = null;
+                return of(null);
+            })
         );
+    }
+
+    getToken(): string | null {
+        return this.currentToken;
     }
 
     /**

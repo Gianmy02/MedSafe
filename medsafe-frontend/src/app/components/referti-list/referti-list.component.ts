@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RefertiService, RefertoDTO } from '../../services/referti.service';
 
+import { UserService } from '../../services/user.service';
+
 @Component({
   selector: 'app-referti-list',
   standalone: true,
@@ -11,10 +13,8 @@ import { RefertiService, RefertoDTO } from '../../services/referti.service';
   styleUrl: './referti-list.component.scss'
 })
 export class RefertiListComponent implements OnInit {
-  // Simulazione utente loggato come admin
-  // TODO: Rimuovere quando il backend gestirà l'autenticazione
-  private readonly userEmail = 'admin@medsafe.local';
-  
+  private userEmail = '';
+
   referti: RefertoDTO[] = [];
   searchCodiceFiscale = '';
   searchTipoEsame = '';
@@ -22,9 +22,20 @@ export class RefertiListComponent implements OnInit {
   errorMessage = '';
   searched = false;
 
-  constructor(private refertiService: RefertiService) {}
+  constructor(
+    private refertiService: RefertiService,
+    private userService: UserService
+  ) { }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.userService.getCurrentUser().subscribe({
+      next: (user) => {
+        if (user) {
+          this.userEmail = user.email;
+        }
+      }
+    });
+  }
 
   searchReferti(): void {
     // Se nessun campo è compilato, mostra tutti i referti
@@ -32,7 +43,7 @@ export class RefertiListComponent implements OnInit {
       this.loading = true;
       this.errorMessage = '';
       this.searched = true;
-      
+
       this.refertiService.getAllReferti().subscribe({
         next: (data) => {
           this.referti = this.sortReferti(data);
@@ -76,11 +87,11 @@ export class RefertiListComponent implements OnInit {
           this.referti = searchResults[0];
         } else {
           // Trova referti comuni a tutti i set di risultati
-          const allIds = searchResults.map(results => 
+          const allIds = searchResults.map(results =>
             new Set(results.map(r => r.id))
           );
-          
-          const commonIds = Array.from(allIds[0]).filter(id => 
+
+          const commonIds = Array.from(allIds[0]).filter(id =>
             allIds.every(set => set.has(id))
           );
 
@@ -133,6 +144,8 @@ export class RefertiListComponent implements OnInit {
   }
 
   isMyReferto(referto: RefertoDTO): boolean {
+    // Se non abbiamo ancora l'email dell'utente, non possiamo dire che è suo
+    if (!this.userEmail) return false;
     return referto.autoreEmail === this.userEmail;
   }
 
@@ -140,7 +153,7 @@ export class RefertiListComponent implements OnInit {
     return referti.sort((a, b) => {
       const aIsMine = this.isMyReferto(a);
       const bIsMine = this.isMyReferto(b);
-      
+
       if (aIsMine && !bIsMine) return -1;
       if (!aIsMine && bIsMine) return 1;
       return 0;
@@ -149,7 +162,7 @@ export class RefertiListComponent implements OnInit {
 
   getBadgeClass(tipoEsame: string): string {
     const tipo = tipoEsame?.toUpperCase() || '';
-    switch(tipo) {
+    switch (tipo) {
       case 'RADIOGRAFIA':
       case 'Radiografia'.toUpperCase():
         return 'badge-radiografia';
