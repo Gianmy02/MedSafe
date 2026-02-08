@@ -4,16 +4,18 @@ Applicazione Angular per la gestione dei referti medici, integrata con un backen
 
 ## 🚀 Deploy su Azure
 
-**Per deployare l'applicazione su Azure Static Web Apps, consulta la guida completa:**
+**Per deployare l'applicazione su Azure App Service, consulta la guida completa:**
 
 👉 **[DEPLOY_GUIDE.md](./DEPLOY_GUIDE.md)** 👈
 
 La guida include:
-- ✅ Setup Azure Static Web Apps con GitHub Actions
+- ✅ Setup Azure App Service con GitHub Actions (in Italy North)
 - ✅ Configurazione Microsoft Entra ID (Azure AD)  
 - ✅ EasyAuth (autenticazione gestita da Azure)
 - ✅ Integrazione con il backend Spring Boot
 - ✅ Troubleshooting e monitoraggio
+
+**Nota**: Azure Static Web Apps non è disponibile nelle regioni consentite, quindi usiamo Azure App Service.
 
 ---
 

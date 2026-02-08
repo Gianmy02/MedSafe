@@ -1,4 +1,4 @@
-# 🚀 Deploy MedSafe Frontend su Azure Static Web Apps
+# 🚀 Deploy MedSafe Frontend su Azure App Service
 
 ## Guida Completa per il Deployment
 
@@ -10,298 +10,189 @@ Prima di iniziare, assicurati di avere:
 - ✅ Repository GitHub con il codice del frontend
 - ✅ Backend già deployato su Azure App Service
 - ✅ App Registration su Microsoft Entra ID
+- ✅ Subscription ID: `07c74816-ca51-49e9-a886-5dd6d2009523`
+- ✅ Resource Group: `rg-medsafe-prod`
+
+### ⚠️ **Nota Importante**
+Azure Static Web Apps non è disponibile in `italynorth`. Usiamo **Azure App Service** che supporta EasyAuth e può servire SPA Angular in `italynorth`.
 
 ---
 
-## 🔧 **STEP 1: Creare Azure Static Web App**
+## 🔧 **STEP 1: Creare Azure App Service**
 
-### Opzione A: Via Azure Portal (Consigliata per prima volta)
+### Via PowerShell/CLI (Consigliato)
 
-1. **Vai al [portale Azure](https://portal.azure.com)**
+Esegui questi comandi in PowerShell:
 
-2. **Cerca "Static Web Apps"** e clicca su "Create"
-
-3. **Configura il progetto:**
-   ```
-   Subscription: [La tua subscription]
-   Resource Group: rg-medsafe-prod
-   Name: medsafe
-   Region: Italy North
-   ```
-
-4. **Deployment details:**
-   ```
-   Source: GitHub
-   Organization: [Il tuo username GitHub]
-   Repository: [Nome del tuo repo]
-   Branch: main
-   ```
-
-5. **Build Details:**
-   ```
-   Build Presets: Angular
-   App location: /medsafe-frontend
-   Api location: (lascia vuoto)
-   Output location: dist/medsafe-frontend
-   ```
-
-6. Clicca **"Review + create"** poi **"Create"**
-
-7. **Salva il Deployment Token**: Azure creerà automaticamente un GitHub Secret chiamato `AZURE_STATIC_WEB_APPS_API_TOKEN` nel tuo repository
-
----
-
-### Opzione B: Via Azure CLI
-
-```bash
-# Login ad Azure
+```powershell
+# 1. Login e imposta subscription
 az login
+az account set --subscription 07c74816-ca51-49e9-a886-5dd6d2009523
 
-# Imposta la subscription corretta
-az account set --subscription "YOUR_SUBSCRIPTION_ID"
+# 2. Crea App Service Plan (Linux, B1)
+az appservice plan create `
+  --name medsafe-frontend-plan `
+  --resource-group rg-medsafe-prod `
+  --location italynorth `
+  --is-linux `
+  --sku B1
 
-# Crea lo Static Web App con integrazione GitHub
-az staticwebapp create \
-  --name medsafe \
-  --resource-group rg-medsafe-prod \
-  --location italynorth \
-  --source https://github.com/YOUR_USERNAME/YOUR_REPO \
-  --branch main \
-  --app-location "/medsafe-frontend" \
-  --output-location "dist/medsafe-frontend" \
-  --login-with-github
+# 3. Crea Web App per Node.js
+az webapp create `
+  --name medsafe-frontend `
+  --resource-group rg-medsafe-prod `
+  --plan medsafe-frontend-plan `
+  --runtime "NODE:20-lts"
+
+# 4. Abilita HTTPS only
+az webapp update `
+  --name medsafe-frontend `
+  --resource-group rg-medsafe-prod `
+  --https-only true
+
+# 5. Ottieni l'URL
+az webapp show --name medsafe-frontend --resource-group rg-medsafe-prod --query "defaultHostName" -o tsv
 ```
 
+**URL**: `https://medsafe-frontend.azurewebsites.net`
+
 ---
 
-## 🔐 **STEP 2: Configurare Microsoft Entra ID (Azure AD)**
+## 🔐 **STEP 2: Configurare EasyAuth su App Service**
 
-### 2.1 Aggiornare App Registration
+### Via Azure Portal (Più Semplice)
 
-1. Vai su **Azure Portal** → **Microsoft Entra ID** → **App registrations**
-2. Seleziona la tua app: `b05b2d51-457f-4ae1-81e5-add2bf7c3718`
-3. Vai su **Authentication** → **Platform configurations** → **Add a platform** → **Web**
-4. Aggiungi questi **Redirect URIs**:
+1. Azure Portal → **App Services** → **medsafe-frontend**
+2. Menu laterale → **Authentication**
+3. Clicca **Add identity provider**
+4. Seleziona **Microsoft**
+
+5. Configura:
    ```
-   https://medsafe.azurestaticapps.net/.auth/login/aad/callback
-   https://medsafe-RANDOM.italynorth-01.azurestaticapps.net/.auth/login/aad/callback
+   App registration type: Pick an existing app registration
+   Application (client) ID: b05b2d51-457f-4ae1-81e5-add2bf7c3718
+   Client secret: (creane uno nuovo nell'App Registration)
+   Issuer URL: https://login.microsoftonline.com/c30767db-3dda-4dd4-8a4d-097d22cb99d3/v2.0
    ```
-   ⚠️ Sostituisci `RANDOM` con il codice generato da Azure nel tuo URL
 
-5. In **Implicit grant and hybrid flows**, abilita:
-   - ✅ ID tokens (used for implicit and hybrid flows)
-
-6. Clicca **Save**
-
-### 2.2 Creare Client Secret
-
-1. Nella stessa App Registration, vai su **Certificates & secrets**
-2. Clicca **New client secret**
-3. Description: `Static Web App Secret`
-4. Expires: 24 months (o come preferisci)
-5. **Salva il VALUE del secret** (lo vedrai solo ora!)
+6. **Restrict access**: Require authentication
+7. **Unauthenticated requests**: HTTP 302 Found redirect
+8. Clicca **Add**
 
 ---
 
-## ⚙️ **STEP 3: Configurare Application Settings su Azure**
+## � **STEP 3: Aggiornare Azure AD App Registration**
 
-1. Vai su **Azure Portal** → **Static Web Apps** → **medsafe**
-2. Nel menu laterale, clicca su **Configuration**
-3. Aggiungi queste **Application settings**:
-
-   | Name | Value |
-   |------|-------|
-   | `AZURE_AD_CLIENT_ID` | `b05b2d51-457f-4ae1-81e5-add2bf7c3718` |
-   | `AZURE_AD_CLIENT_SECRET` | `[Il secret che hai salvato prima]` |
-
-4. Clicca **Save**
+1. Azure Portal → **Microsoft Entra ID** → **App registrations**
+2. Seleziona app: `b05b2d51-457f-4ae1-81e5-add2bf7c3718`
+3. **Authentication** → **Add a platform** → **Web**
+4. Aggiungi Redirect URI:
+   ```
+   https://medsafe-frontend.azurewebsites.net/.auth/login/aad/callback
+   ```
+5. Abilita **ID tokens**
+6. **Certificates & secrets** → **New client secret** → salva il VALUE
 
 ---
 
-## 🔄 **STEP 4: Aggiornare environment.prod.ts**
+## 🔄 **STEP 4: Setup GitHub Actions Deploy**
 
-Dopo che Azure ha creato lo Static Web App, **aggiorna il file**:
+### 4.1 Ottieni Publish Profile
+
+```powershell
+az webapp deployment list-publishing-profiles `
+  --name medsafe-frontend `
+  --resource-group rg-medsafe-prod `
+  --xml
+```
+
+Copia tutto l'output XML.
+
+### 4.2 Aggiungi Secret su GitHub
+
+1. GitHub → repo **MedSafe** → **Settings** → **Secrets and variables** → **Actions**
+2. **New repository secret**
+3. Name: `AZURE_WEBAPP_PUBLISH_PROFILE`
+4. Value: incolla l'XML
+5. **Add secret**
+
+---
+
+## � **STEP 5: Aggiornare environment.prod.ts**
+
+Aggiorna con l'URL dell'App Service:
 
 ```typescript
-// src/environments/environment.prod.ts
-redirectUri: 'https://medsafe.azurestaticapps.net',  // Aggiorna con l'URL effettivo
+redirectUri: 'https://medsafe-frontend.azurewebsites.net'
 ```
-
-Se l'URL generato è diverso (es. contiene un codice random), usalo al posto di quello sopra.
 
 ---
 
-## 🚀 **STEP 5: Fare il Deploy**
+## 🚀 **STEP 6: Deploy**
 
-### Metodo 1: Push su GitHub (Automatico) ✅ CONSIGLIATO
-
-```bash
-# Commit e push delle modifiche
+```powershell
 git add .
-git commit -m "Configure Azure Static Web Apps deployment"
+git commit -m "Configure Azure App Service deployment"
 git push origin main
 ```
 
-GitHub Actions si attiverà automaticamente e deployerà l'app. 
-Monitora il progresso in: **GitHub** → **Actions** tab
-
-### Metodo 2: Deploy Manuale con Azure CLI
-
-```bash
-# Build di produzione
-npm run build -- --configuration production
-
-# Deploy manuale
-az staticwebapp deploy \
-  --name medsafe \
-  --resource-group rg-medsafe-prod \
-  --app-location "./dist/medsafe-frontend" \
-  --no-use-keyring
-```
+GitHub Actions builderà e deployerà automaticamente.
+Monitora: **GitHub** → **Actions** tab
 
 ---
 
-## ✅ **STEP 6: Verificare il Deployment**
+## ✅ **STEP 7: Test**
 
-1. **Vai all'URL dello Static Web App**: `https://medsafe.azurestaticapps.net`
-
-2. **Test del flusso di autenticazione:**
-   - Dovresti essere reindirizzato automaticamente a Microsoft Login
-   - Fai login con un account Azure AD del tenant corretto
-   - Dopo il login, dovresti vedere la dashboard dell'app
-
-3. **Verifica chiamate API:**
-   - Apri Developer Tools (F12) → Network tab
-   - Controlla che le chiamate a `https://medsafe-api-cucqc2bydbezfsfy.italynorth-01.azurewebsites.net` funzionino
-   - Verifica che il cookie `AppServiceAuthSession` sia presente
+1. Vai su `https://medsafe-frontend.azurewebsites.net`
+2. Dovresti essere reindirizzato al login Microsoft
+3. Login con account del tenant `c30767db-3dda-4dd4-8a4d-097d22cb99d3`
+4. Verifica:
+   - ✅ Dashboard si carica
+   - ✅ Chiamate API funzionano
+   - ✅ Cookie `AppServiceAuthSession` presente (F12 → Application)
 
 ---
 
-## 🔧 **Configurazione Backend (Se non già fatto)**
+## 🛠️ **STEP 8: Configurare Backend CORS**
 
-Il tuo backend Spring Boot deve:
-
-1. **Accettare CORS dallo Static Web App:**
+Aggiungi al backend:
 
 ```java
-@Configuration
-public class CorsConfig {
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                    .allowedOrigins(
-                        "http://localhost:4200",
-                        "https://medsafe.azurestaticapps.net",
-                        "https://medsafe-*.italynorth-01.azurestaticapps.net"
-                    )
-                    .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                    .allowedHeaders("*")
-                    .allowCredentials(true);
-            }
-        };
-    }
-}
-```
-
-2. **Validare il token JWT di Azure AD:**
-
-Il token JWT arriva nell'header `X-MS-TOKEN-AAD-ACCESS-TOKEN` da EasyAuth.
-Configura il tuo Spring Security per validarlo:
-
-```java
-@Configuration
-@EnableWebSecurity
-public class SecurityConfig {
-    
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            .cors().and()
-            .csrf().disable()
-            .oauth2ResourceServer()
-                .jwt()
-                .jwtAuthenticationConverter(jwtAuthenticationConverter());
-        
-        return http.build();
-    }
-}
+.allowedOrigins(
+    "http://localhost:4200",
+    "https://medsafe-frontend.azurewebsites.net"
+)
+.allowCredentials(true)
 ```
 
 ---
 
-## 📊 **Monitoraggio e Troubleshooting**
+## � **Troubleshooting**
 
-### Visualizzare i logs:
-
-```bash
-# Logs dello Static Web App
-az staticwebapp logs show \
-  --name medsafe \
-  --resource-group rg-medsafe-prod
+### Logs in tempo reale
+```powershell
+az webapp log tail --name medsafe-frontend --resource-group rg-medsafe-prod
 ```
 
-### Controllare lo status:
-
-```bash
-az staticwebapp show \
-  --name medsafe \
-  --resource-group rg-medsafe-prod \
-  --query "{name:name,defaultHostname:defaultHostname,repositoryUrl:repositoryUrl}"
+### Restart App
+```powershell
+az webapp restart --name medsafe-frontend --resource-group rg-medsafe-prod
 ```
 
-### Errori comuni:
-
-1. **401 Unauthorized loop:**
-   - Verifica che i Redirect URIs in Azure AD siano corretti
-   - Controlla che `AZURE_AD_CLIENT_ID` e `AZURE_AD_CLIENT_SECRET` siano impostati correttamente
-
-2. **CORS errors:**
-   - Aggiungi l'URL dello Static Web App al CORS config del backend
-   - Assicurati che `allowCredentials(true)` sia abilitato
-
-3. **Build fallita su GitHub Actions:**
-   - Verifica che `package.json` abbia tutti i dependencies
-   - Controlla i logs in GitHub → Actions tab
+### Errori Comuni
+- **401 loop**: Verifica Redirect URI e Client Secret
+- **CORS**: Aggiungi URL frontend al backend
+- **Build fallita**: Controlla GitHub Actions logs
 
 ---
 
-## 🎯 **URL Finali del Progetto**
+## 🎯 **URL Finali**
 
-Dopo il deployment, avrai:
-
-- **Frontend**: `https://medsafe.azurestaticapps.net`
+- **Frontend**: `https://medsafe-frontend.azurewebsites.net`
 - **Backend**: `https://medsafe-api-cucqc2bydbezfsfy.italynorth-01.azurewebsites.net`
-- **Login**: `https://medsafe.azurestaticapps.net/.auth/login/aad`
-- **Logout**: `https://medsafe.azurestaticapps.net/.auth/logout`
+- **Login**: `https://medsafe-frontend.azurewebsites.net/.auth/login/aad`
+- **Logout**: `https://medsafe-frontend.azurewebsites.net/.auth/logout`
 
 ---
 
-## 🔄 **Deploy Continuo**
-
-Ogni push su `main` trigghera automaticamente:
-1. ✅ Build dell'applicazione Angular
-2. ✅ Deploy su Azure Static Web Apps
-3. ✅ Attivazione del dominio production
-
-Per fare rollback a una versione precedente, usa il portale Azure o il CLI:
-
-```bash
-az staticwebapp deployment list \
-  --name medsafe \
-  --resource-group rg-medsafe-prod
-```
-
----
-
-## 📞 **Supporto**
-
-- [Documentazione Azure Static Web Apps](https://docs.microsoft.com/en-us/azure/static-web-apps/)
-- [Troubleshooting EasyAuth](https://docs.microsoft.com/en-us/azure/static-web-apps/authentication-authorization)
-- [Angular on Azure](https://docs.microsoft.com/en-us/azure/static-web-apps/deploy-angular)
-
----
-
-**Il progetto è pronto per il deploy! 🚀**
+**Deploy completato su Azure App Service in Italy North! 🚀**

@@ -4,12 +4,12 @@ export const environment = {
   // Backend API Configuration (Azure App Service)
   apiUrl: 'https://medsafe-api-cucqc2bydbezfsfy.italynorth-01.azurewebsites.net',
   
-  // Authentication Configuration (EasyAuth via Static Web Apps)
+  // Authentication Configuration (EasyAuth via App Service)
   auth: {
-    enabled: true,   // Authentication managed by Azure Static Web Apps
+    enabled: true,   // Authentication managed by Azure App Service
     clientId: 'b05b2d51-457f-4ae1-81e5-add2bf7c3718',
     authority: 'https://login.microsoftonline.com/c30767db-3dda-4dd4-8a4d-097d22cb99d3',
-    redirectUri: 'https://medsafe.azurestaticapps.net',  // Will be updated after Static Web App creation
+    redirectUri: 'https://medsafe-frontend.azurewebsites.net',
     scopes: []  // EasyAuth handles scopes automatically
   },
   
