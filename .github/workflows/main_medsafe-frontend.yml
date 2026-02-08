@@ -33,7 +33,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: ./medsafe-frontend/dist/medsafe-frontend/browser
+          path: ./medsafe-frontend/dist/medsafe-frontend
 
   deploy:
     runs-on: ubuntu-latest
