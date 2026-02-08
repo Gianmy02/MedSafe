@@ -42,6 +42,7 @@ public class CustomJwtAuthenticationConverter implements Converter<Jwt, Abstract
         }
 
         log.debug("🔐 Autenticazione JWT per: {}", email);
+        log.debug("🔍 Claims del token ricevuto: {}", jwt.getClaims()); // Utile per debug
 
         // 2. Carica i ruoli dal database (se l'utente esiste)
         Collection<GrantedAuthority> authorities = loadUserAuthorities(email);
@@ -63,7 +64,8 @@ public class CustomJwtAuthenticationConverter implements Converter<Jwt, Abstract
 
     /**
      * Carica i ruoli dell'utente dal database.
-     * Se l'utente non esiste ancora, assegna ruolo MEDICO di default (verrà creato al primo accesso).
+     * Se l'utente non esiste ancora, assegna ruolo MEDICO di default (verrà creato
+     * al primo accesso).
      */
     private Collection<GrantedAuthority> loadUserAuthorities(String email) {
         Optional<User> user = userService.findByEmail(email);
@@ -81,4 +83,3 @@ public class CustomJwtAuthenticationConverter implements Converter<Jwt, Abstract
         }
     }
 }
-
