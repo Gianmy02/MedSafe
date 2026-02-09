@@ -26,8 +26,27 @@ export class AuthService {
      * Recupera le informazioni dell'utente loggato dall'endpoint di Easy Auth.
      */
     getUserInfo(): Observable<ClientPrincipal | null> {
+        // 1. Controlla se il token è nell'URL (Implicit Flow / Hash Fragment)
+        // Esempio URL dopo login: https://.../#id_token=eyJ...&access_token=...
+        const fragment = window.location.hash.substring(1); // Rimuove il #
+        const params = new URLSearchParams(fragment);
+        const idToken = params.get('id_token');
+        const accessToken = params.get('access_token');
+
+        if (idToken || accessToken) {
+            console.log('✅ AuthService: Token trovato nell\'URL (Implicit Flow)');
+            this.currentToken = idToken || accessToken;
+
+            // Pulisci l'hash dall'URL per non lasciarlo visibile
+            window.history.replaceState({}, document.title, window.location.pathname);
+
+            // Costruisci un principal temporaneo dal token (decodifica basic se necessario, o usa dati minimi)
+            // Per ora usiamo il token come "prova" di auth e chiediamo i dettagli a /.auth/me se possibile,
+            // altrimenti usiamo un principal fittizio basato sul token.
+            // MA COMPLETIAMO PRIMA LA CHIAMATA A /.auth/me PER AVERE I RUOLI COMPLETI SE IL COOKIE C'È.
+        }
+
         if (!environment.auth.enabled) {
-            // Mock per sviluppo locale se auth è disabilitata
             return of({
                 identityProvider: 'local',
                 userId: 'local-user',
@@ -36,29 +55,34 @@ export class AuthService {
             });
         }
 
-        return this.http.get<any[]>(`${this.authUrl}/me`).pipe(
+        return this.http.get<any[]>(`${this.authUrl}/me`, { withCredentials: true }).pipe(
             map(response => {
-                // EasyAuth restituisce un array di provider. Prendiamo il primo.
                 const payload = Array.isArray(response) && response.length > 0 ? response[0] : response;
-
-                // Cerca il token in vari punti
                 const possibleToken = payload.id_token || payload.access_token || (payload.clientPrincipal as any)?.id_token;
 
                 if (possibleToken) {
                     this.currentToken = possibleToken;
                 }
 
-                // Normalizza il ritorno per il resto dell'app
                 return payload.user_claims ?
                     this.normalizeClaims(payload) :
                     (payload.clientPrincipal || payload);
             }),
             catchError((error) => {
-                console.error('❌ AuthService: Errore nel recupero utente da /.auth/me', error);
-                if (error.status === 401) {
-                    console.warn('⚠️ Utente non autenticato su Azure (401). Cookie mancante o scaduto.');
+                console.error('❌ AuthService: /.auth/me fallito', error);
+
+                // FALLBACK: Se abbiamo trovato il token nell'URL, usiamolo!
+                if (this.currentToken) {
+                    console.warn('⚠️ Usa il token da URL come fallback, ma mancano i ruoli completi da /.auth/me');
+                    return of({
+                        identityProvider: 'aad',
+                        userId: 'user@implicit.flow',
+                        userDetails: 'Utente (Implicit)',
+                        userRoles: ['anonymous', 'authenticated'], // Ruoli minimi se /.auth/me fallisce
+                        id_token: this.currentToken
+                    });
                 }
-                this.currentToken = null;
+
                 return of(null);
             })
         );
