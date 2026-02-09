@@ -36,17 +36,22 @@ export class AuthService {
             });
         }
 
-        return this.http.get<{ clientPrincipal: ClientPrincipal, access_token?: string, id_token?: string }>(`${this.authUrl}/me`).pipe(
+        return this.http.get<any[]>(`${this.authUrl}/me`).pipe(
             map(response => {
-                // EasyAuth a volte restituisce il token nella root del JSON, a volte dentro clientPrincipal
-                // Dipende dalla configurazione specifica, ma spesso è 'id_token' per OpenID Connect
-                const possibleToken = response.id_token || response.access_token || (response.clientPrincipal as any)?.id_token;
+                // EasyAuth restituisce un array di provider. Prendiamo il primo.
+                const payload = Array.isArray(response) && response.length > 0 ? response[0] : response;
+
+                // Cerca il token in vari punti
+                const possibleToken = payload.id_token || payload.access_token || (payload.clientPrincipal as any)?.id_token;
 
                 if (possibleToken) {
                     this.currentToken = possibleToken;
                 }
 
-                return response.clientPrincipal;
+                // Normalizza il ritorno per il resto dell'app
+                return payload.user_claims ?
+                    this.normalizeClaims(payload) :
+                    (payload.clientPrincipal || payload);
             }),
             catchError(() => {
                 this.currentToken = null;
@@ -71,5 +76,21 @@ export class AuthService {
      */
     logout() {
         window.location.href = `${this.authUrl}/logout?post_logout_redirect_uri=/`;
+    }
+
+    private normalizeClaims(payload: any): ClientPrincipal {
+        const claims = payload.user_claims || [];
+        const roles = claims
+            .filter((c: any) => c.typ === 'roles')
+            .map((c: any) => c.val);
+
+        return {
+            identityProvider: payload.provider_name || 'aad',
+            userId: payload.user_id,
+            userDetails: payload.user_id,
+            userRoles: roles.length > 0 ? roles : ['anonymous', 'authenticated'],
+            access_token: payload.access_token,
+            id_token: payload.id_token
+        };
     }
 }
