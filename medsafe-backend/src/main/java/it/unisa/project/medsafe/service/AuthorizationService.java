@@ -30,8 +30,9 @@ public class AuthorizationService {
      * - ADMIN: può modificare/eliminare qualsiasi referto
      * - MEDICO: può modificare/eliminare solo i propri referti (stesso autoreEmail)
      *
-     * @param referto Il referto da verificare
-     * @param operation Tipo di operazione ("modificare" o "eliminare") per il messaggio
+     * @param referto   Il referto da verificare
+     * @param operation Tipo di operazione ("modificare" o "eliminare") per il
+     *                  messaggio
      * @throws UnauthorizedException se l'utente non ha i permessi
      */
     public void checkCanModifyReferto(Referto referto, String operation) {
@@ -53,9 +54,9 @@ public class AuthorizationService {
         log.warn("🚫 MEDICO {} NON può {} il referto ID {} (proprietario: {})",
                 currentUserEmail, operation, referto.getId(), referto.getAutoreEmail());
         throw new UnauthorizedException(
-            String.format("Non sei autorizzato a %s questo referto. Solo il medico che lo ha creato (%s) o un amministratore può farlo.",
-                operation, referto.getAutoreEmail())
-        );
+                String.format(
+                        "Non sei autorizzato a %s questo referto. Solo il medico che lo ha creato (%s) o un amministratore può farlo.",
+                        operation, referto.getAutoreEmail()));
     }
 
     /**
@@ -63,13 +64,6 @@ public class AuthorizationService {
      */
     private String getCurrentUserEmail() {
         String email = jwtHelper.getCurrentUserEmail();
-
-        // Fallback per modalità local/docker
-        if (email == null || email.isBlank()) {
-            email = "admin@medsafe.local";
-            log.debug("🔧 Modalità local/docker: usando email fallback {}", email);
-        }
-
         return email;
     }
 
@@ -78,10 +72,12 @@ public class AuthorizationService {
      */
     private boolean isAdmin(String email) {
         // In modalità docker/local, controlla nel database
-        Optional<User> user = userRepository.findByEmail(email);
-        if (user.isPresent() && user.get().getRole() == UserRole.ADMIN) {
-            return true;
-        }
+        /*
+         * Optional<User> user = userRepository.findByEmail(email);
+         * if (user.isPresent() && user.get().getRole() == UserRole.ADMIN) {
+         * return true;
+         * }
+         */
 
         // In modalità Azure, verifica i ruoli dal JWT
         return jwtHelper.hasRole("ADMIN");

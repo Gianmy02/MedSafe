@@ -40,29 +40,21 @@ public class RefertoController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(code = HttpStatus.CREATED)
     public ResponseEntity<?> addReferto(
-            @Parameter(description = "Nome del paziente", required = true)
-            @RequestParam String nomePaziente,
+            @Parameter(description = "Nome del paziente", required = true) @RequestParam String nomePaziente,
 
-            @Parameter(description = "Codice Fiscale (16 caratteri)", required = true)
-            @RequestParam String codiceFiscale,
+            @Parameter(description = "Codice Fiscale (16 caratteri)", required = true) @RequestParam String codiceFiscale,
 
-            @Parameter(description = "Tipo di esame (TAC, Radiografia, Ecografia, Risonanza, Esami_Laboratorio)", required = true)
-            @RequestParam TipoEsame tipoEsame,
+            @Parameter(description = "Tipo di esame (TAC, Radiografia, Ecografia, Risonanza, Esami_Laboratorio)", required = true) @RequestParam TipoEsame tipoEsame,
 
-            @Parameter(description = "Testo del referto medico", required = true)
-            @RequestParam(required = false) String testoReferto,
+            @Parameter(description = "Testo del referto medico", required = true) @RequestParam(required = false) String testoReferto,
 
-            @Parameter(description = "Conclusioni del referto", required = true)
-            @RequestParam(required = false) String conclusioni,
+            @Parameter(description = "Conclusioni del referto", required = true) @RequestParam(required = false) String conclusioni,
 
-            @Parameter(description = "Email del medico refertante (opzionale, estratta automaticamente dal JWT se presente)", required = false)
-            @RequestParam(required = false) String autoreEmail,
+            @Parameter(description = "Email del medico refertante (opzionale, estratta automaticamente dal JWT se presente)", required = false) @RequestParam(required = false) String autoreEmail,
 
-            @Parameter(description = "Nome del file referto da salvare", required = true)
-            @RequestParam String nomeFile,
+            @Parameter(description = "Nome del file referto da salvare", required = true) @RequestParam String nomeFile,
 
-            @Parameter(description = "File immagine diagnostica (PDF, JPG, PNG)", required = true)
-            @RequestPart("file") MultipartFile file) {
+            @Parameter(description = "File immagine diagnostica (PDF, JPG, PNG)", required = true) @RequestPart("file") MultipartFile file) {
 
         // Validazione estensione file
         String filename = file.getOriginalFilename();
@@ -82,7 +74,6 @@ public class RefertoController {
             autoreEmail = jwtHelper.getCurrentUserEmail();
             if (autoreEmail == null) {
                 log.warn("⚠️  Nessuna email trovata nel JWT, usando email di default per testing");
-                autoreEmail = "test@medsafe.local";  // Fallback per ambiente local/docker
             }
         }
 
@@ -118,7 +109,7 @@ public class RefertoController {
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
 
-        }
+    }
 
     @Operation(summary = "Elimina referto", description = "Elimina un referto per ID")
     @DeleteMapping("{id}")

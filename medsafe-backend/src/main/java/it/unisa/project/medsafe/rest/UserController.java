@@ -33,12 +33,6 @@ public class UserController {
     public ResponseEntity<UserDTO> getCurrentUser() {
         String email = jwtHelper.getCurrentUserEmail();
 
-        // In modalità local/docker senza JWT, usa utente di fallback
-        if (email == null) {
-            log.warn("⚠️  Nessun JWT trovato, usando utente di fallback per testing locale");
-            email = "admin@medsafe.local";
-        }
-
         log.info("📋 Richiesta info utente: {}", email);
 
         // Recupera dati completi dal database
@@ -52,11 +46,10 @@ public class UserController {
 
             // Crea nuovo utente con ruolo MEDICO di default
             user = userService.syncUserFromAzureAd(
-                email,
-                fullName != null ? fullName : email,
-                azureOid,
-                it.unisa.project.medsafe.entity.UserRole.MEDICO
-            );
+                    email,
+                    fullName != null ? fullName : email,
+                    azureOid,
+                    it.unisa.project.medsafe.entity.UserRole.MEDICO);
 
             log.info("✅ Nuovo utente creato automaticamente: {} con ruolo MEDICO", email);
         }
@@ -69,11 +62,6 @@ public class UserController {
     public ResponseEntity<UserDTO> updateProfile(@RequestBody UserDTO userDTO) {
 
         String email = jwtHelper.getCurrentUserEmail();
-        // In modalità local/docker senza JWT, usa utente di fallback
-        if (email == null) {
-            log.warn("⚠️  Nessun JWT trovato, usando utente di fallback per testing locale");
-            email = "admin@medsafe.local";
-        }
         log.info("📝 Aggiornamento profilo per: {}", email);
 
         var updatedUser = userService.updateUserProfile(email, userDTO.getGenere(), userDTO.getSpecializzazione());
@@ -89,7 +77,8 @@ public class UserController {
 
     @Operation(summary = "Ottieni tutti gli utenti", description = "Lista di tutti gli utenti (solo Admin in produzione)")
     @GetMapping
-    // @PreAuthorize("hasRole('ADMIN')") // ← Commentato per testing in modalità local/docker
+    // @PreAuthorize("hasRole('ADMIN')") // ← Commentato per testing in modalità
+    // local/docker
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         log.info("📋 Richiesta lista utenti");
         List<User> users = userService.getAllUsers();

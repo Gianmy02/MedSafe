@@ -10,7 +10,7 @@ export const environment = {
     clientId: '5c911c10-3fe4-4569-b466-e79f78cd436f',
     authority: 'https://login.microsoftonline.com/common',
     redirectUri: 'https://medsafe-frontend-bcf5cvfpcah2geh8.italynorth-01.azurewebsites.net',
-    scopes: []  // EasyAuth handles scopes automatically
+    scopes: ['api://07416fbe-03ed-47c9-a0e8-ea0235166f3b/user_impersonation']  // Scope corretto per il backend
   },
 
   // Feature flags

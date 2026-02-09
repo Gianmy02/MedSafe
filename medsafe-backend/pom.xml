@@ -236,28 +236,29 @@
 			</plugin>
 			<plugin>
 				<groupId>com.microsoft.azure</groupId>
-				<artifactId>azure-container-apps-maven-plugin</artifactId>
-				<version>0.1.0</version>
+				<artifactId>azure-webapp-maven-plugin</artifactId>
+				<version>2.13.0</version>
 				<configuration>
-					<subscriptionId>your-subscription-id</subscriptionId>
-					<resourceGroup>your-resource-group</resourceGroup>
-					<appEnvironmentName>your-app-environment-name</appEnvironmentName>
-					<region>your-region</region>
-					<appName>medsafe</appName>
-					<containers>
-						<container>
-							<type>code</type>
-							<directory>${project.basedir}</directory>
-						</container>
-					</containers>
-					<ingress>
-						<external>true</external>
-						<targetPort>8080</targetPort>
-					</ingress>
-					<scale>
-						<minReplicas>0</minReplicas>
-						<maxReplicas>10</maxReplicas>
-					</scale>
+					<schemaVersion>v2</schemaVersion>
+					<resourceGroup>rg-medsafe-prod</resourceGroup>
+					<appName>medsafe-api</appName>
+					<pricingTier>F1</pricingTier>
+					<region>italynorth</region>
+					<runtime>
+						<os>linux</os>
+						<javaVersion>Java 21</javaVersion>
+						<webContainer>Java SE</webContainer>
+					</runtime>
+					<deployment>
+						<resources>
+							<resource>
+								<directory>${project.basedir}/target</directory>
+								<includes>
+									<include>*.jar</include>
+								</includes>
+							</resource>
+						</resources>
+					</deployment>
 				</configuration>
 			</plugin>
 			<plugin>
