@@ -21,7 +21,11 @@ export class AuthInterceptor implements HttpInterceptor {
       .set('X-App-Version', environment.appVersion);
 
     if (token) {
+      console.log('🔐 AuthInterceptor: Adding Bearer token to request', req.url);
+      // console.log('🔑 Token snippet:', token.substring(0, 20) + '...'); // Decommenta se vuoi vedere un pezzo del token
       headers = headers.set('Authorization', `Bearer ${token}`);
+    } else {
+      console.warn('⚠️ AuthInterceptor: No token found for request', req.url);
     }
 
     // Clona la richiesta per aggiungere header

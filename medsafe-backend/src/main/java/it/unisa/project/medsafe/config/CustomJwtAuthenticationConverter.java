@@ -11,6 +11,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
+import org.springframework.lang.NonNull;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -32,8 +33,10 @@ public class CustomJwtAuthenticationConverter implements Converter<Jwt, Abstract
     private final UserService userService;
 
     @Override
-    public AbstractAuthenticationToken convert(Jwt jwt) {
-        // 1. Estrai dati dal JWT di Azure AD
+    public AbstractAuthenticationToken convert(@NonNull Jwt jwt) {
+        log.info("📥 Backend: Ricevuto token JWT per validazione. Headers: {}", jwt.getHeaders());
+
+        // 1. Estrai l'email (o upn o oid) dal tokenJWT di Azure AD
         String email = extractEmail(jwt);
 
         if (email == null || email.isEmpty()) {
