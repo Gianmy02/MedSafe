@@ -1,21 +1,31 @@
 package it.unisa.project.medsafe.config;
 
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 @Configuration
-@Profile({ "local", "dev", "docker", "azure" }) // Swagger attivo solo in ambiente local/dev/docker, disabilitato in
-                                                // prod
+@Profile({ "local", "dev", "docker", "azure" })
 public class OpenApiConfig {
 
         @Bean
         public OpenAPI medsafeOpenAPI() {
                 return new OpenAPI()
+                                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
+                                .components(new Components()
+                                                .addSecuritySchemes("bearerAuth",
+                                                                new SecurityScheme()
+                                                                                .name("bearerAuth")
+                                                                                .type(SecurityScheme.Type.HTTP)
+                                                                                .scheme("bearer")
+                                                                                .bearerFormat("JWT")))
                                 .info(new Info()
                                                 .title("MedSafe API")
                                                 .description("API per la gestione sicura di referti medici su Azure")

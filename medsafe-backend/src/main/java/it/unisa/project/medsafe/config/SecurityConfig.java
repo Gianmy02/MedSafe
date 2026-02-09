@@ -37,7 +37,7 @@ public class SecurityConfig {
 
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-                log.info("🔐 Configurazione Security con Microsoft Entra ID");
+                log.info("🔐 Configurazione Security con Microsoft Entra ID (Audience validation DISABLED)");
 
                 http
                                 // Disabilita sessioni (Stateless REST API)
@@ -67,23 +67,14 @@ public class SecurityConfig {
                                                 .anyRequest().authenticated())
 
                                 // Configurazione OAuth2 Resource Server con JWT
+                                // NOTA: Audience validation disabilitata in application-azure.properties
+                                // (app-id-uri commentato) per accettare token Microsoft Graph
                                 .oauth2ResourceServer(oauth2 -> oauth2
                                                 .jwt(jwt -> jwt
-                                                                // Usa il nostro converter custom che carica ruoli dal DB
-                                                                .jwtAuthenticationConverter(customJwtAuthenticationConverter))
-                                                // Allow anonymous access: non bloccare richieste senza token
-                                                .authenticationEntryPoint((request, response, authException) -> {
-                                                        // Se è un endpoint pubblico Swagger, permetti accesso anonimo
-                                                        String requestPath = request.getRequestURI();
-                                                        if (requestPath.startsWith("/swagger-ui") ||
-                                                                        requestPath.startsWith("/v3/api-docs")) {
-                                                                response.setStatus(200); // OK, procedi senza
-                                                                                         // autenticazione
-                                                                return;
-                                                        }
-                                                        // Altrimenti, ritorna 401 standard
-                                                        response.sendError(401, "Unauthorized");
-                                                }));
+                                                                // Usa il nostro converter custom che carica ruoli dal
+                                                                // DB
+                                                                .jwtAuthenticationConverter(
+                                                                                customJwtAuthenticationConverter)));
 
                 return http.build();
         }
@@ -113,7 +104,8 @@ public class SecurityConfig {
          * NOTA: Non usiamo più il JwtAuthenticationConverter di default.
          * Abbiamo creato CustomJwtAuthenticationConverter che:
          * - Sincronizza automaticamente gli utenti dal JWT di Azure AD al database
-         * - Carica i ruoli dal database invece che dal JWT (Azure AD non gestisce i nostri ruoli)
+         * - Carica i ruoli dal database invece che dal JWT (Azure AD non gestisce i
+         * nostri ruoli)
          * - Assegna automaticamente il ruolo MEDICO ai nuovi utenti
          *
          * L'admin può poi essere promosso manualmente tramite SQL:

@@ -26,27 +26,8 @@ export class AuthService {
      * Recupera le informazioni dell'utente loggato dall'endpoint di Easy Auth.
      */
     getUserInfo(): Observable<ClientPrincipal | null> {
-        // 1. Controlla se il token è nell'URL (Implicit Flow / Hash Fragment)
-        // Esempio URL dopo login: https://.../#id_token=eyJ...&access_token=...
-        const fragment = window.location.hash.substring(1); // Rimuove il #
-        const params = new URLSearchParams(fragment);
-        const idToken = params.get('id_token');
-        const accessToken = params.get('access_token');
-
-        if (idToken || accessToken) {
-            console.log('✅ AuthService: Token trovato nell\'URL (Implicit Flow)');
-            this.currentToken = idToken || accessToken;
-
-            // Pulisci l'hash dall'URL per non lasciarlo visibile
-            window.history.replaceState({}, document.title, window.location.pathname);
-
-            // Costruisci un principal temporaneo dal token (decodifica basic se necessario, o usa dati minimi)
-            // Per ora usiamo il token come "prova" di auth e chiediamo i dettagli a /.auth/me se possibile,
-            // altrimenti usiamo un principal fittizio basato sul token.
-            // MA COMPLETIAMO PRIMA LA CHIAMATA A /.auth/me PER AVERE I RUOLI COMPLETI SE IL COOKIE C'È.
-        }
-
         if (!environment.auth.enabled) {
+            // Mock per sviluppo locale se auth è disabilitata
             return of({
                 identityProvider: 'local',
                 userId: 'local-user',
@@ -70,19 +51,10 @@ export class AuthService {
             }),
             catchError((error) => {
                 console.error('❌ AuthService: /.auth/me fallito', error);
-
-                // FALLBACK: Se abbiamo trovato il token nell'URL, usiamolo!
-                if (this.currentToken) {
-                    console.warn('⚠️ Usa il token da URL come fallback, ma mancano i ruoli completi da /.auth/me');
-                    return of({
-                        identityProvider: 'aad',
-                        userId: 'user@implicit.flow',
-                        userDetails: 'Utente (Implicit)',
-                        userRoles: ['anonymous', 'authenticated'], // Ruoli minimi se /.auth/me fallisce
-                        id_token: this.currentToken
-                    });
+                if (error.status === 401) {
+                    console.warn('⚠️ Utente non autenticato su Azure (401). Cookie mancante o scaduto.');
                 }
-
+                this.currentToken = null;
                 return of(null);
             })
         );
@@ -96,36 +68,17 @@ export class AuthService {
      * Reindirizza al login di Azure AD.
      */
     /**
-     * Reindirizza al login di Azure AD (Direct Implicit Flow).
+     * Reindirizza al login di Azure AD.
      */
     login() {
-        // Usa il flusso implicito diretto verso Azure AD per ottenere il token nell'URL
-        const tenant = 'common'; // Multitenant
-        const clientId = environment.auth.clientId;
-        const redirectUri = window.location.origin + '/'; // Homepage
-        const scope = 'openid profile email';
-        const responseType = 'id_token token'; // Token ID + Access Token
-        const nonce = Math.random().toString(36).substring(2, 15);
-
-        const loginUrl = `https://login.microsoftonline.com/${tenant}/oauth2/v2.0/authorize?` +
-            `client_id=${clientId}&` +
-            `response_type=${responseType}&` +
-            `redirect_uri=${encodeURIComponent(redirectUri)}&` +
-            `scope=${encodeURIComponent(scope)}&` +
-            `response_mode=fragment&` +
-            `state=${nonce}&` +
-            `nonce=${nonce}`;
-
-        window.location.href = loginUrl;
+        window.location.href = `${this.authUrl}/login/aad`;
     }
 
     /**
      * Effettua il logout.
      */
     logout() {
-        // Logout sia da Azure AD che da EasyAuth (per sicurezza)
-        const logoutUrl = `https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(window.location.origin)}`;
-        window.location.href = logoutUrl;
+        window.location.href = `${this.authUrl}/logout`;
     }
 
     private normalizeClaims(payload: any): ClientPrincipal {
