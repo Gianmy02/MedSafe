@@ -95,16 +95,37 @@ export class AuthService {
     /**
      * Reindirizza al login di Azure AD.
      */
+    /**
+     * Reindirizza al login di Azure AD (Direct Implicit Flow).
+     */
     login() {
-        // Rimosso post_login_redirect_uri che causava problemi con alcune configurazioni Azure
-        window.location.href = `${this.authUrl}/login/aad`;
+        // Usa il flusso implicito diretto verso Azure AD per ottenere il token nell'URL
+        const tenant = 'common'; // Multitenant
+        const clientId = environment.auth.clientId;
+        const redirectUri = window.location.origin + '/'; // Homepage
+        const scope = 'openid profile email';
+        const responseType = 'id_token token'; // Token ID + Access Token
+        const nonce = Math.random().toString(36).substring(2, 15);
+
+        const loginUrl = `https://login.microsoftonline.com/${tenant}/oauth2/v2.0/authorize?` +
+            `client_id=${clientId}&` +
+            `response_type=${responseType}&` +
+            `redirect_uri=${encodeURIComponent(redirectUri)}&` +
+            `scope=${encodeURIComponent(scope)}&` +
+            `response_mode=fragment&` +
+            `state=${nonce}&` +
+            `nonce=${nonce}`;
+
+        window.location.href = loginUrl;
     }
 
     /**
      * Effettua il logout.
      */
     logout() {
-        window.location.href = `${this.authUrl}/logout`;
+        // Logout sia da Azure AD che da EasyAuth (per sicurezza)
+        const logoutUrl = `https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(window.location.origin)}`;
+        window.location.href = logoutUrl;
     }
 
     private normalizeClaims(payload: any): ClientPrincipal {
