@@ -7,7 +7,7 @@ export const environment = {
   // Authentication Configuration (EasyAuth via App Service)
   auth: {
     enabled: true,   // Authentication managed by Azure App Service
-    clientId: 'b05b2d51-457f-4ae1-81e5-add2bf7c3718',
+    clientId: '5c911c10-3fe4-4569-b466-e79f78cd436f',
     authority: 'https://login.microsoftonline.com/common',
     redirectUri: 'https://medsafe-frontend-bcf5cvfpcah2geh8.italynorth-01.azurewebsites.net',
     scopes: []  // EasyAuth handles scopes automatically

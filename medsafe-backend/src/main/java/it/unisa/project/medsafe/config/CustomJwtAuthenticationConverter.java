@@ -41,8 +41,8 @@ public class CustomJwtAuthenticationConverter implements Converter<Jwt, Abstract
             return new JwtAuthenticationToken(jwt, Collections.emptyList());
         }
 
-        log.debug("🔐 Autenticazione JWT per: {}", email);
-        log.debug("🔍 Claims del token ricevuto: {}", jwt.getClaims()); // Utile per debug
+        log.info("🔐 Autenticazione JWT per: {}", email);
+        log.info("🔍 Claims del token ricevuto: {}", jwt.getClaims()); // Utile per debug
 
         // 2. Carica i ruoli dal database (se l'utente esiste)
         Collection<GrantedAuthority> authorities = loadUserAuthorities(email);
