@@ -53,7 +53,11 @@ export class AuthService {
                     this.normalizeClaims(payload) :
                     (payload.clientPrincipal || payload);
             }),
-            catchError(() => {
+            catchError((error) => {
+                console.error('❌ AuthService: Errore nel recupero utente da /.auth/me', error);
+                if (error.status === 401) {
+                    console.warn('⚠️ Utente non autenticato su Azure (401). Cookie mancante o scaduto.');
+                }
                 this.currentToken = null;
                 return of(null);
             })
