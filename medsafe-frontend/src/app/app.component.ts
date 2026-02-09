@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { UserService } from './services/user.service';
+import { AuthService } from './services/auth.service';
 import { User } from './models/user.model';
 
 @Component({
@@ -24,7 +25,7 @@ import { User } from './models/user.model';
           <a routerLink="/referti" routerLinkActive="active">Cerca Referti</a>
           <a *ngIf="user?.role === 'ADMIN'" routerLink="/utenti" routerLinkActive="active">Elenco Utenti</a>
           <a *ngIf="user" routerLink="/profilo" class="welcome-user" routerLinkActive="active">{{ getDoctorEmoji() }} {{ getDoctorTitle() }} {{ user.fullName }}</a>
-          <span *ngIf="!user && !isLoading" class="welcome-user">👤 Login</span>
+          <span *ngIf="!user && !isLoading" class="welcome-user" (click)="login()" style="cursor: pointer;">👤 Login</span>
           <button *ngIf="user" class="btn-logout" (click)="logout()">Logout</button>
         </div>
       </nav>
@@ -45,7 +46,7 @@ export class AppComponent implements OnInit {
   user: User | null = null;
   isLoading = true;
 
-  constructor(private userService: UserService) {
+  constructor(private userService: UserService, private authService: AuthService) {
     console.log('AppComponent initialized!');
   }
 
@@ -88,9 +89,11 @@ export class AppComponent implements OnInit {
     });
   }
 
+  login(): void {
+    this.authService.login();
+  }
+
   logout(): void {
-    // Reindirizza all'endpoint di logout di Azure Easy Auth
-    // post_logout_redirect_uri riporta l'utente alla home dopo il logout
-    window.location.href = '/.auth/logout?post_logout_redirect_uri=/';
+    this.authService.logout();
   }
 }
