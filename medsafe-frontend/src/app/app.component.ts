@@ -51,7 +51,22 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadUser();
+    // 1. Prima recupera il token da Azure EasyAuth
+    this.authService.getUserInfo().subscribe({
+      next: (principal) => {
+        console.log('🔹 Azure Auth info:', principal);
+        if (principal) {
+          // 2. Se siamo loggati su Azure, carica l'utente dal backend
+          this.loadUser();
+        } else {
+          this.isLoading = false;
+        }
+      },
+      error: (err) => {
+        console.warn('⚠️ Impossibile recuperare info Azure:', err);
+        this.isLoading = false;
+      }
+    });
   }
 
   getDoctorEmoji(): string {
