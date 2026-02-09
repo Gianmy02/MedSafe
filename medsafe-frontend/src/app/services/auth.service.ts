@@ -39,7 +39,8 @@ export class AuthService {
         return this.http.get<any[]>(`${this.authUrl}/me`, { withCredentials: true }).pipe(
             map(response => {
                 const payload = Array.isArray(response) && response.length > 0 ? response[0] : response;
-                const possibleToken = payload.id_token || payload.access_token || (payload.clientPrincipal as any)?.id_token;
+                // FIX: Priorità all'ACCESS TOKEN per le chiamate API. L'ID Token serve solo per il frontend.
+                const possibleToken = payload.access_token || payload.id_token || (payload.clientPrincipal as any)?.access_token;
 
                 if (possibleToken) {
                     this.currentToken = possibleToken;
@@ -71,14 +72,18 @@ export class AuthService {
      * Reindirizza al login di Azure AD.
      */
     login() {
-        window.location.href = `${this.authUrl}/login/aad`;
+        const redirectUrl = window.location.origin;
+        const scopes = environment.auth.scopes.join(' ');
+        // Aggiunge lo scope alla richiesta di login per ottenere un Access Token valido per il backend
+        const loginUrl = `${this.authUrl}/login/aad?post_login_redirect_url=${encodeURIComponent(redirectUrl)}&scope=${encodeURIComponent(scopes)}`;
+        window.location.href = loginUrl;
     }
 
     /**
      * Effettua il logout.
      */
     logout() {
-        window.location.href = `${this.authUrl}/logout`;
+        window.location.href = `${this.authUrl}/logout?post_logout_redirect_uri=/`;
     }
 
     private normalizeClaims(payload: any): ClientPrincipal {
