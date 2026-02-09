@@ -68,14 +68,15 @@ export class AuthService {
      * Reindirizza al login di Azure AD.
      */
     login() {
-        window.location.href = `${this.authUrl}/login/aad?post_login_redirect_uri=/`;
+        // Rimosso post_login_redirect_uri che causava problemi con alcune configurazioni Azure
+        window.location.href = `${this.authUrl}/login/aad`;
     }
 
     /**
      * Effettua il logout.
      */
     logout() {
-        window.location.href = `${this.authUrl}/logout?post_logout_redirect_uri=/`;
+        window.location.href = `${this.authUrl}/logout`;
     }
 
     private normalizeClaims(payload: any): ClientPrincipal {
