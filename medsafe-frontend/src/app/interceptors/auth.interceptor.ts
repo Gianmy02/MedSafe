@@ -16,7 +16,6 @@ export class AuthInterceptor implements HttpInterceptor {
     }
 
     const token = this.authService.getToken();
-    const token = this.authService.getToken();
     let headers = req.headers
       .set('X-App-Version', environment.appVersion);
 
