@@ -11,7 +11,7 @@
           Benvenuto, <span class="doctor-name">{{ getDoctorTitle() }} {{ user.fullName }}</span>
         </span>
         <div *ngIf="user.specializzazione" class="welcome-text" style="font-size: 0.9em; margin-top: 4px;">
-          Specializzato in: <span class="doctor-name">{{ user.specializzazione }}</span>
+          Specializzato in: <span class="doctor-name">{{ formatSpecialization(user.specializzazione) }}</span>
         </div>
       </div>
 

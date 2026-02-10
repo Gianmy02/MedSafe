@@ -64,6 +64,11 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  formatSpecialization(spec?: string): string {
+    if (!spec) return '';
+    return spec.replace(/_/g, ' ');
+  }
+
   cards = [
     {
       title: 'Nuovo Referto',
