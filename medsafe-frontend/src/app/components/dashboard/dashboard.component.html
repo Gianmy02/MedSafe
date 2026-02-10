@@ -9,9 +9,8 @@
       <span class="welcome-text">
         Benvenuto, <span class="doctor-name">{{ getDoctorTitle() }} {{ user.fullName }}</span>
       </span>
-      <div *ngIf="user.specializzazione" class="specialization-info"
-        style="font-size: 0.9em; color: #666; margin-top: 4px;">
-        Specializzato in: {{ user.specializzazione }}
+      <div *ngIf="user.specializzazione" class="welcome-text" style="font-size: 0.9em; margin-top: 4px;">
+        Specializzato in: <span class="doctor-name">{{ user.specializzazione }}</span>
       </div>
 
     </div>
