@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RefertiService, RefertoDTO } from '../../services/referti.service';
 
 import { UserService } from '../../services/user.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-referti-list',
@@ -24,16 +25,19 @@ export class RefertiListComponent implements OnInit {
 
   constructor(
     private refertiService: RefertiService,
-    private userService: UserService
+    private userService: UserService,
+    private authService: AuthService
   ) { }
 
   ngOnInit(): void {
-    this.userService.getCurrentUser().subscribe({
-      next: (user) => {
-        if (user) {
-          this.userEmail = user.email;
+    this.authService.authInitialized$.subscribe(() => {
+      this.userService.getCurrentUser().subscribe({
+        next: (user) => {
+          if (user) {
+            this.userEmail = user.email;
+          }
         }
-      }
+      });
     });
   }
 

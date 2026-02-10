@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RefertiService } from '../../services/referti.service';
 
 import { UserService } from '../../services/user.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-referti-upload',
@@ -31,11 +32,14 @@ export class RefertiUploadComponent implements OnInit {
 
   constructor(
     private refertiService: RefertiService,
-    private userService: UserService
+    private userService: UserService,
+    private authService: AuthService
   ) { }
 
   ngOnInit() {
-    this.updateRefertiCount();
+    this.authService.authInitialized$.subscribe(() => {
+      this.updateRefertiCount();
+    });
   }
 
   updateRefertiCount() {

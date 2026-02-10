@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { User } from '../../models/user.model';
 import { UserService } from '../../services/user.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-user-profile',
@@ -30,12 +31,17 @@ export class UserProfileComponent implements OnInit {
   filteredSpecializzazioni: any[] = [];
   showSpecializzazioniDropdown = false;
 
-  constructor(private userService: UserService) { }
+  constructor(
+    private userService: UserService,
+    private authService: AuthService
+  ) { }
 
   ngOnInit() {
-    this.loadUserProfile();
-    this.loadGeneri();
-    this.loadSpecializzazioni();
+    this.authService.authInitialized$.subscribe(() => {
+      this.loadUserProfile();
+      this.loadGeneri();
+      this.loadSpecializzazioni();
+    });
   }
 
   loadUserProfile() {
