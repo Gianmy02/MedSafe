@@ -6,11 +6,13 @@
     </div>
     <div *ngIf="user" class="welcome-message">
       <span class="welcome-icon">{{ getDoctorEmoji() }}</span>
-      <span class="welcome-text">
-        Benvenuto, <span class="doctor-name">{{ getDoctorTitle() }} {{ user.fullName }}</span>
-      </span>
-      <div *ngIf="user.specializzazione" class="welcome-text" style="font-size: 0.9em; margin-top: 4px;">
-        Specializzato in: <span class="doctor-name">{{ user.specializzazione }}</span>
+      <div style="display: flex; flex-direction: column; align-items: center;">
+        <span class="welcome-text">
+          Benvenuto, <span class="doctor-name">{{ getDoctorTitle() }} {{ user.fullName }}</span>
+        </span>
+        <div *ngIf="user.specializzazione" class="welcome-text" style="font-size: 0.9em; margin-top: 4px;">
+          Specializzato in: <span class="doctor-name">{{ user.specializzazione }}</span>
+        </div>
       </div>
 
     </div>
