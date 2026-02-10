@@ -39,8 +39,10 @@ export class AuthService {
         return this.http.get<any[]>(`${this.authUrl}/me`, { withCredentials: true }).pipe(
             map(response => {
                 const payload = Array.isArray(response) && response.length > 0 ? response[0] : response;
-                // FIX: Priorità all'ACCESS TOKEN per le chiamate API. L'ID Token serve solo per il frontend.
-                const possibleToken = payload.access_token || payload.id_token || (payload.clientPrincipal as any)?.access_token;
+                // FIX: Torniamo a dare priorità all'ID_TOKEN. 
+                // L'access_token di EasyAuth per Graph è spesso cifrato/opaco e il backend lo vede come "Malformed".
+                // L'ID Token è un JWT standard che identifica l'utente e che abbiamo abilitato nel backend (Audience Frontend).
+                const possibleToken = payload.id_token || payload.access_token || (payload.clientPrincipal as any)?.id_token;
 
                 if (possibleToken) {
                     this.currentToken = possibleToken;

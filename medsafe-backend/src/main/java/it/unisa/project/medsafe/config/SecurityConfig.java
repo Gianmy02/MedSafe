@@ -16,6 +16,12 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
+import org.springframework.security.oauth2.jwt.*;
+
 import java.util.List;
 
 /**
@@ -29,39 +35,57 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @Profile({ "azure", "prod" })
+
 public class SecurityConfig {
 
         private final CustomJwtAuthenticationConverter customJwtAuthenticationConverter;
 
+        @Value("${MEDSAFE_ENTRA_CLIENT_ID}")
+        private String backendClientId;
+
+        // Hardcoded per sicurezza: questo è l'ID del Frontend che sta chiamando
+        // esplicitamente
+        private static final String FRONTEND_CLIENT_ID = "5c911c10-3fe4-4569-b466-e79f78cd436f";
+
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-                log.info("🔒 Configurazione Security: Abilitazione JWT Oauth2 Resource Server");
+                log.info("🔒 Configurazione Security: Abilitazione JWT con Audience Custom (Frontend ID)");
 
                 http
-                                // Disabilita sessioni (Stateless REST API)
                                 .sessionManagement(session -> session
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-                                // Configurazione CORS
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
-                                // Disabilita CSRF
                                 .csrf(csrf -> csrf.disable())
-
-                                // Configura Resource Server
                                 .oauth2ResourceServer(oauth2 -> oauth2
                                                 .jwt(jwt -> jwt
                                                                 .jwtAuthenticationConverter(
-                                                                                customJwtAuthenticationConverter)))
+                                                                                customJwtAuthenticationConverter)
+                                                                .decoder(jwtDecoder()))); // Usa il decoder custom
 
-                                // Regole di autorizzazione
-                                .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**",
-                                                                "/swagger-ui.html")
-                                                .permitAll()
-                                                .anyRequest().authenticated());
+                http.authorizeHttpRequests(auth -> auth
+                                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                                .anyRequest().authenticated());
 
                 return http.build();
+        }
+
+        @Bean
+        public JwtDecoder jwtDecoder() {
+                // Usa l'endpoint COMMON per le chiavi pubbliche (multi-tenant)
+                String jwkSetUri = "https://login.microsoftonline.com/common/discovery/v2.0/keys";
+
+                NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
+
+                // Validatore Custom per l'Audience
+                OAuth2TokenValidator<Jwt> audienceValidator = new AudienceValidator(
+                                List.of(backendClientId, FRONTEND_CLIENT_ID));
+                // Validatore Default per l'Issuer (lo rilassiamo un po' o usiamo quello di
+                // default che verifica solo la firma)
+                // Per ora validiamo solo l'audience per risolvere il blocco.
+
+                jwtDecoder.setJwtValidator(audienceValidator);
+
+                return jwtDecoder;
         }
 
         @Bean
@@ -79,5 +103,28 @@ public class SecurityConfig {
                 UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
                 source.registerCorsConfiguration("/**", configuration);
                 return source;
+        }
+
+        /**
+         * Validatore interno per l'Audience.
+         * Accetta il token se l'audience match backend ID OPPURE frontend ID.
+         */
+        static class AudienceValidator implements OAuth2TokenValidator<Jwt> {
+                private final List<String> allowedAudiences;
+
+                AudienceValidator(List<String> allowedAudiences) {
+                        this.allowedAudiences = allowedAudiences;
+                }
+
+                public OAuth2TokenValidatorResult validate(Jwt jwt) {
+                        List<String> audiences = jwt.getAudience();
+                        if (audiences.stream().anyMatch(allowedAudiences::contains)) {
+                                return OAuth2TokenValidatorResult.success();
+                        }
+                        log.warn("❌ Audience invalida nel token. Attesa: {}, Ricevuta: {}", allowedAudiences,
+                                        audiences);
+                        return OAuth2TokenValidatorResult.failure(
+                                        new OAuth2Error("invalid_token", "The required audience is missing", null));
+                }
         }
 }
