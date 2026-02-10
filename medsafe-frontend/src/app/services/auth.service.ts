@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, ReplaySubject } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 export interface ClientPrincipal {
@@ -19,6 +19,7 @@ export interface ClientPrincipal {
 export class AuthService {
     private authUrl = '/.auth';
     private currentToken: string | null = null;
+    public authInitialized$ = new ReplaySubject<boolean>(1);
 
     constructor(private http: HttpClient) { }
 
@@ -43,12 +44,14 @@ export class AuthService {
                     this.normalizeClaims(payload) :
                     (payload.clientPrincipal || payload);
             }),
+            tap(() => this.authInitialized$.next(true)),
             catchError((error) => {
                 console.error('❌ AuthService: /.auth/me fallito', error);
                 if (error.status === 401) {
                     console.warn('⚠️ Utente non autenticato su Azure (401). Cookie mancante o scaduto.');
                 }
                 this.currentToken = null;
+                this.authInitialized$.next(true); // Emit even on error so app doesn't hang
                 return of(null);
             })
         );
@@ -58,9 +61,6 @@ export class AuthService {
         return this.currentToken;
     }
 
-    /**
-     * Reindirizza al login di Azure AD.
-     */
     /**
      * Reindirizza al login di Azure AD.
      */

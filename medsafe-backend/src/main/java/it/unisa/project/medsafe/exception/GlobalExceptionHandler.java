@@ -2,6 +2,8 @@ package it.unisa.project.medsafe.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -45,6 +47,25 @@ public class GlobalExceptionHandler {
         response.put("error", "Dati mancanti");
         response.put("details", message);
         return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<?> handleUnauthorizedException(UnauthorizedException exc) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", exc.getMessage());
+        response.put("status", "403 Forbidden");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleValidationExceptions(MethodArgumentNotValidException exc) {
+        Map<String, String> errors = new HashMap<>();
+        exc.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return ResponseEntity.badRequest().body(errors);
     }
 
     @ExceptionHandler(Exception.class)

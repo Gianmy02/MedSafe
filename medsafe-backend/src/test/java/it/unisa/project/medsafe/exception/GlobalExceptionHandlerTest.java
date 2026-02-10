@@ -35,9 +35,12 @@ class GlobalExceptionHandlerTest {
         UnauthorizedException exception = new UnauthorizedException(message);
 
         // Act
-        Map<String, String> response = exceptionHandler.handleUnauthorizedException(exception);
+        ResponseEntity<?> responseEntity = exceptionHandler.handleUnauthorizedException(exception);
 
         // Assert
+        assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
+        @SuppressWarnings("unchecked")
+        Map<String, String> response = (Map<String, String>) responseEntity.getBody();
         assertNotNull(response);
         assertEquals(message, response.get("error"));
         assertEquals("403 Forbidden", response.get("status"));
@@ -52,9 +55,12 @@ class GlobalExceptionHandlerTest {
         UnauthorizedException exception = new UnauthorizedException(detailedMessage);
 
         // Act
-        Map<String, String> response = exceptionHandler.handleUnauthorizedException(exception);
+        ResponseEntity<?> responseEntity = exceptionHandler.handleUnauthorizedException(exception);
 
         // Assert
+        assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
+        @SuppressWarnings("unchecked")
+        Map<String, String> response = (Map<String, String>) responseEntity.getBody();
         assertTrue(response.get("error").contains("Non sei autorizzato"));
         assertTrue(response.get("error").contains("medico2@medsafe.local"));
         assertTrue(response.get("error").contains("amministratore"));
@@ -65,16 +71,18 @@ class GlobalExceptionHandlerTest {
     void testHandleUnauthorizedExceptionOperazioniDiverse() {
         // Test per "modificare"
         UnauthorizedException exModifica = new UnauthorizedException(
-                "Non sei autorizzato a modificare questo referto"
-        );
-        Map<String, String> responseModifica = exceptionHandler.handleUnauthorizedException(exModifica);
+                "Non sei autorizzato a modificare questo referto");
+        ResponseEntity<?> responseEntityModifica = exceptionHandler.handleUnauthorizedException(exModifica);
+        @SuppressWarnings("unchecked")
+        Map<String, String> responseModifica = (Map<String, String>) responseEntityModifica.getBody();
         assertTrue(responseModifica.get("error").contains("modificare"));
 
         // Test per "eliminare"
         UnauthorizedException exElimina = new UnauthorizedException(
-                "Non sei autorizzato a eliminare questo referto"
-        );
-        Map<String, String> responseElimina = exceptionHandler.handleUnauthorizedException(exElimina);
+                "Non sei autorizzato a eliminare questo referto");
+        ResponseEntity<?> responseEntityElimina = exceptionHandler.handleUnauthorizedException(exElimina);
+        @SuppressWarnings("unchecked")
+        Map<String, String> responseElimina = (Map<String, String>) responseEntityElimina.getBody();
         assertTrue(responseElimina.get("error").contains("eliminare"));
     }
 
@@ -91,9 +99,12 @@ class GlobalExceptionHandlerTest {
         MethodArgumentNotValidException exception = new MethodArgumentNotValidException(null, bindingResult);
 
         // Act
-        Map<String, String> response = exceptionHandler.handleValidationExceptions(exception);
+        ResponseEntity<?> responseEntity = exceptionHandler.handleValidationExceptions(exception);
 
         // Assert
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+        @SuppressWarnings("unchecked")
+        Map<String, String> response = (Map<String, String>) responseEntity.getBody();
         assertNotNull(response);
         assertEquals(2, response.size());
         assertEquals("Il nome paziente è obbligatorio", response.get("nomePaziente"));
@@ -110,9 +121,13 @@ class GlobalExceptionHandlerTest {
         MethodArgumentNotValidException exception = new MethodArgumentNotValidException(null, bindingResult);
 
         // Act
-        Map<String, String> response = exceptionHandler.handleValidationExceptions(exception);
+        ResponseEntity<?> responseEntity = exceptionHandler.handleValidationExceptions(exception);
 
         // Assert
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+        @SuppressWarnings("unchecked")
+        Map<String, String> response = (Map<String, String>) responseEntity.getBody();
+
         assertEquals(1, response.size());
         assertEquals("Email non valida", response.get("email"));
     }
@@ -127,7 +142,7 @@ class GlobalExceptionHandlerTest {
         Exception exception = new RuntimeException(message);
 
         // Act
-        ResponseEntity<?> response = exceptionHandler.handleGenericException(exception);
+        ResponseEntity<?> response = exceptionHandler.handleGeneralException(exception);
 
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
@@ -146,7 +161,7 @@ class GlobalExceptionHandlerTest {
         Exception exception = new NullPointerException("Valore null non atteso");
 
         // Act
-        ResponseEntity<?> response = exceptionHandler.handleGenericException(exception);
+        ResponseEntity<?> response = exceptionHandler.handleGeneralException(exception);
 
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
@@ -159,7 +174,7 @@ class GlobalExceptionHandlerTest {
         Exception exception = new IllegalArgumentException("Argomento non valido");
 
         // Act
-        ResponseEntity<?> response = exceptionHandler.handleGenericException(exception);
+        ResponseEntity<?> response = exceptionHandler.handleGeneralException(exception);
 
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
@@ -178,9 +193,13 @@ class GlobalExceptionHandlerTest {
         UnauthorizedException exception = new UnauthorizedException(null);
 
         // Act
-        Map<String, String> response = exceptionHandler.handleUnauthorizedException(exception);
+        ResponseEntity<?> responseEntity = exceptionHandler.handleUnauthorizedException(exception);
 
         // Assert
+        assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
+        @SuppressWarnings("unchecked")
+        Map<String, String> response = (Map<String, String>) responseEntity.getBody();
+
         assertNotNull(response);
         assertNull(response.get("error"));
         assertEquals("403 Forbidden", response.get("status"));
@@ -194,9 +213,13 @@ class GlobalExceptionHandlerTest {
         MethodArgumentNotValidException exception = new MethodArgumentNotValidException(null, bindingResult);
 
         // Act
-        Map<String, String> response = exceptionHandler.handleValidationExceptions(exception);
+        ResponseEntity<?> responseEntity = exceptionHandler.handleValidationExceptions(exception);
 
         // Assert
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+        @SuppressWarnings("unchecked")
+        Map<String, String> response = (Map<String, String>) responseEntity.getBody();
+
         assertNotNull(response);
         assertTrue(response.isEmpty());
     }
@@ -208,7 +231,7 @@ class GlobalExceptionHandlerTest {
         Exception exception = new RuntimeException((String) null);
 
         // Act
-        ResponseEntity<?> response = exceptionHandler.handleGenericException(exception);
+        ResponseEntity<?> response = exceptionHandler.handleGeneralException(exception);
 
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
@@ -228,17 +251,22 @@ class GlobalExceptionHandlerTest {
         Exception generic = new RuntimeException("Test");
 
         // Act
-        Map<String, String> unauthorizedResponse = exceptionHandler.handleUnauthorizedException(unauthorized);
-        ResponseEntity<?> genericResponse = exceptionHandler.handleGenericException(generic);
+        ResponseEntity<?> unauthorizedResponse = exceptionHandler.handleUnauthorizedException(unauthorized);
+        ResponseEntity<?> genericResponse = exceptionHandler.handleGeneralException(generic);
 
         // Assert
-        assertNotNull(unauthorizedResponse);
-        assertNotNull(genericResponse.getBody());
-        assertTrue(unauthorizedResponse.containsKey("error"));
-        assertTrue(unauthorizedResponse.containsKey("status"));
+        assertEquals(HttpStatus.FORBIDDEN, unauthorizedResponse.getStatusCode());
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, genericResponse.getStatusCode());
 
         @SuppressWarnings("unchecked")
+        Map<String, String> unauthorizedBody = (Map<String, String>) unauthorizedResponse.getBody();
+        @SuppressWarnings("unchecked")
         Map<String, String> genericBody = (Map<String, String>) genericResponse.getBody();
+
+        assertNotNull(unauthorizedBody);
+        assertNotNull(genericBody);
+        assertTrue(unauthorizedBody.containsKey("error"));
+        assertTrue(unauthorizedBody.containsKey("status"));
         assertTrue(genericBody.containsKey("error"));
     }
 
@@ -250,9 +278,11 @@ class GlobalExceptionHandlerTest {
         UnauthorizedException exception = new UnauthorizedException(messageWithSpecialChars);
 
         // Act
-        Map<String, String> response = exceptionHandler.handleUnauthorizedException(exception);
+        ResponseEntity<?> responseEntity = exceptionHandler.handleUnauthorizedException(exception);
 
         // Assert
+        @SuppressWarnings("unchecked")
+        Map<String, String> response = (Map<String, String>) responseEntity.getBody();
         assertEquals(messageWithSpecialChars, response.get("error"));
         assertTrue(response.get("error").contains("@"));
         assertTrue(response.get("error").contains("'"));
