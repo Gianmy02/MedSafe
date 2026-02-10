@@ -172,12 +172,27 @@ public class RefertoController {
 
         // Estrai il path del blob dall'URL
         String url = referto.getUrlPdfGenerato();
+        log.info("Download PDF richiesto per URL: {}", url);
+
         String containerName = "upload-dir";
+        String blobPath = null;
+
+        // Strategia 1: Cerca "/upload-dir/"
         int index = url.indexOf("/" + containerName + "/");
-        if (index == -1) {
-            return ResponseEntity.notFound().build();
+        if (index != -1) {
+            blobPath = url.substring(index + containerName.length() + 2);
+        } else {
+            // Strategia 2: Controlla se inizia con "upload-dir/"
+            if (url.startsWith(containerName + "/")) {
+                blobPath = url.substring(containerName.length() + 1);
+            }
         }
-        String blobPath = url.substring(index + containerName.length() + 2); // +2 per i due slash
+
+        if (blobPath == null) {
+            log.warn("Impossibile estrarre blobPath dall'URL (fallback al path intero): {}", url);
+            blobPath = url; // Fallback estremo
+        }
+
         blobPath = java.net.URLDecoder.decode(blobPath, java.nio.charset.StandardCharsets.UTF_8);
 
         byte[] content = blobStorageService.downloadFile(blobPath);
@@ -207,12 +222,27 @@ public class RefertoController {
 
         // Estrai il path del blob dall'URL
         String url = referto.getFileUrlImmagine();
+        log.info("Download Immagine richiesto per URL: {}", url);
+
         String containerName = "upload-dir";
+        String blobPath = null;
+
+        // Strategia 1: Cerca "/upload-dir/"
         int index = url.indexOf("/" + containerName + "/");
-        if (index == -1) {
-            return ResponseEntity.notFound().build();
+        if (index != -1) {
+            blobPath = url.substring(index + containerName.length() + 2);
+        } else {
+            // Strategia 2: Controlla se inizia con "upload-dir/"
+            if (url.startsWith(containerName + "/")) {
+                blobPath = url.substring(containerName.length() + 1);
+            }
         }
-        String blobPath = url.substring(index + containerName.length() + 2);
+
+        if (blobPath == null) {
+            log.warn("Impossibile estrarre blobPath dall'URL immagine (fallback al path intero): {}", url);
+            blobPath = url; // Fallback estremo
+        }
+
         blobPath = java.net.URLDecoder.decode(blobPath, java.nio.charset.StandardCharsets.UTF_8);
 
         byte[] content = blobStorageService.downloadFile(blobPath);

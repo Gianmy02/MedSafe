@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { User } from '../../models/user.model';
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
@@ -18,7 +18,8 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private userService: UserService,
-    private authService: AuthService // Inject AuthService
+    private authService: AuthService,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -28,6 +29,12 @@ export class DashboardComponent implements OnInit {
         next: (user) => {
           this.user = user;
           this.loading = false;
+
+          // Check primo accesso
+          if (this.user && !this.user.specializzazione) {
+            alert("Benvenuto! Al primo accesso è necessario completare il profilo selezionando Genere e Specializzazione.");
+            this.router.navigate(['/profilo']);
+          }
         },
         error: (err) => {
           console.error('Errore nel caricamento utente dashboard:', err);
@@ -67,9 +74,9 @@ export class DashboardComponent implements OnInit {
     },
     {
       title: 'I miei Referti',
-      description: 'Visualizza tutti i referti', // Updated description slightly to match reality
+      description: 'Gestisci e modifica i tuoi referti',
       icon: '✏️',
-      route: '/referti',
+      route: '/edit',
       color: 'info'
     },
     {

@@ -9,14 +9,16 @@
       <span class="welcome-text">
         Benvenuto, <span class="doctor-name">{{ getDoctorTitle() }} {{ user.fullName }}</span>
       </span>
+      <div *ngIf="user.specializzazione" class="specialization-info"
+        style="font-size: 0.9em; color: #666; margin-top: 4px;">
+        Specializzato in: {{ user.specializzazione }}
+      </div>
+
     </div>
   </header>
 
   <div class="dashboard-grid">
-    <a *ngFor="let card of cards" 
-       [routerLink]="card.route" 
-       class="dashboard-card"
-       [attr.data-color]="card.color">
+    <a *ngFor="let card of cards" [routerLink]="card.route" class="dashboard-card" [attr.data-color]="card.color">
       <div class="card-icon">{{ card.icon }}</div>
       <h2 class="card-title">{{ card.title }}</h2>
       <p class="card-description">{{ card.description }}</p>
