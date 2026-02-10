@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable, of, ReplaySubject } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
@@ -26,15 +26,6 @@ export class AuthService {
      * Recupera le informazioni dell'utente loggato dall'endpoint di Easy Auth.
      */
     getUserInfo(): Observable<ClientPrincipal | null> {
-        if (!environment.auth.enabled) {
-            // Mock per sviluppo locale se auth è disabilitata
-            return of({
-                identityProvider: 'local',
-                userId: 'local-user',
-                userDetails: 'dev@local',
-                userRoles: ['anonymous', 'authenticated']
-            });
-        }
 
         return this.http.get<any[]>(`${this.authUrl}/me`, { withCredentials: true }).pipe(
             map(response => {

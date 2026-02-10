@@ -172,7 +172,12 @@ public class RefertoController {
 
         // Estrai il path del blob dall'URL
         String url = referto.getUrlPdfGenerato();
-        String blobPath = url.substring(url.indexOf("/referti/") + 9); // prende "pdf/nomefile.pdf"
+        String containerName = "upload-dir";
+        int index = url.indexOf("/" + containerName + "/");
+        if (index == -1) {
+            return ResponseEntity.notFound().build();
+        }
+        String blobPath = url.substring(index + containerName.length() + 2); // +2 per i due slash
         blobPath = java.net.URLDecoder.decode(blobPath, java.nio.charset.StandardCharsets.UTF_8);
 
         byte[] content = blobStorageService.downloadFile(blobPath);
@@ -202,7 +207,12 @@ public class RefertoController {
 
         // Estrai il path del blob dall'URL
         String url = referto.getFileUrlImmagine();
-        String blobPath = url.substring(url.indexOf("/referti/") + 9);
+        String containerName = "upload-dir";
+        int index = url.indexOf("/" + containerName + "/");
+        if (index == -1) {
+            return ResponseEntity.notFound().build();
+        }
+        String blobPath = url.substring(index + containerName.length() + 2);
         blobPath = java.net.URLDecoder.decode(blobPath, java.nio.charset.StandardCharsets.UTF_8);
 
         byte[] content = blobStorageService.downloadFile(blobPath);

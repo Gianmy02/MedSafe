@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { User } from '../../models/user.model';
 import { UserService } from '../../services/user.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -15,18 +16,24 @@ export class DashboardComponent implements OnInit {
   user: User | null = null;
   loading = true;
 
-  constructor(private userService: UserService) { }
+  constructor(
+    private userService: UserService,
+    private authService: AuthService // Inject AuthService
+  ) { }
 
   ngOnInit() {
-    this.userService.getCurrentUser().subscribe({
-      next: (user) => {
-        this.user = user;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Errore nel caricamento utente dashboard:', err);
-        this.loading = false;
-      }
+    // Aspetta che l'AuthService abbia finito il check iniziale (token pronto)
+    this.authService.authInitialized$.subscribe(() => {
+      this.userService.getCurrentUser().subscribe({
+        next: (user) => {
+          this.user = user;
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('Errore nel caricamento utente dashboard:', err);
+          this.loading = false;
+        }
+      });
     });
   }
 
@@ -60,9 +67,9 @@ export class DashboardComponent implements OnInit {
     },
     {
       title: 'I miei Referti',
-      description: 'Modifica o elimina un referto esistente',
+      description: 'Visualizza tutti i referti', // Updated description slightly to match reality
       icon: '✏️',
-      route: '/edit',
+      route: '/referti',
       color: 'info'
     },
     {
