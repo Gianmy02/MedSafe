@@ -16,9 +16,15 @@ export class AuthInterceptor implements HttpInterceptor {
     }
 
     const token = this.authService.getToken();
+    const token = this.authService.getToken();
     let headers = req.headers
-      .set('Content-Type', 'application/json')
       .set('X-App-Version', environment.appVersion);
+
+    // NON forzare application/json se stiamo inviando FormData (upload file)
+    // Il browser deve settare automaticamente il boundary per multipart/form-data
+    if (!(req.body instanceof FormData)) {
+      headers = headers.set('Content-Type', 'application/json');
+    }
 
     if (token) {
       console.log('🔐 AuthInterceptor: Adding Bearer token to request', req.url);

@@ -2,41 +2,56 @@ package it.unisa.project.medsafe.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage()));
-        return errors;
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<?> handleMaxSizeException(MaxUploadSizeExceededException exc) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "Il file è troppo grande!");
+        response.put("details", exc.getMessage());
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(response);
     }
 
-    @ExceptionHandler(UnauthorizedException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    @ResponseBody
-    public Map<String, String> handleUnauthorizedException(UnauthorizedException ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error", ex.getMessage());
-        error.put("status", "403 Forbidden");
-        return error;
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<?> handleTypeMismatch(MethodArgumentTypeMismatchException exc) {
+        String name = exc.getName();
+        String type = exc.getRequiredType() != null ? exc.getRequiredType().getSimpleName() : "unknown";
+        Object value = exc.getValue();
+        String message = String.format("Il parametro '%s' dovrebbe essere di tipo '%s', ma hai inviato '%s'",
+                name, type, value);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "Errore di validazione dati");
+        response.put("details", message);
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<?> handleMissingParams(MissingServletRequestParameterException exc) {
+        String name = exc.getParameterName();
+        String message = String.format("Il parametro obbligatorio '%s' è mancante", name);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "Dati mancanti");
+        response.put("details", message);
+        return ResponseEntity.badRequest().body(response);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleGenericException(Exception ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    public ResponseEntity<?> handleGeneralException(Exception exc) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "Errore generico del server");
+        response.put("details", exc.getMessage());
+        return ResponseEntity.internalServerError().body(response);
     }
 }

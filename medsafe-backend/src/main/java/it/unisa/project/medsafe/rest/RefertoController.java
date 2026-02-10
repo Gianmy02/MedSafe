@@ -95,10 +95,15 @@ public class RefertoController {
                 .nomeFile(nomeFile)
                 .build();
 
-        refertoService.addReferto(dto, file);
-
-        log.info("=== FINE addReferto - SUCCESSO ===");
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        try {
+            refertoService.addReferto(dto, file);
+            log.info("=== FINE addReferto - SUCCESSO ===");
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (Exception e) {
+            log.error("❌ ERRORE CARICAMENTO REFERTO: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Errore dettagliato durante il caricamento: " + e.getMessage());
+        }
     }
 
     @Operation(summary = "Modifica referto", description = "Modifica un referto esistente")
