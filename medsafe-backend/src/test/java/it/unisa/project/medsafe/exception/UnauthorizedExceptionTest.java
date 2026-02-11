@@ -1,6 +1,5 @@
 package it.unisa.project.medsafe.exception;
 
-import it.unisa.project.medsafe.exception.UnauthorizedException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -61,9 +60,8 @@ class UnauthorizedExceptionTest {
         String autoreEmail = "medico1@medsafe.local";
         String message = String.format(
                 "Non sei autorizzato a modificare questo referto. " +
-                "Solo il medico che lo ha creato (%s) o un amministratore può farlo.",
-                autoreEmail
-        );
+                        "Solo il medico che lo ha creato (%s) o un amministratore può farlo.",
+                autoreEmail);
 
         // Act
         UnauthorizedException exception = new UnauthorizedException(message);

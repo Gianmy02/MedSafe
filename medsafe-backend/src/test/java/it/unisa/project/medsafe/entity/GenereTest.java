@@ -1,6 +1,5 @@
 package it.unisa.project.medsafe.entity;
 
-import it.unisa.project.medsafe.entity.Genere;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

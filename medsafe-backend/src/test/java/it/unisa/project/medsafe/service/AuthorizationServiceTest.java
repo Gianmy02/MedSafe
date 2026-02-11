@@ -6,7 +6,6 @@ import it.unisa.project.medsafe.entity.User;
 import it.unisa.project.medsafe.entity.UserRole;
 import it.unisa.project.medsafe.exception.UnauthorizedException;
 import it.unisa.project.medsafe.repository.UserRepository;
-import it.unisa.project.medsafe.service.AuthorizationService;
 import it.unisa.project.medsafe.utils.JwtHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -79,7 +78,8 @@ class AuthorizationServiceTest {
                 .build();
     }
 
-    // ==================== TEST checkCanModifyReferto - MODIFICA ====================
+    // ==================== TEST checkCanModifyReferto - MODIFICA
+    // ====================
 
     @Test
     @DisplayName("MEDICO può modificare il proprio referto")
@@ -90,9 +90,7 @@ class AuthorizationServiceTest {
         when(jwtHelper.hasRole("ADMIN")).thenReturn(false);
 
         // Act & Assert - Non deve lanciare eccezione
-        assertDoesNotThrow(() ->
-            authorizationService.checkCanModifyReferto(refertoMedico1, "modificare")
-        );
+        assertDoesNotThrow(() -> authorizationService.checkCanModifyReferto(refertoMedico1, "modificare"));
 
         verify(jwtHelper).getCurrentUserEmail();
     }
@@ -106,9 +104,8 @@ class AuthorizationServiceTest {
         when(jwtHelper.hasRole("ADMIN")).thenReturn(false);
 
         // Act & Assert
-        UnauthorizedException exception = assertThrows(UnauthorizedException.class, () ->
-            authorizationService.checkCanModifyReferto(refertoMedico2, "modificare")
-        );
+        UnauthorizedException exception = assertThrows(UnauthorizedException.class,
+                () -> authorizationService.checkCanModifyReferto(refertoMedico2, "modificare"));
 
         assertTrue(exception.getMessage().contains("Non sei autorizzato a modificare questo referto"));
         assertTrue(exception.getMessage().contains("medico2@medsafe.local"));
@@ -122,12 +119,8 @@ class AuthorizationServiceTest {
         when(userRepository.findByEmail("admin@medsafe.local")).thenReturn(Optional.of(adminUser));
 
         // Act & Assert - Non deve lanciare eccezione
-        assertDoesNotThrow(() ->
-            authorizationService.checkCanModifyReferto(refertoMedico1, "modificare")
-        );
-        assertDoesNotThrow(() ->
-            authorizationService.checkCanModifyReferto(refertoMedico2, "modificare")
-        );
+        assertDoesNotThrow(() -> authorizationService.checkCanModifyReferto(refertoMedico1, "modificare"));
+        assertDoesNotThrow(() -> authorizationService.checkCanModifyReferto(refertoMedico2, "modificare"));
     }
 
     @Test
@@ -139,12 +132,11 @@ class AuthorizationServiceTest {
         when(jwtHelper.hasRole("ADMIN")).thenReturn(true);
 
         // Act & Assert
-        assertDoesNotThrow(() ->
-            authorizationService.checkCanModifyReferto(refertoMedico1, "modificare")
-        );
+        assertDoesNotThrow(() -> authorizationService.checkCanModifyReferto(refertoMedico1, "modificare"));
     }
 
-    // ==================== TEST checkCanModifyReferto - ELIMINA ====================
+    // ==================== TEST checkCanModifyReferto - ELIMINA
+    // ====================
 
     @Test
     @DisplayName("MEDICO può eliminare il proprio referto")
@@ -155,9 +147,7 @@ class AuthorizationServiceTest {
         when(jwtHelper.hasRole("ADMIN")).thenReturn(false);
 
         // Act & Assert
-        assertDoesNotThrow(() ->
-            authorizationService.checkCanModifyReferto(refertoMedico1, "eliminare")
-        );
+        assertDoesNotThrow(() -> authorizationService.checkCanModifyReferto(refertoMedico1, "eliminare"));
     }
 
     @Test
@@ -169,9 +159,8 @@ class AuthorizationServiceTest {
         when(jwtHelper.hasRole("ADMIN")).thenReturn(false);
 
         // Act & Assert
-        UnauthorizedException exception = assertThrows(UnauthorizedException.class, () ->
-            authorizationService.checkCanModifyReferto(refertoMedico2, "eliminare")
-        );
+        UnauthorizedException exception = assertThrows(UnauthorizedException.class,
+                () -> authorizationService.checkCanModifyReferto(refertoMedico2, "eliminare"));
 
         assertTrue(exception.getMessage().contains("Non sei autorizzato a eliminare questo referto"));
     }
@@ -184,12 +173,8 @@ class AuthorizationServiceTest {
         when(userRepository.findByEmail("admin@medsafe.local")).thenReturn(Optional.of(adminUser));
 
         // Act & Assert
-        assertDoesNotThrow(() ->
-            authorizationService.checkCanModifyReferto(refertoMedico1, "eliminare")
-        );
-        assertDoesNotThrow(() ->
-            authorizationService.checkCanModifyReferto(refertoMedico2, "eliminare")
-        );
+        assertDoesNotThrow(() -> authorizationService.checkCanModifyReferto(refertoMedico1, "eliminare"));
+        assertDoesNotThrow(() -> authorizationService.checkCanModifyReferto(refertoMedico2, "eliminare"));
     }
 
     // ==================== TEST Case Insensitive Email ====================
@@ -203,9 +188,7 @@ class AuthorizationServiceTest {
         when(jwtHelper.hasRole("ADMIN")).thenReturn(false);
 
         // Act & Assert - Deve funzionare ugualmente
-        assertDoesNotThrow(() ->
-            authorizationService.checkCanModifyReferto(refertoMedico1, "modificare")
-        );
+        assertDoesNotThrow(() -> authorizationService.checkCanModifyReferto(refertoMedico1, "modificare"));
     }
 
     // ==================== TEST Fallback Email ====================
@@ -224,9 +207,7 @@ class AuthorizationServiceTest {
         refertoFallback.setAutoreEmail("admin@medsafe.local");
 
         // Act & Assert - Con fallback deve funzionare
-        assertDoesNotThrow(() ->
-            authorizationService.checkCanModifyReferto(refertoFallback, "modificare")
-        );
+        assertDoesNotThrow(() -> authorizationService.checkCanModifyReferto(refertoFallback, "modificare"));
     }
 
     @Test
@@ -238,9 +219,8 @@ class AuthorizationServiceTest {
         when(jwtHelper.hasRole("ADMIN")).thenReturn(false);
 
         // Act & Assert
-        assertThrows(UnauthorizedException.class, () ->
-            authorizationService.checkCanModifyReferto(refertoMedico1, "modificare")
-        );
+        assertThrows(UnauthorizedException.class,
+                () -> authorizationService.checkCanModifyReferto(refertoMedico1, "modificare"));
     }
 
     // ==================== TEST Metodi Pubblici ====================
@@ -326,21 +306,18 @@ class AuthorizationServiceTest {
         when(jwtHelper.hasRole("ADMIN")).thenReturn(false);
 
         // Act & Assert - Modifica
-        UnauthorizedException exModifica = assertThrows(UnauthorizedException.class, () ->
-            authorizationService.checkCanModifyReferto(refertoMedico2, "modificare")
-        );
+        UnauthorizedException exModifica = assertThrows(UnauthorizedException.class,
+                () -> authorizationService.checkCanModifyReferto(refertoMedico2, "modificare"));
         assertTrue(exModifica.getMessage().contains("modificare"));
 
         // Act & Assert - Elimina
-        UnauthorizedException exElimina = assertThrows(UnauthorizedException.class, () ->
-            authorizationService.checkCanModifyReferto(refertoMedico2, "eliminare")
-        );
+        UnauthorizedException exElimina = assertThrows(UnauthorizedException.class,
+                () -> authorizationService.checkCanModifyReferto(refertoMedico2, "eliminare"));
         assertTrue(exElimina.getMessage().contains("eliminare"));
 
         // Act & Assert - Condividere (esempio futuro)
-        UnauthorizedException exCondividere = assertThrows(UnauthorizedException.class, () ->
-            authorizationService.checkCanModifyReferto(refertoMedico2, "condividere")
-        );
+        UnauthorizedException exCondividere = assertThrows(UnauthorizedException.class,
+                () -> authorizationService.checkCanModifyReferto(refertoMedico2, "condividere"));
         assertTrue(exCondividere.getMessage().contains("condividere"));
     }
 }

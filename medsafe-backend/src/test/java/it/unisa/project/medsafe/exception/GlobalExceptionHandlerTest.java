@@ -1,7 +1,5 @@
 package it.unisa.project.medsafe.exception;
 
-import it.unisa.project.medsafe.exception.GlobalExceptionHandler;
-import it.unisa.project.medsafe.exception.UnauthorizedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

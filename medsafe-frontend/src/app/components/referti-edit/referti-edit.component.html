@@ -20,10 +20,8 @@
   <div *ngIf="referti.length > 0" class="results-section">
     <h2>Risultati: {{ referti.length }}</h2>
     <div class="referti-grid">
-      <div *ngFor="let referto of referti" 
-           class="referto-card"
-           [class.selected]="selectedReferto?.id === referto.id"
-           (click)="selectReferto(referto)">
+      <div *ngFor="let referto of referti" class="referto-card" [class.selected]="selectedReferto?.id === referto.id"
+        (click)="selectReferto(referto)">
         <div class="referto-header">
           <h3>{{ referto.nomeFile }}</h3>
           <span class="badge" [ngClass]="getBadgeClass(referto.tipoEsame)">{{ referto.tipoEsame }}</span>
@@ -40,7 +38,7 @@
   <!-- Selected Referto Details -->
   <div *ngIf="selectedReferto && !isEditMode" class="details-section card">
     <h2>Dettagli Referto</h2>
-    
+
     <div class="details-grid">
       <div class="detail-item">
         <label>Nome File:</label>
@@ -73,40 +71,32 @@
         <span class="btn-icon">🖼️</span>
         <span class="btn-text">Scarica Esame</span>
       </button>
-      <button (click)="enterEditMode()" class="btn btn-accent">
-        <span class="btn-icon">✏️</span>
-        <span class="btn-text">Modifica</span>
-      </button>
-      <button (click)="deleteReferto()" class="btn btn-danger">
-        🗑️ Elimina
-      </button>
+      <ng-container *ngIf="currentUser?.enabled">
+        <button (click)="enterEditMode()" class="btn btn-accent">
+          <span class="btn-icon">✏️</span>
+          <span class="btn-text">Modifica</span>
+        </button>
+        <button (click)="deleteReferto()" class="btn btn-danger">
+          🗑️ Elimina
+        </button>
+      </ng-container>
     </div>
   </div>
 
   <!-- Edit Form -->
   <div *ngIf="isEditMode" class="edit-section card">
     <h2>Modifica Referto</h2>
-    
+
     <form class="edit-form">
       <div class="form-group">
         <label for="editNomeFile">Nome File:</label>
-        <input 
-          type="text" 
-          id="editNomeFile"
-          [(ngModel)]="editData.nomeFile"
-          name="nomeFile"
-          class="form-control"
+        <input type="text" id="editNomeFile" [(ngModel)]="editData.nomeFile" name="nomeFile" class="form-control"
           required>
       </div>
 
       <div class="form-group">
         <label for="editTipoEsame">Tipo Esame:</label>
-        <select 
-          id="editTipoEsame"
-          [(ngModel)]="editData.tipoEsame"
-          name="tipoEsame"
-          class="form-control"
-          required>
+        <select id="editTipoEsame" [(ngModel)]="editData.tipoEsame" name="tipoEsame" class="form-control" required>
           <option value="TAC">TAC</option>
           <option value="Radiografia">Radiografia</option>
           <option value="Ecografia">Ecografia</option>
@@ -117,38 +107,20 @@
 
       <div class="form-group">
         <label for="editCodiceFiscale">Codice Fiscale Paziente:</label>
-        <input 
-          type="text" 
-          id="editCodiceFiscale"
-          [(ngModel)]="editData.codiceFiscalePaziente"
-          name="codiceFiscale"
-          class="form-control"
-          maxlength="16"
-          required>
+        <input type="text" id="editCodiceFiscale" [(ngModel)]="editData.codiceFiscalePaziente" name="codiceFiscale"
+          class="form-control" maxlength="16" required>
       </div>
 
       <div class="form-group full-width">
         <label for="editTestoReferto">Testo Referto: <span class="required">*</span></label>
-        <textarea 
-          id="editTestoReferto"
-          [(ngModel)]="editData.testoReferto"
-          name="testoReferto"
-          class="form-control"
-          rows="6"
-          placeholder="Inserisci il testo del referto..."
-          required></textarea>
+        <textarea id="editTestoReferto" [(ngModel)]="editData.testoReferto" name="testoReferto" class="form-control"
+          rows="6" placeholder="Inserisci il testo del referto..." required></textarea>
       </div>
 
       <div class="form-group full-width">
         <label for="editConclusioni">Conclusioni: <span class="required">*</span></label>
-        <textarea 
-          id="editConclusioni"
-          [(ngModel)]="editData.conclusioni"
-          name="conclusioni"
-          class="form-control"
-          rows="4"
-          placeholder="Inserisci le conclusioni..."
-          required></textarea>
+        <textarea id="editConclusioni" [(ngModel)]="editData.conclusioni" name="conclusioni" class="form-control"
+          rows="4" placeholder="Inserisci le conclusioni..." required></textarea>
       </div>
 
       <div class="form-group full-width">
@@ -159,27 +131,17 @@
           <span class="file-status">✓ Già caricato</span>
         </div>
         <label for="editImmagine" class="mt-2">Cambia Immagine (opzionale):</label>
-        <input 
-          type="file" 
-          id="editImmagine"
-          (change)="onFileSelected($event)"
-          accept="image/*"
+        <input type="file" id="editImmagine" (change)="onFileSelected($event)" accept="image/*"
           class="form-control file-input">
-        <small class="form-help">Lascia vuoto per mantenere l'immagine corrente, oppure seleziona una nuova immagine per sostituirla</small>
+        <small class="form-help">Lascia vuoto per mantenere l'immagine corrente, oppure seleziona una nuova immagine per
+          sostituirla</small>
       </div>
 
       <div class="button-group">
-        <button 
-          type="button"
-          (click)="saveEdit()" 
-          [disabled]="isLoading"
-          class="btn btn-primary">
+        <button type="button" (click)="saveEdit()" [disabled]="isLoading" class="btn btn-primary">
           💾 Salva Modifiche
         </button>
-        <button 
-          type="button"
-          (click)="cancelEdit()" 
-          class="btn btn-secondary">
+        <button type="button" (click)="cancelEdit()" class="btn btn-secondary">
           ✖ Annulla
         </button>
       </div>

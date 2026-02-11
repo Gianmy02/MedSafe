@@ -27,6 +27,9 @@ public class RefertoServiceImpl implements RefertoService {
     private final AuthorizationService authorizationService;
 
     public void addReferto(RefertoDTO dto, MultipartFile file) {
+        // 🔐 CONTROLLO AUTORIZZAZIONE: verifica se l'utente è abilitato
+        authorizationService.checkCanAddReferto();
+
         // Setta i metadati
         dto.setDataCaricamento(LocalDateTime.now());
 
@@ -38,7 +41,8 @@ public class RefertoServiceImpl implements RefertoService {
             // 2. Genera il PDF con i dati del referto
             ByteArrayInputStream pdfStream = pdfService.generaPdf(dto);
 
-            // 3. Carica il PDF generato su Azure Blob Storage con il nome scelto dall'utente
+            // 3. Carica il PDF generato su Azure Blob Storage con il nome scelto
+            // dall'utente
             String pdfUrl = blobStorageService.uploadPdf(pdfStream, dto.getNomeFile());
             dto.setUrlPdfGenerato(pdfUrl);
 
@@ -50,7 +54,7 @@ public class RefertoServiceImpl implements RefertoService {
     }
 
     public boolean editReferto(RefertoDTO dto) {
-        if(refertoRepository.existsById(dto.getId())) {
+        if (refertoRepository.existsById(dto.getId())) {
             // Recupera il referto esistente
             Referto referto = refertoRepository.findById(dto.getId())
                     .orElseThrow(() -> new RefertoNotFoundException("Referto non trovato con ID: " + dto.getId()));
@@ -60,13 +64,13 @@ public class RefertoServiceImpl implements RefertoService {
 
             // Se autorizzato, procedi con la modifica
             refertoRepository.save(refertoMapper.refertoDTOToReferto(dto));
-            return  true;
+            return true;
         }
         return false;
     }
 
     public boolean removeReferto(int id) {
-        if(refertoRepository.existsById(id)) {
+        if (refertoRepository.existsById(id)) {
             // Recupera il referto esistente
             Referto referto = refertoRepository.findById(id)
                     .orElseThrow(() -> new RefertoNotFoundException("Referto non trovato con ID: " + id));

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RefertiService, RefertoDTO } from '../../services/referti.service';
 import { UserService } from '../../services/user.service';
+import { User } from '../../models/user.model';
 
 @Component({
   selector: 'app-referti-edit',
@@ -13,6 +14,7 @@ import { UserService } from '../../services/user.service';
 })
 export class RefertiEditComponent implements OnInit {
   private userEmail = '';
+  currentUser: User | null = null;
 
   // Results
   referti: RefertoDTO[] = [];
@@ -43,6 +45,7 @@ export class RefertiEditComponent implements OnInit {
     this.userService.getCurrentUser().subscribe({
       next: (user) => {
         if (user) {
+          this.currentUser = user;
           this.userEmail = user.email;
           this.loadMyReferti();
         } else {

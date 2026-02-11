@@ -40,7 +40,7 @@ public class CustomJwtAuthenticationConverter implements Converter<Jwt, Abstract
         String email = extractEmail(jwt);
 
         if (email == null || email.isEmpty()) {
-            log.error("❌ JWT senza email valida!");
+            log.error("❌ JWT senza email valida! Claims ricevuti: {}", jwt.getClaims());
             return new JwtAuthenticationToken(jwt, Collections.emptyList());
         }
 

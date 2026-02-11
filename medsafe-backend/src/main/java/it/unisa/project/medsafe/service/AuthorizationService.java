@@ -2,15 +2,12 @@ package it.unisa.project.medsafe.service;
 
 import it.unisa.project.medsafe.entity.Referto;
 import it.unisa.project.medsafe.entity.User;
-import it.unisa.project.medsafe.entity.UserRole;
 import it.unisa.project.medsafe.exception.UnauthorizedException;
 import it.unisa.project.medsafe.repository.UserRepository;
 import it.unisa.project.medsafe.utils.JwtHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 /**
  * Service per gestire l'autorizzazione degli utenti sui referti.
@@ -38,6 +35,14 @@ public class AuthorizationService {
     public void checkCanModifyReferto(Referto referto, String operation) {
         String currentUserEmail = getCurrentUserEmail();
 
+        // Verifica se l'utente è abilitato
+        User user = userRepository.findByEmail(currentUserEmail)
+                .orElseThrow(() -> new UnauthorizedException("Utente non trovato"));
+
+        if (!user.isEnabled()) {
+            throw new UnauthorizedException("Utente non abilitato. Contattare l'amministratore.");
+        }
+
         // Verifica se è ADMIN
         if (isAdmin(currentUserEmail)) {
             log.info("✅ ADMIN {} può {} il referto ID {}", currentUserEmail, operation, referto.getId());
@@ -57,6 +62,19 @@ public class AuthorizationService {
                 String.format(
                         "Non sei autorizzato a %s questo referto. Solo il medico che lo ha creato (%s) o un amministratore può farlo.",
                         operation, referto.getAutoreEmail()));
+    }
+
+    /**
+     * Verifica se l'utente corrente può aggiungere un referto.
+     */
+    public void checkCanAddReferto() {
+        String currentUserEmail = getCurrentUserEmail();
+        User user = userRepository.findByEmail(currentUserEmail)
+                .orElseThrow(() -> new UnauthorizedException("Utente non trovato"));
+
+        if (!user.isEnabled()) {
+            throw new UnauthorizedException("Utente non abilitato. Contattare l'amministratore.");
+        }
     }
 
     /**

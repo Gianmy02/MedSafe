@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -15,8 +14,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
@@ -79,9 +76,7 @@ public class SecurityConfig {
                 // Validatore Custom per l'Audience
                 OAuth2TokenValidator<Jwt> audienceValidator = new AudienceValidator(
                                 List.of(backendClientId, FRONTEND_CLIENT_ID));
-                // Validatore Default per l'Issuer (lo rilassiamo un po' o usiamo quello di
-                // default che verifica solo la firma)
-                // Per ora validiamo solo l'audience per risolvere il blocco.
+                // Validatore Default per l'Issuer
 
                 jwtDecoder.setJwtValidator(audienceValidator);
 

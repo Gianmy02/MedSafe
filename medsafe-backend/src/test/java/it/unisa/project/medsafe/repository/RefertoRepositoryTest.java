@@ -2,7 +2,6 @@ package it.unisa.project.medsafe.repository;
 
 import it.unisa.project.medsafe.entity.Referto;
 import it.unisa.project.medsafe.entity.TipoEsame;
-import it.unisa.project.medsafe.repository.RefertoRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -263,7 +262,8 @@ public class RefertoRepositoryTest {
             for (TipoEsame tipo : TipoEsame.values()) {
                 Referto referto = Referto.builder()
                         .nomePaziente("Test " + tipo.name())
-                        .codiceFiscale("TST" + tipo.name().substring(0, Math.min(3, tipo.name().length())) + "80A01H501Z")
+                        .codiceFiscale(
+                                "TST" + tipo.name().substring(0, Math.min(3, tipo.name().length())) + "80A01H501Z")
                         .tipoEsame(tipo)
                         .fileUrlImmagine("http://test/img_" + tipo.name() + ".png")
                         .urlPdfGenerato("http://test/pdf_" + tipo.name() + ".pdf")

@@ -77,8 +77,7 @@ public class UserController {
 
     @Operation(summary = "Ottieni tutti gli utenti", description = "Lista di tutti gli utenti (solo Admin in produzione)")
     @GetMapping
-    // @PreAuthorize("hasRole('ADMIN')") // ← Commentato per testing in modalità
-    // local/docker
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         log.info("📋 Richiesta lista utenti");
         List<User> users = userService.getAllUsers();

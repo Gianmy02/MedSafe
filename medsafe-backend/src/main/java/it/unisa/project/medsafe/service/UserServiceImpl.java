@@ -28,7 +28,8 @@ public class UserServiceImpl implements UserService {
         Optional<User> existingUser = userRepository.findByEmail(email);
 
         if (existingUser.isPresent()) {
-            // Aggiorna utente esistente (ma NON il ruolo, per preservare modifiche manuali dell'admin)
+            // Aggiorna utente esistente (ma NON il ruolo, per preservare modifiche manuali
+            // dell'admin)
             User user = existingUser.get();
             user.setFullName(fullName);
             user.setAzureOid(azureOid);

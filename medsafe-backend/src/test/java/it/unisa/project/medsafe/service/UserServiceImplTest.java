@@ -5,7 +5,6 @@ import it.unisa.project.medsafe.entity.Specializzazione;
 import it.unisa.project.medsafe.entity.User;
 import it.unisa.project.medsafe.entity.UserRole;
 import it.unisa.project.medsafe.repository.UserRepository;
-import it.unisa.project.medsafe.service.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -81,8 +80,7 @@ class UserServiceImplTest {
                 "newmedico@hospital.com",
                 "Dr. Luigi Verdi",
                 "azure-oid-789",
-                UserRole.MEDICO
-        );
+                UserRole.MEDICO);
 
         // Assert
         assertNotNull(result);
@@ -108,7 +106,7 @@ class UserServiceImplTest {
                 "medico1@medsafe.local",
                 "Dr. Mario Rossi UPDATED",
                 "azure-oid-999",
-                UserRole.ADMIN  // Cambia ruolo
+                UserRole.ADMIN // Cambia ruolo
         );
 
         // Assert
@@ -254,7 +252,6 @@ class UserServiceImplTest {
 
     // ==================== TEST Edge Cases ====================
 
-
     @Test
     @DisplayName("Disabilita e riabilita utente sequenzialmente")
     void testDisableEnableSequenza() {
@@ -290,8 +287,7 @@ class UserServiceImplTest {
                 "medico1@medsafe.local",
                 "Updated Name",
                 "new-oid",
-                UserRole.MEDICO
-        );
+                UserRole.MEDICO);
 
         // Assert - createdAt deve rimanere uguale
         assertEquals(originalCreatedAt, medicoUser.getCreatedAt());
@@ -310,8 +306,7 @@ class UserServiceImplTest {
         Optional<User> result = userService.updateUserProfile(
                 "medico1@medsafe.local",
                 Genere.FEMMINA,
-                Specializzazione.PEDIATRIA
-        );
+                Specializzazione.PEDIATRIA);
 
         // Assert
         assertTrue(result.isPresent());
@@ -330,8 +325,7 @@ class UserServiceImplTest {
         Optional<User> result = userService.updateUserProfile(
                 "nonexistent@test.com",
                 Genere.MASCHIO,
-                Specializzazione.CARDIOLOGIA
-        );
+                Specializzazione.CARDIOLOGIA);
 
         // Assert
         assertFalse(result.isPresent());
@@ -349,8 +343,7 @@ class UserServiceImplTest {
         Optional<User> result = userService.updateUserProfile(
                 "medico1@medsafe.local",
                 null,
-                null
-        );
+                null);
 
         // Assert
         assertTrue(result.isPresent());

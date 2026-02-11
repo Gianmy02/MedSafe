@@ -30,6 +30,11 @@ export class DashboardComponent implements OnInit {
           this.user = user;
           this.loading = false;
 
+          // Se l'utente non è abilitato, rimuovi la carta "Nuovo Referto"
+          if (this.user && this.user.enabled === false) {
+            this.cards = this.cards.filter(card => card.route !== '/upload');
+          }
+
           // Check primo accesso
           if (this.user && !this.user.specializzazione) {
             alert("Benvenuto! Al primo accesso è necessario completare il profilo selezionando Genere e Specializzazione.");

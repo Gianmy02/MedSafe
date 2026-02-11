@@ -31,24 +31,6 @@
 
 ---
 
-## 📚 Documentazione
-
-### 🚀 Quick Start
-- **[QUICK_START.md](QUICK_START.md)** - Avvio rapido in 5 minuti
-
-### 🔐 Security & JWT
-- **[JWT_IMPLEMENTATION_SUMMARY.md](JWT_IMPLEMENTATION_SUMMARY.md)** - Riepilogo implementazione JWT
-- **[AUTHORIZATION_STRATEGY.md](AUTHORIZATION_STRATEGY.md)** - 🆕 Gestione ruoli tramite Database
-- **[AZURE_AD_SETUP.md](AZURE_AD_SETUP.md)** - Guida configurazione Azure AD passo-passo
-
-### 🏗️ Architettura
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Diagrammi e spiegazioni architetturali
-
-### 🎨 Frontend
-- **[FRONTEND_INTEGRATION.md](FRONTEND_INTEGRATION.md)** - Integrazione Angular con MSAL
-
----
-
 ## 🚀 Avvio Rapido
 
 ### Prerequisiti
@@ -122,18 +104,6 @@ medsafe/
 ---
 
 ## 🔐 Autenticazione JWT
-
-### Modalità Sviluppo Locale
-
-```properties
-# application.properties
-spring.profiles.active=docker
-```
-
-**Comportamento:**
-- ❌ Autenticazione disabilitata
-- ✅ Tutti gli endpoint pubblici
-- ✅ Email fallback: `test@medsafe.local`
 
 ### Modalità Produzione Azure
 

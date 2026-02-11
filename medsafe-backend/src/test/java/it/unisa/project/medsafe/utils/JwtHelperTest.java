@@ -1,6 +1,5 @@
 package it.unisa.project.medsafe.utils;
 
-import it.unisa.project.medsafe.utils.JwtHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -59,13 +58,11 @@ class JwtHelperTest {
                 Instant.now(),
                 Instant.now().plusSeconds(3600),
                 headers,
-                claims
-        );
+                claims);
 
         // Setup JwtAuthenticationToken con authorities
         Collection<GrantedAuthority> authorities = List.of(
-                new SimpleGrantedAuthority("ROLE_MEDICO")
-        );
+                new SimpleGrantedAuthority("ROLE_MEDICO"));
         mockJwtAuth = new JwtAuthenticationToken(mockJwt, authorities);
     }
 
@@ -100,8 +97,7 @@ class JwtHelperTest {
                     Instant.now(),
                     Instant.now().plusSeconds(3600),
                     Map.of("alg", "RS256"),
-                    claims
-            );
+                    claims);
 
             JwtAuthenticationToken authSenzaEmail = new JwtAuthenticationToken(jwtSenzaEmail, List.of());
 
@@ -177,8 +173,7 @@ class JwtHelperTest {
                     Instant.now(),
                     Instant.now().plusSeconds(3600),
                     Map.of("alg", "RS256"),
-                    Map.of("email", "test@test.com")
-            );
+                    Map.of("email", "test@test.com"));
 
             JwtAuthenticationToken authSenzaNome = new JwtAuthenticationToken(jwtSenzaNome, List.of());
             when(securityContext.getAuthentication()).thenReturn(authSenzaNome);
@@ -220,8 +215,7 @@ class JwtHelperTest {
                     Instant.now(),
                     Instant.now().plusSeconds(3600),
                     Map.of("alg", "RS256"),
-                    Map.of("email", "test@test.com")
-            );
+                    Map.of("email", "test@test.com"));
 
             JwtAuthenticationToken authSenzaOid = new JwtAuthenticationToken(jwtSenzaOid, List.of());
             when(securityContext.getAuthentication()).thenReturn(authSenzaOid);
@@ -363,8 +357,7 @@ class JwtHelperTest {
             // Arrange - Utente con MEDICO e ADMIN
             Collection<GrantedAuthority> multipleAuthorities = List.of(
                     new SimpleGrantedAuthority("ROLE_MEDICO"),
-                    new SimpleGrantedAuthority("ROLE_ADMIN")
-            );
+                    new SimpleGrantedAuthority("ROLE_ADMIN"));
             JwtAuthenticationToken authMultipleRoles = new JwtAuthenticationToken(mockJwt, multipleAuthorities);
 
             when(securityContext.getAuthentication()).thenReturn(authMultipleRoles);
@@ -405,8 +398,7 @@ class JwtHelperTest {
                     () -> assertEquals("Dr. Mario Rossi", fullName),
                     () -> assertEquals("azure-oid-12345", oid),
                     () -> assertNotNull(jwt),
-                    () -> assertTrue(hasMedico)
-            );
+                    () -> assertTrue(hasMedico));
         }
     }
 }
