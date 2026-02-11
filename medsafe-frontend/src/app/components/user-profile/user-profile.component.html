@@ -6,6 +6,11 @@
     </button>
   </div>
 
+  <div *ngIf="user && !user.enabled" class="alert-warning"
+    style="background-color: #ffcc00; color: #333; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-weight: bold; text-align: center;">
+    UTENTE DISABILITATO, PARLARNE CON L'ADMIN.
+  </div>
+
   <div *ngIf="loading" class="loading">
     <p>Caricamento profilo...</p>
   </div>
@@ -45,26 +50,19 @@
         <label>Specializzazione <span class="required">*</span></label>
         <p *ngIf="!isEditMode">{{ formatSpecializzazione(user.specializzazione || 'Non specificata') }}</p>
         <div *ngIf="isEditMode" class="autocomplete-container">
-          <input 
-            type="text" 
-            [(ngModel)]="editData.specializzazione" 
-            (input)="filterSpecializzazioni()"
-            (focus)="onSpecializzazioneFocus()"
-            (blur)="onSpecializzazioneBlur()"
-            placeholder="Cerca specializzazione..."
-            class="form-input"
-            required
-          >
-          <div *ngIf="showSpecializzazioniDropdown && filteredSpecializzazioni.length > 0" class="autocomplete-dropdown">
-            <div 
-              *ngFor="let spec of filteredSpecializzazioni" 
-              class="autocomplete-item"
-              (click)="selectSpecializzazione(spec)"
-            >
+          <input type="text" [(ngModel)]="editData.specializzazione" (input)="filterSpecializzazioni()"
+            (focus)="onSpecializzazioneFocus()" (blur)="onSpecializzazioneBlur()"
+            placeholder="Cerca specializzazione..." class="form-input" required>
+          <div *ngIf="showSpecializzazioniDropdown && filteredSpecializzazioni.length > 0"
+            class="autocomplete-dropdown">
+            <div *ngFor="let spec of filteredSpecializzazioni" class="autocomplete-item"
+              (click)="selectSpecializzazione(spec)">
               {{ formatSpecializzazione(spec) }}
             </div>
           </div>
-          <div *ngIf="showSpecializzazioniDropdown && filteredSpecializzazioni.length === 0 && editData.specializzazione.trim() !== ''" class="autocomplete-empty">
+          <div
+            *ngIf="showSpecializzazioniDropdown && filteredSpecializzazioni.length === 0 && editData.specializzazione.trim() !== ''"
+            class="autocomplete-empty">
             Nessuna specializzazione trovata
           </div>
         </div>
@@ -76,11 +74,7 @@
       </div>
 
       <div *ngIf="isEditMode" class="profile-actions">
-        <button 
-          class="btn-save" 
-          (click)="saveProfile()"
-          [disabled]="!isFormValid() || loading"
-        >
+        <button class="btn-save" (click)="saveProfile()" [disabled]="!isFormValid() || loading">
           💾 {{ loading ? 'Salvando...' : 'Salva' }}
         </button>
         <button class="btn-cancel" (click)="cancelEdit()" [disabled]="loading">❌ Annulla</button>

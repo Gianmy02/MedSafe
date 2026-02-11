@@ -31,7 +31,7 @@ export class DashboardComponent implements OnInit {
           this.loading = false;
 
           // Se l'utente non è abilitato, rimuovi la carta "Nuovo Referto"
-          if (this.user && this.user.enabled === false) {
+          if (this.user && !this.user.enabled) {
             this.cards = this.cards.filter(card => card.route !== '/upload');
           }
 
