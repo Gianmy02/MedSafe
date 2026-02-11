@@ -23,7 +23,7 @@ export interface RefertoDTO {
 export class RefertiService {
   private apiUrl = `${environment.apiUrl}/referti`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getRefertoByCodiceFiscale(codiceFiscale: string): Observable<RefertoDTO[]> {
     const params = new HttpParams().set('value', codiceFiscale);
@@ -53,8 +53,8 @@ export class RefertiService {
     return this.http.post<void>(this.apiUrl, formData);
   }
 
-  editReferto(referto: RefertoDTO): Observable<void> {
-    return this.http.put<void>(this.apiUrl, referto);
+  editReferto(formData: FormData): Observable<void> {
+    return this.http.put<void>(this.apiUrl, formData);
   }
 
   removeReferto(id: number): Observable<void> {

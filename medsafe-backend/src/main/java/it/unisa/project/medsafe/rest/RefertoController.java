@@ -106,14 +106,16 @@ public class RefertoController {
         }
     }
 
-    @Operation(summary = "Modifica referto", description = "Modifica un referto esistente")
-    @PutMapping
-    public ResponseEntity<Void> editReferto(@RequestBody RefertoDTO dto) {
-        if (refertoService.editReferto(dto))
+    @Operation(summary = "Modifica referto", description = "Modifica un referto esistente (supporta upload nuova immagine)")
+    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> editReferto(
+            @RequestPart("referto") RefertoDTO dto,
+            @RequestPart(value = "file", required = false) MultipartFile file) {
+
+        if (refertoService.editReferto(dto, file))
             return ResponseEntity.status(HttpStatus.OK).body(null);
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-
     }
 
     @Operation(summary = "Elimina referto", description = "Elimina un referto per ID")

@@ -144,9 +144,16 @@ export class RefertiEditComponent implements OnInit {
       conclusioni: this.editData.conclusioni
     };
 
-    // TODO: Se c'è un nuovo file, inviare anche il file
-    // Per ora aggiorniamo solo i dati testuali
-    this.refertiService.editReferto(updatedReferto).subscribe({
+    const formData = new FormData();
+    formData.append('referto', new Blob([JSON.stringify(updatedReferto)], {
+      type: 'application/json'
+    }));
+
+    if (this.selectedFile) {
+      formData.append('file', this.selectedFile);
+    }
+
+    this.refertiService.editReferto(formData).subscribe({
       next: () => {
         this.isLoading = false;
         this.successMessage = 'Referto modificato con successo';

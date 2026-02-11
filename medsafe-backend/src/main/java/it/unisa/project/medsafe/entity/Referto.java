@@ -2,7 +2,6 @@ package it.unisa.project.medsafe.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -28,7 +27,6 @@ public class Referto {
     @Enumerated(EnumType.STRING)
     private TipoEsame tipoEsame;
 
-
     @Column(length = 4000)
     private String testoReferto;
 
@@ -47,7 +45,6 @@ public class Referto {
     @Column(nullable = false)
     private String autoreEmail;
 
-    @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime dataCaricamento;
 }

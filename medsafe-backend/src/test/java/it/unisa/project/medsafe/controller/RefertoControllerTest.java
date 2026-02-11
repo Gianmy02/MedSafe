@@ -50,8 +50,7 @@ public class RefertoControllerTest {
                     "Conclusioni",
                     "medico@hospital.com",
                     "referto_test",
-                    file
-            );
+                    file);
 
             assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
             assertTrue(response.getBody().toString().contains("Formato file non supportato"));
@@ -70,8 +69,7 @@ public class RefertoControllerTest {
                     "Conclusioni",
                     "medico@hospital.com",
                     "referto_test",
-                    file
-            );
+                    file);
 
             assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
             assertEquals("Nome file non valido", response.getBody());
@@ -90,8 +88,7 @@ public class RefertoControllerTest {
                     "Conclusioni",
                     "medico@hospital.com",
                     "referto_test",
-                    file
-            );
+                    file);
 
             assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         }
@@ -99,12 +96,12 @@ public class RefertoControllerTest {
         @Test
         public void editRefertoNotFoundTest() {
             RefertoDTO dto = RefertoDTO.builder().id(999).build();
-            when(refertoService.editReferto(dto)).thenReturn(false);
+            when(refertoService.editReferto(dto, null)).thenReturn(false);
 
-            ResponseEntity<Void> response = refertoController.editReferto(dto);
+            ResponseEntity<Void> response = refertoController.editReferto(dto, null);
 
             assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-            verify(refertoService).editReferto(dto);
+            verify(refertoService).editReferto(dto, null);
         }
 
         @Test
@@ -164,8 +161,7 @@ public class RefertoControllerTest {
                     "Conclusioni",
                     "medico@hospital.com",
                     "referto_test",
-                    file
-            );
+                    file);
 
             assertEquals(HttpStatus.CREATED, response.getStatusCode());
             verify(refertoService).addReferto(any(), eq(file));
@@ -186,8 +182,7 @@ public class RefertoControllerTest {
                     "Conclusioni",
                     "medico@hospital.com",
                     "referto_bianchi",
-                    file
-            );
+                    file);
 
             assertEquals(HttpStatus.CREATED, response.getStatusCode());
         }
@@ -207,8 +202,7 @@ public class RefertoControllerTest {
                     "Conclusioni",
                     "medico@hospital.com",
                     "referto_verdi",
-                    file
-            );
+                    file);
 
             assertEquals(HttpStatus.CREATED, response.getStatusCode());
         }
@@ -216,12 +210,12 @@ public class RefertoControllerTest {
         @Test
         public void editRefertoSuccessTest() {
             RefertoDTO dto = RefertoDTO.builder().id(1).build();
-            when(refertoService.editReferto(dto)).thenReturn(true);
+            when(refertoService.editReferto(any(RefertoDTO.class), any())).thenReturn(true);
 
-            ResponseEntity<Void> response = refertoController.editReferto(dto);
+            ResponseEntity<Void> response = refertoController.editReferto(dto, null);
 
             assertEquals(HttpStatus.OK, response.getStatusCode());
-            verify(refertoService).editReferto(dto);
+            verify(refertoService).editReferto(dto, null);
         }
 
         @Test
@@ -239,8 +233,7 @@ public class RefertoControllerTest {
             String cf = "RSSMRA80A01H501Z";
             List<RefertoDTO> referti = Arrays.asList(
                     RefertoDTO.builder().id(1).codiceFiscale(cf).build(),
-                    RefertoDTO.builder().id(2).codiceFiscale(cf).build()
-            );
+                    RefertoDTO.builder().id(2).codiceFiscale(cf).build());
             when(refertoService.getRefertoByCodiceFiscale(cf)).thenReturn(referti);
 
             ResponseEntity<List<RefertoDTO>> response = refertoController.getRefertoByCodiceFiscale(cf);
@@ -268,8 +261,7 @@ public class RefertoControllerTest {
             TipoEsame tipo = TipoEsame.TAC;
             List<RefertoDTO> referti = Arrays.asList(
                     RefertoDTO.builder().id(1).tipoEsame(tipo).build(),
-                    RefertoDTO.builder().id(2).tipoEsame(tipo).build()
-            );
+                    RefertoDTO.builder().id(2).tipoEsame(tipo).build());
             when(refertoService.getRefertiByTipoEsame(tipo)).thenReturn(referti);
 
             ResponseEntity<List<RefertoDTO>> response = refertoController.getRefertiByTipoEsame(tipo);
@@ -284,8 +276,7 @@ public class RefertoControllerTest {
             String email = "medico@hospital.com";
             List<RefertoDTO> referti = Arrays.asList(
                     RefertoDTO.builder().id(1).autoreEmail(email).build(),
-                    RefertoDTO.builder().id(2).autoreEmail(email).build()
-            );
+                    RefertoDTO.builder().id(2).autoreEmail(email).build());
             when(refertoService.getRefertiByAutoreEmail(email)).thenReturn(referti);
 
             ResponseEntity<List<RefertoDTO>> response = refertoController.getRefertiByAutoreEmail(email);

@@ -51,7 +51,7 @@ public class RefertoServiceTest {
         public void editRefertoNotFoundTest() {
             RefertoDTO dto = RefertoDTO.builder().id(1).build();
             when(refertoRepository.existsById(1)).thenReturn(false);
-            boolean result = refertoService.editReferto(dto);
+            boolean result = refertoService.editReferto(dto, null);
             assertFalse(result);
             verify(refertoRepository).existsById(1);
             verify(refertoRepository, never()).save(any());
@@ -167,7 +167,7 @@ public class RefertoServiceTest {
             doNothing().when(authorizationService).checkCanModifyReferto(referto, "modificare");
             when(refertoRepository.save(referto)).thenReturn(referto);
 
-            boolean result = refertoService.editReferto(dto);
+            boolean result = refertoService.editReferto(dto, null);
 
             assertTrue(result);
             verify(refertoRepository).existsById(1);
