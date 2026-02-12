@@ -47,8 +47,8 @@ public interface UserService {
     /**
      * Aggiorna il profilo utente (genere e specializzazione).
      *
-     * @param email Email dell'utente
-     * @param genere Nuovo genere
+     * @param email            Email dell'utente
+     * @param genere           Nuovo genere
      * @param specializzazione Nuova specializzazione
      * @return User aggiornato
      */

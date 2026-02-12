@@ -109,12 +109,19 @@ public class RefertoController {
     @Operation(summary = "Modifica referto", description = "Modifica un referto esistente (supporta upload nuova immagine)")
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> editReferto(
-            @RequestPart("referto") RefertoDTO dto,
+            @RequestPart("referto") @jakarta.validation.Valid RefertoDTO dto,
             @RequestPart(value = "file", required = false) MultipartFile file) {
 
-        if (refertoService.editReferto(dto, file))
-            return ResponseEntity.status(HttpStatus.OK).body(null);
+        log.info("=== RICHIESTA MODIFICA REFERTO ===");
+        log.info("ID Referto: {}", dto.getId());
+        log.info("File presente: {}", (file != null && !file.isEmpty()));
 
+        if (refertoService.editReferto(dto, file)) {
+            log.info("=== MODIFICA COMPLETATA CON SUCCESSO ===");
+            return ResponseEntity.status(HttpStatus.OK).body(null);
+        }
+
+        log.warn("=== MODIFICA FALLITA: REFERTO NON TROVATO O ERRORE ===");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 

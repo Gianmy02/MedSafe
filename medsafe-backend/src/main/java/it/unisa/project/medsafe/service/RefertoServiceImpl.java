@@ -16,9 +16,12 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class RefertoServiceImpl implements RefertoService {
     private final RefertoRepository refertoRepository;
     private final RefertoMapper refertoMapper;
@@ -54,6 +57,8 @@ public class RefertoServiceImpl implements RefertoService {
     }
 
     public boolean editReferto(RefertoDTO dto, MultipartFile file) {
+        log.info("Inizio procedura modifica referto ID: {}", dto.getId());
+
         if (refertoRepository.existsById(dto.getId())) {
             // Recupera il referto esistente
             Referto referto = refertoRepository.findById(dto.getId())
@@ -68,55 +73,68 @@ public class RefertoServiceImpl implements RefertoService {
 
             // 1. Gestione Immagine: se c'è un nuovo file, caricalo ed elimina il vecchio
             if (file != null && !file.isEmpty()) {
+                log.info("Nuova immagine rilevata, procedo con upload...");
                 try {
                     String newImgUrl = blobStorageService.uploadFile(file, file.getOriginalFilename());
                     dto.setFileUrlImmagine(newImgUrl);
+                    log.info("Nuova immagine caricata: {}", newImgUrl);
 
                     // Se l'URL è cambiato (dovrebbe esserlo), elimina la vecchia immagine
                     if (oldImgUrl != null && !oldImgUrl.equals(newImgUrl)) {
                         String oldImgBlobName = extractBlobPathFromUrl(oldImgUrl);
                         if (oldImgBlobName != null) {
                             blobStorageService.deleteFile(oldImgBlobName);
+                            log.info("Vecchia immagine eliminata: {}", oldImgBlobName);
                         }
                     }
                 } catch (IOException e) {
+                    log.error("Errore upload nuova immagine", e);
                     throw new RuntimeException("Errore durante il caricamento della nuova immagine: " + e.getMessage(),
                             e);
                 }
             } else {
+                log.info("Nessuna nuova immagine caricata. Mantengo l'immagine esistente.");
                 // Se non c'è nuovo file, mantieni l'URL esistente nel DTO per coerenza
-                // (Anche se il mapper lo gestirebbe, meglio essere espliciti se il DTO non ha
-                // l'URL)
-                if (dto.getFileUrlImmagine() == null) {
+                // Se il DTO ha il campo vuoto, lo riempiamo con quello del DB
+                if (dto.getFileUrlImmagine() == null || dto.getFileUrlImmagine().isEmpty()) {
+                    log.info("Ripristino URL immagine dal DB: {}", oldImgUrl);
                     dto.setFileUrlImmagine(oldImgUrl);
                 }
             }
+
             try {
                 // 2. Rigenera il PDF con i nuovi dati
+                log.info("Rigenerazione PDF referto...");
                 ByteArrayInputStream pdfStream = pdfService.generaPdf(dto);
 
                 // 3. Carica il nuovo PDF
                 // Usiamo il nome file aggiornato (o lo stesso) per generare un nuovo blob unico
                 String newPdfUrl = blobStorageService.uploadPdf(pdfStream, dto.getNomeFile());
                 dto.setUrlPdfGenerato(newPdfUrl);
+                log.info("Nuovo PDF generato e caricato: {}", newPdfUrl);
 
                 // 4. Elimina il vecchio PDF
                 String oldPdfBlobName = extractBlobPathFromUrl(oldPdfUrl);
                 if (oldPdfBlobName != null) {
                     blobStorageService.deleteFile(oldPdfBlobName);
+                    log.info("Vecchio PDF eliminato: {}", oldPdfBlobName);
                 }
 
             } catch (IOException e) {
+                log.error("Errore rigenerazione PDF", e);
                 throw new RuntimeException("Errore durante la rigenerazione del PDF: " + e.getMessage(), e);
             }
 
             // Se autorizzato, procedi con la modifica
             // Aggiorna l'entità esistente con i dati del DTO (mantiene ID e
             // dataCaricamento)
+            log.info("Aggiornamento entità Referto sul DB...");
             refertoMapper.updateRefertoFromDTO(dto, referto);
             refertoRepository.save(referto);
+            log.info("Referto salvato correttamente.");
             return true;
         }
+        log.warn("Tentativo di modifica fallito: Referto ID {} non trovato.", dto.getId());
         return false;
 
     }
@@ -158,6 +176,25 @@ public class RefertoServiceImpl implements RefertoService {
             authorizationService.checkCanModifyReferto(referto, "eliminare");
 
             // Se autorizzato, procedi con l'eliminazione
+            try {
+                // Elimina immagine se presente
+                String imgBlobName = extractBlobPathFromUrl(referto.getFileUrlImmagine());
+                if (imgBlobName != null) {
+                    blobStorageService.deleteFile(imgBlobName);
+                }
+
+                // Elimina PDF se presente
+                String pdfBlobName = extractBlobPathFromUrl(referto.getUrlPdfGenerato());
+                if (pdfBlobName != null) {
+                    blobStorageService.deleteFile(pdfBlobName);
+                }
+            } catch (Exception e) {
+                // Logghiamo l'errore ma procediamo con l'eliminazione del record DB
+                // per evitare disallineamenti gravi (o decidere se bloccare, ma cleanup
+                // è meglio best-effort)
+                System.err.println("Errore durante l'eliminazione dei file da BlobStorage: " + e.getMessage());
+            }
+
             refertoRepository.deleteById(id);
             return true;
         }
