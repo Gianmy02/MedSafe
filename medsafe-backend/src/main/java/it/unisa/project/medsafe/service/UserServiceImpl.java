@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User syncUserFromAzureAd(String email, String fullName, String azureOid, UserRole role) {
-        log.info("🔄 Sincronizzazione utente da Azure AD: {}", email);
+        log.info("🔄 Sincronizzazione utente da Azure AD");
 
         Optional<User> existingUser = userRepository.findByEmail(email);
 
@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
             user.setFullName(fullName);
             user.setAzureOid(azureOid);
             // NON aggiorniamo il ruolo: user.setRole(role);
-            log.info("✅ Utente aggiornato: {} (ruolo preservato: {})", email, user.getRole());
+            log.info("✅ Utente aggiornato (ruolo preservato: {})", user.getRole());
             return userRepository.save(user);
         } else {
             // Crea nuovo utente con il ruolo specificato (di solito MEDICO)
@@ -45,7 +45,7 @@ public class UserServiceImpl implements UserService {
                     .role(role)
                     .enabled(true)
                     .build();
-            log.info("✅ Nuovo utente creato: {} con ruolo {}", email, role);
+            log.info("✅ Nuovo utente creato con ruolo {}", role);
             return userRepository.save(newUser);
         }
     }
@@ -63,7 +63,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public Optional<User> updateUserProfile(String email, Genere genere, Specializzazione specializzazione) {
-        log.info("📝 Aggiornamento profilo utente: {}", email);
+        log.info("📝 Aggiornamento profilo utente");
 
         Optional<User> userOpt = userRepository.findByEmail(email);
         if (userOpt.isPresent()) {
@@ -71,12 +71,11 @@ public class UserServiceImpl implements UserService {
             user.setGenere(genere);
             user.setSpecializzazione(specializzazione);
             User updated = userRepository.save(user);
-            log.info("✅ Profilo aggiornato: {} - Genere: {}, Specializzazione: {}",
-                    email, genere, specializzazione);
+            log.info("✅ Profilo aggiornato - Genere: {}, Specializzazione: {}", genere, specializzazione);
             return Optional.of(updated);
         }
 
-        log.warn("⚠️  Utente non trovato: {}", email);
+        log.warn("⚠️  Utente non trovato");
         return Optional.empty();
     }
 

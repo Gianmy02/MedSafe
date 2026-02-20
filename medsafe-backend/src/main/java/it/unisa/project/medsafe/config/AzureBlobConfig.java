@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Profile;
  * NON sono necessarie connection-string o chiavi!
  */
 @Configuration
-@Profile({ "azure", "prod" })
+@Profile({ "azure" })
 public class AzureBlobConfig {
 
     @Value("${spring.cloud.azure.storage.blob.endpoint}")

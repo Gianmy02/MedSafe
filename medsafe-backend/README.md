@@ -1,370 +1,231 @@
-# 🏥 MedSafe - Secure Cloud Health Portal
+# ⚙️ MedSafe Backend
 
-**Gestione sicura e archiviazione di referti medici su Azure con Microsoft Entra ID**
+REST API Spring Boot per la gestione sicura di referti medici con autenticazione JWT via Microsoft Entra ID.
 
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.10-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![Java](https://img.shields.io/badge/Java-21-blue.svg)](https://www.oracle.com/java/)
-[![Azure](https://img.shields.io/badge/Azure-Cloud-0078D4.svg)](https://azure.microsoft.com/)
-[![Security](https://img.shields.io/badge/Security-JWT%20%2B%20Azure%20AD-red.svg)](https://learn.microsoft.com/azure/active-directory/)
 
 ---
 
-## 📋 Descrizione
+## 📋 Stack Tecnologico
 
-**MedSafe** è un'applicazione Cloud-Native per la gestione sicura di referti medici. Implementa un'architettura **Headless** con:
-
-- 🎨 **Frontend**: Angular SPA (Azure Static Web Apps)
-- ⚙️ **Backend**: Spring Boot REST API (Azure App Service)
-- 🔐 **Autenticazione**: Microsoft Entra ID (Azure Active Directory) con JWT
-- 💾 **Database**: Azure SQL Database
-- 📁 **Storage**: Azure Blob Storage
-- 🔑 **Secrets**: Azure Key Vault
-
-### 🎯 Caratteristiche Principali
-
-✅ **Zero-Trust Security**: Nessuna password salvata nel backend  
-✅ **JWT Authentication**: Token validati con Azure AD public keys  
-✅ **Role-Based Access Control (RBAC)**: MEDICO e ADMIN  
-✅ **Automatic Email Extraction**: Email estratta automaticamente dal JWT  
-✅ **Stateless REST API**: Scalabile e Cloud-ready  
-✅ **Multi-Environment**: Profili per local, docker, azure  
-
----
-
-## 🚀 Avvio Rapido
-
-### Prerequisiti
-
-- ☕ Java 21+
-- 🐋 Docker Desktop
-- 📦 Maven (wrapper incluso)
-
-### Sviluppo Locale (senza Azure AD)
-
-```bash
-# 1. Clona il repository
-git clone <repository-url>
-cd medsafe
-
-# 2. Avvia Docker
-docker-compose up -d
-
-# 3. Avvia l'applicazione
-./mvnw spring-boot:run
-
-# 4. Apri Swagger
-http://localhost:8080/swagger-ui.html
-```
-
-**✅ Pronto! Nessuna autenticazione richiesta in modalità local.**
+| Tecnologia | Versione | Utilizzo |
+|------------|----------|----------|
+| Java | 21 | Linguaggio |
+| Spring Boot | 3.5.10 | Framework |
+| Spring Security | 6.x | Autenticazione JWT |
+| Spring Data JPA | 6.x | Persistenza |
+| MapStruct | 1.5.5 | Mapping Entity ↔ DTO |
+| OpenPDF | 1.3.30 | Generazione PDF |
+| SpringDoc | 2.8.4 | Swagger/OpenAPI |
+| Lombok | latest | Riduzione boilerplate |
+| JaCoCo | 0.8.13 | Code Coverage (min 60%) |
+| Testcontainers | 1.19.3 | Integration Testing |
 
 ---
 
 ## 🏗️ Struttura Progetto
 
 ```
-medsafe/
-├── src/main/java/it/unisa/project/medsafe/
-│   ├── config/
-│   │   ├── SecurityConfig.java          # Security con Azure AD (prod)
-│   │   ├── SecurityConfigLocal.java     # Security disabilitata (dev)
-│   │   ├── OpenApiConfig.java           # Swagger
-│   │   └── BlobStorageConfig.java       # Azure Blob Storage
-│   ├── entinty/
-│   │   ├── Referto.java                 # Entity referti medici
-│   │   ├── TipoEsame.java              # Enum tipi esame
-│   │   ├── User.java                    # Entity utenti (JWT sync)
-│   │   └── UserRole.java                # Enum MEDICO/ADMIN
-│   ├── repository/
-│   │   ├── RefertoRepository.java
-│   │   └── UserRepository.java
-│   ├── service/
-│   │   ├── RefertoService.java
-│   │   ├── UserService.java
-│   │   ├── PdfService.java
-│   │   └── BlobStorageService.java
-│   ├── rest/
-│   │   ├── RefertoController.java       # API referti
-│   │   └── UserController.java          # API utenti
-│   ├── utils/
-│   │   ├── JwtHelper.java               # Helper JWT Azure AD
-│   │   └── RefertoMapper.java           # MapStruct mapper
-│   └── dto/
-│       └── RefertoDTO.java
-├── src/main/resources/
-│   ├── application.properties
-│   ├── application-local.properties
-│   ├── application-docker.properties
-│   └── application-azure.properties     # Configurazione Azure AD
-├── docker-compose.yml                   # MySQL + Azurite
-├── pom.xml
-└── README.md
+src/main/java/it/unisa/project/medsafe/
+├── config/
+│   ├── SecurityConfig.java              # Security Azure AD (profilo azure)
+│   ├── SecurityConfigLocal.java         # Security disabilitata (profilo local/docker)
+│   ├── CustomJwtAuthenticationConverter.java  # Conversione JWT → Authentication
+│   ├── OpenApiConfig.java               # Configurazione Swagger
+│   └── AzureBlobConfig.java             # Azure Blob Storage client
+├── entity/
+│   ├── User.java                        # Utente (email, ruolo, Azure OID)
+│   ├── Referto.java                     # Referto medico
+│   ├── UserRole.java                    # Enum: MEDICO, ADMIN
+│   ├── TipoEsame.java                  # Enum: TAC, RADIOGRAFIA, ECOGRAFIA...
+│   ├── Genere.java                      # Enum: MASCHIO, FEMMINA, NON_SPECIFICATO
+│   └── Specializzazione.java           # Enum specializzazioni mediche
+├── repository/
+│   ├── UserRepository.java
+│   └── RefertoRepository.java
+├── service/
+│   ├── UserService.java / UserServiceImpl.java
+│   ├── RefertoService.java / RefertoServiceImpl.java
+│   ├── BlobStorageService.java / BlobStorageServiceImpl.java
+│   ├── PdfService.java / PdfServiceImpl.java
+│   └── AuthorizationService.java        # RBAC: chi può modificare/eliminare
+├── rest/
+│   ├── UserController.java              # /users/**
+│   └── RefertoController.java           # /referti/**
+├── dto/
+│   ├── RefertoDTO.java
+│   └── UserDTO.java
+├── utils/
+│   ├── JwtHelper.java                   # Estrazione email/nome/OID dal JWT
+│   ├── RefertoMapper.java              # MapStruct mapper
+│   └── UserMapper.java
+└── exception/
+    ├── GlobalExceptionHandler.java
+    ├── RefertoNotFoundException.java
+    └── UnauthorizedException.java
 ```
 
 ---
 
-## 🔐 Autenticazione JWT
+## 🔐 Autenticazione e Autorizzazione
 
-### Modalità Produzione Azure
+### Profili Spring
 
-```properties
-# application.properties
-spring.profiles.active=azure
-```
+| Profilo | Security | Database | Uso |
+|---------|----------|----------|-----|
+| `local` | ❌ Disabilitata | H2 in-memory | Sviluppo IDE |
+| `docker` | ❌ Disabilitata | MySQL (Docker) | Sviluppo locale |
+| `azure` | ✅ JWT + Entra ID | Azure SQL | Produzione |
 
-**Comportamento:**
-- ✅ Autenticazione con Microsoft Entra ID
-- ✅ JWT validato con Azure AD
-- ✅ Email estratta automaticamente dal token
-- ✅ RBAC attivo (MEDICO/ADMIN)
+### Flusso JWT (profilo `azure`)
 
-**Esempio JWT:**
-```json
-{
-  "aud": "api://medsafe-backend",
-  "email": "mario.rossi@hospital.com",
-  "name": "Dr. Mario Rossi",
-  "roles": ["MEDICO"],
-  "oid": "uuid-univoco"
-}
-```
+1. Il frontend invia l'**id_token** di Azure EasyAuth come `Bearer` token
+2. `CustomJwtAuthenticationConverter` estrae l'email dai claim (`email` o `preferred_username`)
+3. Carica i ruoli dal database (o assegna `MEDICO` al primo login)
+4. `JwtHelper` fornisce metodi per estrarre email, nome e OID in qualsiasi punto del codice
+5. `AuthorizationService` gestisce RBAC: ADMIN può tutto, MEDICO solo i propri referti
+
+### Ruoli
+
+| Ruolo | Permessi |
+|-------|----------|
+| `MEDICO` | CRUD sui propri referti, visualizzazione profilo |
+| `ADMIN` | Tutto + gestione utenti (abilita/disabilita) |
 
 ---
 
 ## 🌐 API Endpoints
 
-### 📋 Referti
+### Referti (`/referti`)
 
-| Method | Endpoint | Ruolo | Descrizione |
-|--------|----------|-------|-------------|
-| `POST` | `/referti` | Autenticato | Carica nuovo referto (email da JWT) |
-| `GET` | `/referti` | Autenticato | Lista tutti i referti |
-| `GET` | `/referti/tipoEsame?value=TAC` | Autenticato | Filtra per tipo esame |
-| `GET` | `/referti/codiceFiscale?value=...` | Autenticato | Cerca per paziente |
-| `GET` | `/referti/email?value=...` | Autenticato | Referti per medico |
-| `PUT` | `/referti` | Autenticato | Modifica referto |
-| `DELETE` | `/referti/{id}` | **ADMIN** | Elimina referto |
-| `GET` | `/referti/download/pdf/{id}` | Autenticato | Scarica PDF |
-| `GET` | `/referti/download/immagine/{id}` | Autenticato | Scarica immagine |
+| Method | Endpoint | Auth | Descrizione |
+|--------|----------|------|-------------|
+| `POST` | `/referti` | ✅ | Carica nuovo referto (multipart) |
+| `PUT` | `/referti` | ✅ | Modifica referto (owner/admin) |
+| `DELETE` | `/referti/{id}` | ✅ | Elimina referto (owner/admin) |
+| `GET` | `/referti` | ✅ | Lista tutti i referti |
+| `GET` | `/referti/{id}` | ✅ | Singolo referto per ID |
+| `GET` | `/referti/codiceFiscale?value=...` | ✅ | Cerca per codice fiscale |
+| `GET` | `/referti/tipoEsame?value=...` | ✅ | Filtra per tipo esame |
+| `GET` | `/referti/email?value=...` | ✅ | Referti per autore |
+| `GET` | `/referti/download/pdf/{id}` | ✅ | Download PDF generato |
+| `GET` | `/referti/download/immagine/{id}` | ✅ | Download immagine diagnostica |
 
-### 👥 Utenti
+### Utenti (`/users`)
 
-| Method | Endpoint | Ruolo | Descrizione |
-|--------|----------|-------|-------------|
-| `GET` | `/users/me` | Autenticato | Info utente corrente |
-| `GET` | `/users` | **ADMIN** | Lista tutti gli utenti |
-| `PUT` | `/users/{id}/disable` | **ADMIN** | Disabilita account |
-| `PUT` | `/users/{id}/enable` | **ADMIN** | Abilita account |
-
----
-
-## 🧪 Testing
-
-### Test Locali senza Autenticazione
-
-```bash
-# Avvia con profilo docker
-./mvnw spring-boot:run
-
-# Apri Swagger
-http://localhost:8080/swagger-ui.html
-
-# Testa endpoint senza token
-```
-
-### Test con JWT (Postman/Curl)
-
-```bash
-# 1. Ottieni token da Azure AD (vedi AZURE_AD_SETUP.md)
-
-# 2. Testa API con token
-curl -X GET http://localhost:8080/users/me \
-  -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
-```
-
-### Run Test Suite
-
-```bash
-# Esegui tutti i test
-./mvnw test
-
-# Test con coverage
-./mvnw clean test jacoco:report
-
-# Vedi report coverage
-open target/site/jacoco/index.html
-```
-
----
-
-## 🚀 Deploy su Azure
-
-### 1️⃣ Preparazione
-
-1. Crea risorse Azure:
-   - Azure App Service (Linux)
-   - Azure SQL Database
-   - Azure Storage Account
-   - Azure Key Vault (opzionale)
-
-2. Registra app in Azure AD (vedi `AZURE_AD_SETUP.md`)
-
-3. Configura variabili d'ambiente nell'App Service:
-
-```bash
-AZURE_CLIENT_ID=<client-id>
-AZURE_CLIENT_SECRET=<client-secret>
-AZURE_TENANT_ID=<tenant-id>
-AZURE_SQL_SERVER=<server-name>
-AZURE_SQL_DATABASE=medsafe
-AZURE_SQL_USERNAME=<admin>
-AZURE_SQL_PASSWORD=<password>
-AZURE_STORAGE_CONNECTION_STRING=<connection-string>
-```
-
-### 2️⃣ Deploy con Maven
-
-```bash
-# Configura pom.xml con i tuoi dettagli Azure
-# Poi esegui:
-./mvnw azure-webapp:deploy
-```
-
-### 3️⃣ Deploy con GitHub Actions
-
-Vedi `.github/workflows/azure-deploy.yml` (esempio da creare)
+| Method | Endpoint | Auth | Descrizione |
+|--------|----------|------|-------------|
+| `GET` | `/users/me` | ✅ | Info utente corrente (auto-crea al primo login) |
+| `PUT` | `/users/profile` | ✅ | Aggiorna genere e specializzazione |
+| `GET` | `/users` | 🔒 ADMIN | Lista tutti gli utenti |
+| `PUT` | `/users/{id}/disable` | 🔒 ADMIN | Disabilita account |
+| `PUT` | `/users/{id}/enable` | 🔒 ADMIN | Abilita account |
+| `GET` | `/users/generi` | ✅ | Lista enum generi |
+| `GET` | `/users/specializzazioni` | ✅ | Lista enum specializzazioni |
 
 ---
 
 ## 📊 Database Schema
 
-### Tabella: `referti`
+### Tabella `users`
 
 | Campo | Tipo | Descrizione |
 |-------|------|-------------|
-| `id` | INT | Primary key auto-increment |
+| `id` | INT (PK) | Auto-increment |
+| `email` | VARCHAR(255) UNIQUE | Email da Azure AD |
+| `azure_oid` | VARCHAR(100) | Object ID Azure |
+| `full_name` | VARCHAR(255) | Nome completo |
+| `genere` | ENUM | MASCHIO, FEMMINA, NON_SPECIFICATO |
+| `specializzazione` | ENUM | Specializzazione medica |
+| `role` | ENUM | MEDICO o ADMIN |
+| `enabled` | BOOLEAN | Account attivo (default: true) |
+| `created_at` | TIMESTAMP | Data creazione |
+
+### Tabella `referti`
+
+| Campo | Tipo | Descrizione |
+|-------|------|-------------|
+| `id` | INT (PK) | Auto-increment |
 | `nome_paziente` | VARCHAR(255) | Nome del paziente |
 | `codice_fiscale` | CHAR(16) | Codice fiscale |
-| `tipo_esame` | ENUM | TAC, Radiografia, etc. |
-| `testo_referto` | TEXT | Contenuto referto |
+| `tipo_esame` | ENUM | TAC, RADIOGRAFIA, ECOGRAFIA, etc. |
+| `testo_referto` | TEXT | Contenuto del referto |
 | `conclusioni` | TEXT | Conclusioni mediche |
-| `file_url_immagine` | VARCHAR(1000) | URL immagine in Blob Storage |
-| `url_pdf_generato` | VARCHAR(1000) | URL PDF generato |
+| `file_url_immagine` | VARCHAR(1000) | URL immagine su Blob Storage |
+| `url_pdf_generato` | VARCHAR(1000) | URL PDF su Blob Storage |
 | `nome_file` | VARCHAR(255) | Nome file (unique) |
-| **`autore_email`** | VARCHAR(255) | **Email medico (da JWT)** |
-| `data_caricamento` | TIMESTAMP | Data creazione automatica |
-
-### Tabella: `users` (Nuova!)
-
-| Campo | Tipo | Descrizione |
-|-------|------|-------------|
-| `id` | INT | Primary key auto-increment |
-| `email` | VARCHAR(255) | Email univoca (da JWT) |
-| `azure_oid` | VARCHAR(100) | Object ID Azure AD |
-| `full_name` | VARCHAR(255) | Nome completo |
-| **`role`** | ENUM | **MEDICO o ADMIN** |
-| `enabled` | BOOLEAN | Account attivo |
-| `created_at` | TIMESTAMP | Data creazione |
-| `last_login` | TIMESTAMP | Ultimo accesso |
+| `autore_email` | VARCHAR(255) | Email medico (da JWT) |
+| `data_caricamento` | TIMESTAMP | Data creazione |
 
 ---
 
-## 🔧 Configurazione
+## 🚀 Avvio Locale
 
-### Profili Spring
+### Prerequisiti
 
-| Profilo | Uso | Security | Database |
-|---------|-----|----------|----------|
-| `local` | Sviluppo IDE | ❌ Disabilitata | H2 in-memory |
-| `docker` | Sviluppo locale | ❌ Disabilitata | MySQL Docker |
-| `azure`/`prod` | Produzione | ✅ Azure AD + JWT | Azure SQL |
+- Java 21+
+- Docker Desktop (per profilo `docker`)
+- Maven (wrapper `mvnw` incluso)
 
-### File di Configurazione
+### Avvio rapido
 
-- `application-local.properties` - H2 database locale
-- `application-docker.properties` - MySQL su Docker (porta 3307)
-- `application-azure.properties` - Azure services con Entra ID
+```bash
+# Profilo Docker (MySQL + Azurite)
+docker-compose up -d
+./mvnw spring-boot:run
 
----
+# Profilo locale (H2 in-memory)
+./mvnw spring-boot:run -Dspring.profiles.active=local
 
-## 🤝 Contribuire
-
-1. Fork del repository
-2. Crea un branch feature (`git checkout -b feature/AmazingFeature`)
-3. Commit delle modifiche (`git commit -m 'Add AmazingFeature'`)
-4. Push al branch (`git push origin feature/AmazingFeature`)
-5. Apri una Pull Request
+# Swagger UI
+http://localhost:8080/swagger-ui.html
+```
 
 ---
 
-## 📝 License
+## 🧪 Testing
 
-Distributed under the MIT License. See `LICENSE` for more information.
+```bash
+# Esegui tutti i test
+./mvnw test
 
----
+# Test con report coverage (JaCoCo)
+./mvnw clean test jacoco:report
 
-## 👥 Team
+# Apri report
+open target/site/jacoco/index.html
+```
 
-- **Backend**: Spring Boot REST API
-- **Frontend**: Angular SPA (da implementare)
-- **Cloud**: Microsoft Azure
-- **Security**: Microsoft Entra ID
-
----
-
-## 📞 Supporto
-
-- 📖 **Documentazione completa**: Vedi cartella `/docs` o i file `*.md`
-- 🐛 **Issue tracker**: GitHub Issues
-- 💬 **Domande**: Apri una discussione su GitHub
+I test usano **H2 in-memory** e **Testcontainers** (MySQL) per l'integrazione.
 
 ---
 
-## 🎓 Learning Resources
+## 📁 File di Configurazione
 
-- [Microsoft Entra ID Documentation](https://learn.microsoft.com/azure/active-directory/)
-- [Spring Security OAuth2](https://spring.io/guides/tutorials/spring-boot-oauth2/)
-- [Azure Spring Cloud](https://learn.microsoft.com/azure/developer/java/spring-framework/)
-- [MSAL for Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js)
-
----
-
-## ✅ Checklist Implementazione
-
-### Backend ✅
-- [x] Entity Referto e User
-- [x] Repository JPA
-- [x] Service layer con business logic
-- [x] REST Controllers
-- [x] Azure Blob Storage integration
-- [x] PDF generation
-- [x] Security con Spring Security
-- [x] JWT validation con Azure AD
-- [x] JwtHelper per estrazione claims
-- [x] Role-based authorization
-- [x] Multi-environment configuration
-- [x] Swagger/OpenAPI documentation
-- [x] Unit tests con JUnit 5
-- [x] Integration tests con Testcontainers
-
-### Frontend 🔄
-- [ ] Angular SPA setup
-- [ ] MSAL integration
-- [ ] Login/Logout components
-- [ ] Referti management UI
-- [ ] File upload component
-- [ ] PDF viewer
-- [ ] Admin dashboard
-
-### DevOps 🔄
-- [ ] GitHub Actions CI/CD
-- [ ] Azure deployment automation
-- [ ] Environment-specific configs
-- [ ] Monitoring con Application Insights
-- [ ] Logging strategy
+| File | Descrizione |
+|------|-------------|
+| `application.properties` | Configurazione base |
+| `application-local.properties` | H2 database, security disabilitata |
+| `application-docker.properties` | MySQL Docker, Azurite locale |
+| `application-azure.properties` | Azure SQL, Blob Storage, Key Vault, Entra ID |
 
 ---
 
-**🎉 MedSafe è pronto per l'uso in sviluppo locale e deployabile su Azure!**
+## 🚀 Deploy su Azure
 
-**Per iniziare subito:** Leggi [QUICK_START.md](QUICK_START.md)
+```bash
+# Build del JAR
+./mvnw clean package -DskipTests
+
+# Deploy con Maven plugin
+./mvnw azure-webapp:deploy
+```
+
+Il deploy è configurato per **Azure App Service Linux** nella regione `italynorth` (tier F1).
+
+---
+
+## 📝 Licenza
+
+Progetto universitario — Università degli Studi di Salerno — Cloud Computing 2026

@@ -58,7 +58,7 @@ export class UserProfileComponent implements OnInit {
       error: (err) => {
         this.error = 'Errore nel caricamento del profilo';
         this.loading = false;
-        console.error('Errore caricamento profilo:', err);
+        console.error('Errore caricamento profilo');
       }
     });
   }
@@ -69,7 +69,7 @@ export class UserProfileComponent implements OnInit {
         this.generi = generi;
       },
       error: (err) => {
-        console.error('Errore caricamento generi:', err);
+        console.error('Errore caricamento generi');
       }
     });
   }
@@ -81,7 +81,7 @@ export class UserProfileComponent implements OnInit {
         this.filteredSpecializzazioni = specializzazioni;
       },
       error: (err) => {
-        console.error('Errore caricamento specializzazioni:', err);
+        console.error('Errore caricamento specializzazioni');
       }
     });
   }
@@ -172,7 +172,7 @@ export class UserProfileComponent implements OnInit {
       error: (err) => {
         this.error = 'Errore nell\'aggiornamento del profilo';
         this.loading = false;
-        console.error('Errore aggiornamento profilo:', err);
+        console.error('Errore aggiornamento profilo');
       }
     });
   }

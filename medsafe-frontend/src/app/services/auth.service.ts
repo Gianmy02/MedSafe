@@ -46,7 +46,7 @@ export class AuthService {
             }),
             tap(() => this.authInitialized$.next(true)),
             catchError((error) => {
-                console.error('❌ AuthService: /.auth/me fallito', error);
+                console.error('❌ AuthService: /.auth/me fallito');
                 if (error.status === 401) {
                     console.warn('⚠️ Utente non autenticato su Azure (401). Cookie mancante o scaduto.');
                 }

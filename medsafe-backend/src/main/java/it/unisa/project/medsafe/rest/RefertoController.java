@@ -78,12 +78,8 @@ public class RefertoController {
         }
 
         log.info("=== INIZIO addReferto ===");
-        log.info("Paziente: {}", nomePaziente);
-        log.info("Codice Fiscale: {}", codiceFiscale);
         log.info("Tipo Esame: {}", tipoEsame);
-        log.info("Autore Email: {}", autoreEmail);
-        log.info("Nome File: {}", nomeFile);
-        log.info("File: {} ({} bytes)", file.getOriginalFilename(), file.getSize());
+        log.info("File size: {} bytes", file.getSize());
 
         RefertoDTO dto = RefertoDTO.builder()
                 .nomePaziente(nomePaziente)
@@ -181,7 +177,7 @@ public class RefertoController {
 
         // Estrai il path del blob dall'URL
         String url = referto.getUrlPdfGenerato();
-        log.info("Download PDF richiesto per URL: {}", url);
+        log.info("Download PDF richiesto per referto ID: {}", id);
 
         String containerName = "upload-dir";
         String blobPath = null;
@@ -231,7 +227,7 @@ public class RefertoController {
 
         // Estrai il path del blob dall'URL
         String url = referto.getFileUrlImmagine();
-        log.info("Download Immagine richiesto per URL: {}", url);
+        log.info("Download Immagine richiesto per referto ID: {}", id);
 
         String containerName = "upload-dir";
         String blobPath = null;

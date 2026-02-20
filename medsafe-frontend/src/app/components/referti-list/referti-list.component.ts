@@ -55,7 +55,7 @@ export class RefertiListComponent implements OnInit {
         },
         error: (error) => {
           this.errorMessage = 'Errore durante il caricamento dei referti';
-          console.error('Error:', error);
+          console.error('Errore nella richiesta');
           this.loading = false;
         }
       });
@@ -118,7 +118,7 @@ export class RefertiListComponent implements OnInit {
         },
         error: (error) => {
           this.errorMessage = 'Errore durante la ricerca per codice fiscale';
-          console.error('Error:', error);
+          console.error('Errore nella richiesta');
           this.loading = false;
         }
       });
@@ -132,7 +132,7 @@ export class RefertiListComponent implements OnInit {
         },
         error: (error) => {
           this.errorMessage = 'Errore durante la ricerca per tipo esame';
-          console.error('Error:', error);
+          console.error('Errore nella richiesta');
           this.loading = false;
         }
       });
@@ -184,7 +184,7 @@ export class RefertiListComponent implements OnInit {
       case 'Esami_Laboratorio'.toUpperCase():
         return 'badge-laboratorio';
       default:
-        console.log('Tipo esame non riconosciuto:', tipoEsame);
+        // Tipo esame non riconosciuto, nessun badge specifico
         return '';
     }
   }
@@ -203,7 +203,7 @@ export class RefertiListComponent implements OnInit {
       },
       error: (error) => {
         this.errorMessage = 'Errore durante il download del PDF';
-        console.error('Error:', error);
+        console.error('Errore durante il download del PDF');
       }
     });
   }
@@ -222,7 +222,7 @@ export class RefertiListComponent implements OnInit {
       },
       error: (error) => {
         this.errorMessage = 'Errore durante il download dell\'immagine';
-        console.error('Error:', error);
+        console.error('Errore durante il download dell\'immagine');
       }
     });
   }

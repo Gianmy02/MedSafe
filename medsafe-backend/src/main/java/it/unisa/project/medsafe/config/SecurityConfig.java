@@ -116,8 +116,7 @@ public class SecurityConfig {
                         if (audiences.stream().anyMatch(allowedAudiences::contains)) {
                                 return OAuth2TokenValidatorResult.success();
                         }
-                        log.warn("❌ Audience invalida nel token. Attesa: {}, Ricevuta: {}", allowedAudiences,
-                                        audiences);
+                        log.warn("❌ Audience invalida nel token JWT");
                         return OAuth2TokenValidatorResult.failure(
                                         new OAuth2Error("invalid_token", "The required audience is missing", null));
                 }

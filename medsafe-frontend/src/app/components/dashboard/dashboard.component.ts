@@ -42,7 +42,7 @@ export class DashboardComponent implements OnInit {
           }
         },
         error: (err) => {
-          console.error('Errore nel caricamento utente dashboard:', err);
+          console.error('Errore nel caricamento utente dashboard');
           this.loading = false;
         }
       });

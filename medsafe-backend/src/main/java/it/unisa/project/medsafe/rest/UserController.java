@@ -33,14 +33,14 @@ public class UserController {
     public ResponseEntity<UserDTO> getCurrentUser() {
         String email = jwtHelper.getCurrentUserEmail();
 
-        log.info("📋 Richiesta info utente: {}", email);
+        log.info("📋 Richiesta info utente corrente");
 
         // Recupera dati completi dal database
         User user = userService.findByEmail(email).orElse(null);
 
         // Se l'utente non esiste, lo sincronizziamo da Azure AD (primo login)
         if (user == null) {
-            log.info("🆕 Primo login rilevato per: {}", email);
+            log.info("🆕 Primo login rilevato");
             String fullName = jwtHelper.getCurrentUserFullName();
             String azureOid = jwtHelper.getCurrentUserAzureOid();
 
@@ -51,7 +51,7 @@ public class UserController {
                     azureOid,
                     it.unisa.project.medsafe.entity.UserRole.MEDICO);
 
-            log.info("✅ Nuovo utente creato automaticamente: {} con ruolo MEDICO", email);
+            log.info("✅ Nuovo utente creato automaticamente con ruolo MEDICO");
         }
 
         return ResponseEntity.ok(userMapper.userToUserDTO(user));
@@ -62,7 +62,7 @@ public class UserController {
     public ResponseEntity<UserDTO> updateProfile(@RequestBody UserDTO userDTO) {
 
         String email = jwtHelper.getCurrentUserEmail();
-        log.info("📝 Aggiornamento profilo per: {}", email);
+        log.info("📝 Aggiornamento profilo utente corrente");
 
         var updatedUser = userService.updateUserProfile(email, userDTO.getGenere(), userDTO.getSpecializzazione());
 
@@ -70,7 +70,7 @@ public class UserController {
             log.info("✅ Profilo aggiornato con successo");
             return ResponseEntity.ok(userMapper.userToUserDTO(updatedUser.get()));
         } else {
-            log.error("❌ Utente non trovato: {}", userDTO.getEmail());
+            log.error("❌ Utente non trovato durante aggiornamento profilo");
             return ResponseEntity.notFound().build();
         }
     }

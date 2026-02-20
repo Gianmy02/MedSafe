@@ -47,14 +47,13 @@ export class AppComponent implements OnInit {
   isLoading = true;
 
   constructor(private userService: UserService, private authService: AuthService) {
-    console.log('AppComponent initialized!');
+
   }
 
   ngOnInit() {
     // 1. Prima recupera il token da Azure EasyAuth
     this.authService.getUserInfo().subscribe({
       next: (principal) => {
-        console.log('🔹 Azure Auth info:', principal);
         if (principal) {
           // 2. Se siamo loggati su Azure, carica l'utente dal backend
           this.loadUser();
@@ -63,7 +62,7 @@ export class AppComponent implements OnInit {
         }
       },
       error: (err) => {
-        console.warn('⚠️ Impossibile recuperare info Azure:', err);
+        console.warn('⚠️ Impossibile recuperare info Azure');
         this.isLoading = false;
       }
     });
@@ -94,10 +93,10 @@ export class AppComponent implements OnInit {
       next: (user) => {
         this.user = user;
         this.isLoading = false;
-        console.log('Utente caricato:', user);
+
       },
       error: (err) => {
-        console.log('Utente non autenticato o errore nel caricamento:', err);
+        console.warn('Utente non autenticato o errore nel caricamento');
         this.user = null;
         this.isLoading = false;
       }

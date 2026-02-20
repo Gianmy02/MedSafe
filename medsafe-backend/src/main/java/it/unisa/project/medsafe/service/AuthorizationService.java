@@ -45,19 +45,18 @@ public class AuthorizationService {
 
         // Verifica se è ADMIN
         if (isAdmin(currentUserEmail)) {
-            log.info("✅ ADMIN {} può {} il referto ID {}", currentUserEmail, operation, referto.getId());
+            log.info("✅ ADMIN può {} il referto ID {}", operation, referto.getId());
             return;
         }
 
         // Verifica se è il proprietario
         if (referto.getAutoreEmail().equalsIgnoreCase(currentUserEmail)) {
-            log.info("✅ MEDICO {} può {} il proprio referto ID {}", currentUserEmail, operation, referto.getId());
+            log.info("✅ MEDICO può {} il proprio referto ID {}", operation, referto.getId());
             return;
         }
 
         // Non autorizzato
-        log.warn("🚫 MEDICO {} NON può {} il referto ID {} (proprietario: {})",
-                currentUserEmail, operation, referto.getId(), referto.getAutoreEmail());
+        log.warn("🚫 Accesso negato: tentativo di {} il referto ID {} non autorizzato", operation, referto.getId());
         throw new UnauthorizedException(
                 String.format(
                         "Non sei autorizzato a %s questo referto. Solo il medico che lo ha creato (%s) o un amministratore può farlo.",

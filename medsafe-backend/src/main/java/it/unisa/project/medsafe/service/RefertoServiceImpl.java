@@ -77,14 +77,14 @@ public class RefertoServiceImpl implements RefertoService {
                 try {
                     String newImgUrl = blobStorageService.uploadFile(file, file.getOriginalFilename());
                     dto.setFileUrlImmagine(newImgUrl);
-                    log.info("Nuova immagine caricata: {}", newImgUrl);
+                    log.info("Nuova immagine caricata con successo");
 
                     // Se l'URL è cambiato (dovrebbe esserlo), elimina la vecchia immagine
                     if (oldImgUrl != null && !oldImgUrl.equals(newImgUrl)) {
                         String oldImgBlobName = extractBlobPathFromUrl(oldImgUrl);
                         if (oldImgBlobName != null) {
                             blobStorageService.deleteFile(oldImgBlobName);
-                            log.info("Vecchia immagine eliminata: {}", oldImgBlobName);
+                            log.info("Vecchia immagine eliminata con successo");
                         }
                     }
                 } catch (IOException e) {
@@ -97,7 +97,7 @@ public class RefertoServiceImpl implements RefertoService {
                 // Se non c'è nuovo file, mantieni l'URL esistente nel DTO per coerenza
                 // Se il DTO ha il campo vuoto, lo riempiamo con quello del DB
                 if (dto.getFileUrlImmagine() == null || dto.getFileUrlImmagine().isEmpty()) {
-                    log.info("Ripristino URL immagine dal DB: {}", oldImgUrl);
+                    log.info("Ripristino URL immagine dal DB");
                     dto.setFileUrlImmagine(oldImgUrl);
                 }
             }
@@ -111,13 +111,13 @@ public class RefertoServiceImpl implements RefertoService {
                 // Usiamo il nome file aggiornato (o lo stesso) per generare un nuovo blob unico
                 String newPdfUrl = blobStorageService.uploadPdf(pdfStream, dto.getNomeFile());
                 dto.setUrlPdfGenerato(newPdfUrl);
-                log.info("Nuovo PDF generato e caricato: {}", newPdfUrl);
+                log.info("Nuovo PDF generato e caricato con successo");
 
                 // 4. Elimina il vecchio PDF
                 String oldPdfBlobName = extractBlobPathFromUrl(oldPdfUrl);
                 if (oldPdfBlobName != null) {
                     blobStorageService.deleteFile(oldPdfBlobName);
-                    log.info("Vecchio PDF eliminato: {}", oldPdfBlobName);
+                    log.info("Vecchio PDF eliminato con successo");
                 }
 
             } catch (IOException e) {
@@ -161,7 +161,7 @@ public class RefertoServiceImpl implements RefertoService {
             }
         } catch (Exception e) {
             // Logghiamo l'errore ma non blocchiamo tutto per un fallimento di cleanup
-            System.err.println("Errore estrazione blob path: " + e.getMessage());
+            log.warn("Errore estrazione blob path");
         }
         return null;
     }
@@ -192,7 +192,7 @@ public class RefertoServiceImpl implements RefertoService {
                 // Logghiamo l'errore ma procediamo con l'eliminazione del record DB
                 // per evitare disallineamenti gravi (o decidere se bloccare, ma cleanup
                 // è meglio best-effort)
-                System.err.println("Errore durante l'eliminazione dei file da BlobStorage: " + e.getMessage());
+                log.warn("Errore durante l'eliminazione dei file da BlobStorage");
             }
 
             refertoRepository.deleteById(id);
@@ -204,7 +204,7 @@ public class RefertoServiceImpl implements RefertoService {
     public List<RefertoDTO> getRefertoByCodiceFiscale(String codiceFiscale) {
         var list = refertoRepository.findByCodiceFiscale(codiceFiscale);
         if (list == null || list.isEmpty()) {
-            throw new RefertoNotFoundException("Nessun referto trovato per il codice fiscale: " + codiceFiscale);
+            throw new RefertoNotFoundException("Nessun referto trovato per il codice fiscale fornito");
         }
         return list.stream().map(refertoMapper::refertoToRefertoDTO).toList();
     }
@@ -228,7 +228,7 @@ public class RefertoServiceImpl implements RefertoService {
     public List<RefertoDTO> getRefertiByAutoreEmail(String autoreEmail) {
         var list = refertoRepository.findByAutoreEmail(autoreEmail);
         if (list == null || list.isEmpty()) {
-            throw new RefertoNotFoundException("Nessun referto trovato per autore: " + autoreEmail);
+            throw new RefertoNotFoundException("Nessun referto trovato per l'autore corrente");
         }
         return list.stream().map(refertoMapper::refertoToRefertoDTO).toList();
     }

@@ -15,8 +15,6 @@ import org.springframework.security.web.SecurityFilterChain;
  */
 @Configuration
 @EnableWebSecurity
-// @EnableMethodSecurity(prePostEnabled = true) // ← Disabilitato per evitare
-// problemi in dev
 @Slf4j
 @Profile({ "local", "docker", "test" })
 public class SecurityConfigLocal {

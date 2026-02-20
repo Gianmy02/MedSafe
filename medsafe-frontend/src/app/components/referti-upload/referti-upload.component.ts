@@ -116,7 +116,7 @@ export class RefertiUploadComponent implements OnInit {
           },
           error: (error) => {
             this.errorMessage = 'Errore durante il caricamento del referto';
-            console.error('Error:', error);
+            console.error('Errore durante il caricamento del referto');
             this.loading = false;
           }
         });
@@ -124,7 +124,7 @@ export class RefertiUploadComponent implements OnInit {
       error: (err) => {
         this.errorMessage = 'Errore nel recupero dati utente';
         this.loading = false;
-        console.error(err);
+        console.error('Errore nel recupero dati utente');
       }
     });
   }

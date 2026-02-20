@@ -56,7 +56,7 @@ export class RefertiEditComponent implements OnInit {
       error: (err) => {
         this.isLoading = false;
         this.errorMessage = 'Errore nel recupero utente';
-        console.error(err);
+        console.error('Errore nel recupero utente');
       }
     });
   }
@@ -255,7 +255,7 @@ export class RefertiEditComponent implements OnInit {
       },
       error: (error) => {
         this.errorMessage = 'Errore durante il download del PDF';
-        console.error('Error:', error);
+        console.error('Errore durante il download del PDF');
       }
     });
   }
@@ -274,7 +274,7 @@ export class RefertiEditComponent implements OnInit {
       },
       error: (error) => {
         this.errorMessage = 'Errore durante il download dell\'immagine';
-        console.error('Error:', error);
+        console.error('Errore durante il download dell\'immagine');
       }
     });
   }

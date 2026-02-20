@@ -34,18 +34,17 @@ public class CustomJwtAuthenticationConverter implements Converter<Jwt, Abstract
 
     @Override
     public AbstractAuthenticationToken convert(@NonNull Jwt jwt) {
-        log.info("📥 Backend: Ricevuto token JWT per validazione. Headers: {}", jwt.getHeaders());
+        log.info("📥 Backend: Ricevuto token JWT per validazione");
 
         // 1. Estrai l'email (o upn o oid) dal tokenJWT di Azure AD
         String email = extractEmail(jwt);
 
         if (email == null || email.isEmpty()) {
-            log.error("❌ JWT senza email valida! Claims ricevuti: {}", jwt.getClaims());
+            log.error("❌ JWT senza email valida - impossibile autenticare l'utente");
             return new JwtAuthenticationToken(jwt, Collections.emptyList());
         }
 
-        log.info("🔐 Autenticazione JWT per: {}", email);
-        log.info("🔍 Claims del token ricevuto: {}", jwt.getClaims()); // Utile per debug
+        log.info("🔐 Autenticazione JWT completata con successo");
 
         // 2. Carica i ruoli dal database (se l'utente esiste)
         Collection<GrantedAuthority> authorities = loadUserAuthorities(email);
@@ -76,12 +75,12 @@ public class CustomJwtAuthenticationConverter implements Converter<Jwt, Abstract
         if (user.isPresent() && user.get().getRole() != null) {
             // Utente esiste nel DB: usa il suo ruolo
             String role = "ROLE_" + user.get().getRole().name();
-            log.debug("🔑 Ruolo caricato dal DB per {}: {}", email, role);
+            log.debug("🔑 Ruolo caricato dal DB: {}", role);
             return Collections.singletonList(new SimpleGrantedAuthority(role));
         } else {
             // Utente NON esiste ancora nel DB: assegna ruolo MEDICO temporaneo
             // (l'utente verrà creato nel DB al primo accesso a /users/me)
-            log.debug("👤 Utente {} non trovato nel DB, assegnato ruolo MEDICO temporaneo", email);
+            log.debug("👤 Utente non trovato nel DB, assegnato ruolo MEDICO");
             return Collections.singletonList(new SimpleGrantedAuthority("ROLE_MEDICO"));
         }
     }

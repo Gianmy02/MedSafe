@@ -15,7 +15,7 @@ export class UsersListComponent implements OnInit {
   loading = true;
   error: string | null = null;
 
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService) { }
 
   ngOnInit() {
     this.loadUsers();
@@ -30,7 +30,7 @@ export class UsersListComponent implements OnInit {
       error: (err) => {
         this.error = 'Errore nel caricamento degli utenti';
         this.loading = false;
-        console.error('Errore caricamento utenti:', err);
+        console.error('Errore caricamento utenti');
       }
     });
   }
@@ -57,7 +57,7 @@ export class UsersListComponent implements OnInit {
 
   toggleUserStatus(user: User, event: Event): void {
     event.preventDefault(); // Previene il cambio automatico del checkbox
-    
+
     if (!user.id) return;
 
     const action = user.enabled ? 'disabilitare' : 'abilitare';
@@ -65,17 +65,17 @@ export class UsersListComponent implements OnInit {
       return; // L'utente ha annullato, non fare nulla
     }
 
-    const observable = user.enabled 
+    const observable = user.enabled
       ? this.userService.disableUser(user.id)
       : this.userService.enableUser(user.id);
 
     observable.subscribe({
       next: () => {
         user.enabled = !user.enabled; // Aggiorna lo stato solo dopo il successo
-        console.log(`Utente ${user.fullName} ${user.enabled ? 'abilitato' : 'disabilitato'}`);
+
       },
       error: (err) => {
-        console.error('Errore nel cambio stato utente:', err);
+        console.error('Errore nel cambio stato utente');
         alert('Errore nel cambio stato dell\'utente');
       }
     });
