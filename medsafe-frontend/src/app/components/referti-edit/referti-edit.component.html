@@ -199,8 +199,16 @@
           </div>
         </div>
 
+        <!-- Existing file is PDF (no preview) -->
+        <div class="no-image-info" *ngIf="existingFileIsPdf && !newFilePreviewUrl && !selectedFile">
+          <span class="file-icon">📄</span>
+          <span class="file-name">{{ getImageFileName(selectedReferto?.fileUrlImmagine) }}</span>
+          <span class="pdf-hint">Anteprima non disponibile per i file PDF</span>
+        </div>
+
         <!-- No image available -->
-        <div class="no-image-info" *ngIf="!existingImageUrl && !newFilePreviewUrl && !selectedFile">
+        <div class="no-image-info"
+          *ngIf="!existingImageUrl && !existingFileIsPdf && !newFilePreviewUrl && !selectedFile">
           <span class="file-icon">📷</span>
           <span>Nessuna immagine caricata</span>
         </div>

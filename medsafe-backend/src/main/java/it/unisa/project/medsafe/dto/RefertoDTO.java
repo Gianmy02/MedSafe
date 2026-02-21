@@ -27,19 +27,18 @@ public class RefertoDTO {
 
     @NotBlank(message = "Il codice fiscale è obbligatorio")
     @Size(min = 16, max = 16, message = "Il codice fiscale deve essere di 16 caratteri")
-    @Pattern(regexp = "^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$",
-             message = "Formato codice fiscale non valido")
+    @Pattern(regexp = "^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$", message = "Formato codice fiscale non valido")
     private String codiceFiscale;
 
     @NotNull(message = "Il tipo di esame è obbligatorio")
     private TipoEsame tipoEsame;
 
     @NotBlank(message = "Il testo del referto è obbligatorio")
-    @Size(max = 4000, message = "Il testo del referto non può superare 4000 caratteri")
+    @Size(max = 320, message = "Il testo del referto non può superare 320 caratteri")
     private String testoReferto;
 
     @NotBlank(message = "Le conclusioni sono obbligatorie")
-    @Size(max = 4000, message = "Le conclusioni non possono superare 4000 caratteri")
+    @Size(max = 500, message = "Le conclusioni non possono superare 500 caratteri")
     private String conclusioni;
 
     @NotBlank(message = "L'URL dell'immagine è obbligatorio")

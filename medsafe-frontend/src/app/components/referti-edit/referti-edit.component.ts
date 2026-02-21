@@ -35,6 +35,7 @@ export class RefertiEditComponent implements OnInit {
   };
   selectedFile: File | null = null;
   existingImageUrl: string | null = null;
+  existingFileIsPdf = false;
   newFilePreviewUrl: string | null = null;
 
   constructor(
@@ -116,16 +117,23 @@ export class RefertiEditComponent implements OnInit {
       conclusioni: this.selectedReferto.conclusioni || ''
     };
 
-    // Load existing image preview
+    // Load existing image preview (solo se non è PDF)
     if (this.selectedReferto.id && this.selectedReferto.fileUrlImmagine) {
-      this.refertiService.downloadImmagine(this.selectedReferto.id).subscribe({
-        next: (blob) => {
-          this.existingImageUrl = URL.createObjectURL(blob);
-        },
-        error: () => {
-          this.existingImageUrl = null;
-        }
-      });
+      const url = this.selectedReferto.fileUrlImmagine.toLowerCase();
+      if (url.endsWith('.pdf')) {
+        this.existingFileIsPdf = true;
+        this.existingImageUrl = null;
+      } else {
+        this.existingFileIsPdf = false;
+        this.refertiService.downloadImmagine(this.selectedReferto.id).subscribe({
+          next: (blob) => {
+            this.existingImageUrl = URL.createObjectURL(blob);
+          },
+          error: () => {
+            this.existingImageUrl = null;
+          }
+        });
+      }
     }
   }
 

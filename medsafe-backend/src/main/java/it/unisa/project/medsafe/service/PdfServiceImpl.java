@@ -159,6 +159,31 @@ public class PdfServiceImpl implements PdfService {
                 document.add(rigaTesto);
             }
 
+            // Controlla se il file allegato è un PDF (non embedabile come immagine)
+            String imgUrl = dto.getFileUrlImmagine();
+            boolean isFilePdf = imgUrl != null && imgUrl.toLowerCase().endsWith(".pdf");
+            boolean hasEmbeddableImage = false;
+
+            if (isFilePdf && imgUrl != null && !imgUrl.isEmpty()) {
+                // Se è un PDF, aggiungi una nota nella pagina 1
+                document.add(new Paragraph(" "));
+                Paragraph notaPdf = new Paragraph("ESAME DIAGNOSTICO", fontSottotitolo);
+                notaPdf.setAlignment(Element.ALIGN_CENTER);
+                notaPdf.setSpacingAfter(8);
+                document.add(notaPdf);
+
+                Paragraph avvisoPdf = new Paragraph(
+                        "L'esame diagnostico è allegato come documento PDF separato e non può essere " +
+                                "visualizzato direttamente in questo referto. Consultare il file originale per la visione dell'esame.",
+                        fontPiccolo);
+                avvisoPdf.setAlignment(Element.ALIGN_CENTER);
+                avvisoPdf.setSpacingAfter(10);
+                document.add(avvisoPdf);
+            } else if (imgUrl != null && !imgUrl.isEmpty()) {
+                // Segna che c'è un'immagine da embeddare nella seconda pagina
+                hasEmbeddableImage = true;
+            }
+
             // === 4. FOOTER PAGINA 1 - FIRMA MEDICO ===
             document.add(new Paragraph(" "));
             document.add(new Chunk(linea));
@@ -184,10 +209,10 @@ public class PdfServiceImpl implements PdfService {
             // Firma pagina 1
             document.add(creaTabellaFirma(dataFormattata, nomeMedico, fontPiccolo, fontNormale, fontFirmaCorsivo));
 
-            // === 5. SEZIONE ESAME DIAGNOSTICO (nuova pagina) ===
+            // === 5. SEZIONE ESAME DIAGNOSTICO - IMMAGINE (nuova pagina, solo se non è PDF)
+            // ===
             try {
-                String imgUrl = dto.getFileUrlImmagine();
-                if (imgUrl != null && !imgUrl.isEmpty()) {
+                if (hasEmbeddableImage) {
                     String blobPath = extractBlobPathFromUrl(imgUrl);
                     if (blobPath != null) {
                         byte[] imageBytes = blobStorageService.downloadFile(blobPath);
