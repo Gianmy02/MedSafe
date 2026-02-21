@@ -225,7 +225,7 @@
         </div>
 
         <label for="editImmagine" class="mt-2"><span class="label-icon">📎</span> Cambia Immagine (opzionale):</label>
-        <input type="file" id="editImmagine" (change)="onFileSelected($event)" accept="image/*"
+        <input type="file" id="editImmagine" (change)="onFileSelected($event)" accept=".png,.jpg,.jpeg,.pdf"
           class="form-control file-input">
         <small class="form-help">Lascia vuoto per mantenere l'immagine corrente, oppure seleziona una nuova immagine per
           sostituirla</small>
