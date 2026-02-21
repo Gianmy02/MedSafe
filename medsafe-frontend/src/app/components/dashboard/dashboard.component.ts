@@ -52,8 +52,8 @@ export class DashboardComponent implements OnInit {
   getDoctorEmoji(): string {
     if (!this.user?.genere) return '🩺';
     switch (this.user.genere) {
-      case 'MASCHIO': return '👨‍⚕️';
-      case 'FEMMINA': return '👩‍⚕️';
+      case 'MASCHIO': return '👨🏻‍⚕️';
+      case 'FEMMINA': return '👩🏻‍⚕️';
       case 'NON_SPECIFICATO': return '🩺';
       default: return '🩺';
     }

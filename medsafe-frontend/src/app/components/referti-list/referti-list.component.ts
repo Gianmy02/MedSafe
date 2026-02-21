@@ -189,6 +189,18 @@ export class RefertiListComponent implements OnInit {
     }
   }
 
+  formatTipoEsame(tipoEsame: string): string {
+    const tipo = tipoEsame?.toUpperCase() || '';
+    switch (tipo) {
+      case 'ESAMI_LABORATORIO':
+        return 'Esami di laboratorio';
+      case 'RISONANZA':
+        return 'Risonanza magnetica';
+      default:
+        return tipoEsame;
+    }
+  }
+
   downloadPdf(id: number): void {
     this.refertiService.downloadPdf(id).subscribe({
       next: (blob) => {

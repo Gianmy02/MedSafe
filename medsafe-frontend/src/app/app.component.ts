@@ -20,7 +20,7 @@ import { User } from './models/user.model';
         </a>
         <div class="nav-links">
           <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Dashboard</a>
-          <a routerLink="/upload" routerLinkActive="active">Nuovo Referto</a>
+          <a *ngIf="user?.enabled" routerLink="/upload" routerLinkActive="active">Nuovo Referto</a>
           <a routerLink="/edit" routerLinkActive="active">I miei Referti</a>
           <a routerLink="/referti" routerLinkActive="active">Cerca Referti</a>
           <a *ngIf="user?.role === 'ADMIN'" routerLink="/utenti" routerLinkActive="active">Elenco Utenti</a>
@@ -71,8 +71,8 @@ export class AppComponent implements OnInit {
   getDoctorEmoji(): string {
     if (!this.user?.genere) return '🩺';
     switch (this.user.genere) {
-      case 'MASCHIO': return '👨‍⚕️';
-      case 'FEMMINA': return '👩‍⚕️';
+      case 'MASCHIO': return '👨🏻‍⚕️';
+      case 'FEMMINA': return '👩🏻‍⚕️';
       case 'NON_SPECIFICATO': return '🩺';
       default: return '🩺';
     }

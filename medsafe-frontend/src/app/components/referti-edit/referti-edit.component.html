@@ -24,7 +24,8 @@
         (click)="selectReferto(referto)">
         <div class="referto-header">
           <h3>{{ referto.nomeFile }}</h3>
-          <span class="badge" [ngClass]="getBadgeClass(referto.tipoEsame)">{{ referto.tipoEsame }}</span>
+          <span class="badge" [ngClass]="getBadgeClass(referto.tipoEsame)">{{ formatTipoEsame(referto.tipoEsame)
+            }}</span>
         </div>
         <div class="referto-body">
           <p><strong>CF Paziente:</strong> {{ referto.codiceFiscale }}</p>
@@ -46,7 +47,7 @@
       </div>
       <div class="detail-item">
         <label>Tipo Esame:</label>
-        <span>{{ selectedReferto.tipoEsame }}</span>
+        <span>{{ formatTipoEsame(selectedReferto.tipoEsame) }}</span>
       </div>
       <div class="detail-item">
         <label>Codice Fiscale Paziente:</label>

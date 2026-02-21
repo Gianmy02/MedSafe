@@ -232,6 +232,18 @@ export class RefertiEditComponent implements OnInit {
     }
   }
 
+  formatTipoEsame(tipoEsame: string): string {
+    const tipo = tipoEsame?.toUpperCase() || '';
+    switch (tipo) {
+      case 'ESAMI_LABORATORIO':
+        return 'Esami di laboratorio';
+      case 'RISONANZA':
+        return 'Risonanza magnetica';
+      default:
+        return tipoEsame;
+    }
+  }
+
   getImageFileName(url?: string): string {
     const fileUrl = url || this.selectedReferto?.fileUrlImmagine;
     if (!fileUrl) {

@@ -1,17 +1,13 @@
 <div class="container">
   <h2>Lista Referti</h2>
-  
+
   <div class="search-section">
     <h3>Cerca Referti</h3>
     <p class="search-hint">Compila uno o più campi per filtrare i risultati</p>
     <div class="search-form">
       <div class="form-group">
         <label>Codice Fiscale:</label>
-        <input 
-          type="text" 
-          [(ngModel)]="searchCodiceFiscale" 
-          placeholder="Inserisci codice fiscale"
-          maxlength="16">
+        <input type="text" [(ngModel)]="searchCodiceFiscale" placeholder="Inserisci codice fiscale" maxlength="16">
       </div>
 
       <div class="form-group">
@@ -26,7 +22,7 @@
         </select>
       </div>
     </div>
-    
+
     <div class="search-actions">
       <button class="btn-search" (click)="searchReferti()">
         🔍 Cerca Referti
@@ -44,7 +40,7 @@
     <div class="referto-card" [ngClass]="{'my-referto': isMyReferto(referto)}" *ngFor="let referto of referti">
       <div class="referto-header">
         <h4>{{ referto.nomePaziente }}</h4>
-        <span class="badge" [ngClass]="getBadgeClass(referto.tipoEsame)">{{ referto.tipoEsame }}</span>
+        <span class="badge" [ngClass]="getBadgeClass(referto.tipoEsame)">{{ formatTipoEsame(referto.tipoEsame) }}</span>
       </div>
       <p *ngIf="isMyReferto(referto)" class="my-referto-label">👤 Tuo referto</p>
       <p><strong>CF:</strong> {{ referto.codiceFiscale }}</p>
@@ -52,7 +48,7 @@
       <p><strong>Data:</strong> {{ referto.dataCaricamento | date:'dd/MM/yyyy HH:mm' }}</p>
       <p *ngIf="referto.testoReferto"><strong>Referto:</strong> {{ referto.testoReferto }}</p>
       <p *ngIf="referto.conclusioni"><strong>Conclusioni:</strong> {{ referto.conclusioni }}</p>
-      
+
       <div class="actions">
         <button (click)="downloadPdf(referto.id!)" *ngIf="referto.urlPdfGenerato">
           Scarica Documento Referto
