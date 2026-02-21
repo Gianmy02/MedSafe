@@ -159,70 +159,13 @@ public class PdfServiceImpl implements PdfService {
                 document.add(rigaTesto);
             }
 
-            // === 4. SEZIONE ESAME DIAGNOSTICO (immagine) ===
+            // === 4. FOOTER PAGINA 1 - FIRMA MEDICO ===
             document.add(new Paragraph(" "));
             document.add(new Chunk(linea));
             document.add(new Paragraph(" "));
 
-            try {
-                String imgUrl = dto.getFileUrlImmagine();
-                if (imgUrl != null && !imgUrl.isEmpty()) {
-                    String blobPath = extractBlobPathFromUrl(imgUrl);
-                    if (blobPath != null) {
-                        byte[] imageBytes = blobStorageService.downloadFile(blobPath);
-                        if (imageBytes != null && imageBytes.length > 0) {
-                            // Titolo sezione
-                            Paragraph titoloEsame = new Paragraph("ESAME DIAGNOSTICO", fontSottotitolo);
-                            titoloEsame.setAlignment(Element.ALIGN_CENTER);
-                            titoloEsame.setSpacingAfter(10);
-                            document.add(titoloEsame);
-
-                            // Inserisci l'immagine
-                            Image esameImg = Image.getInstance(imageBytes);
-                            // Ridimensiona per stare nella pagina (max 450px largo, max 350px alto)
-                            esameImg.scaleToFit(450, 350);
-                            esameImg.setAlignment(Element.ALIGN_CENTER);
-                            esameImg.setSpacingAfter(10);
-                            document.add(esameImg);
-
-                            log.info("Immagine esame inserita nel PDF con successo");
-                        } else {
-                            document.add(new Paragraph("Immagine esame non disponibile.", fontPiccolo));
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                log.warn("Impossibile inserire l'immagine dell'esame nel PDF: {}", e.getMessage());
-                document.add(new Paragraph("Immagine esame non disponibile.", fontPiccolo));
-            }
-
-            // Spazio prima della firma
-            document.add(new Paragraph(" "));
-            document.add(new Chunk(linea));
-            document.add(new Paragraph(" "));
-
-            // === 5. FOOTER - FIRMA MEDICO ===
-            PdfPTable tabellaFirma = new PdfPTable(2);
-            tabellaFirma.setWidthPercentage(100);
-            tabellaFirma.setWidths(new float[] { 1, 1 });
-
-            // Colonna sinistra - Data
+            // Recupera i dati del medico una sola volta (usati in entrambe le pagine)
             String dataFormattata = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-            PdfPCell cellData = new PdfPCell();
-            cellData.setBorder(Rectangle.NO_BORDER);
-            cellData.addElement(new Paragraph("Data refertazione: " + dataFormattata, fontPiccolo));
-            tabellaFirma.addCell(cellData);
-
-            // Colonna destra - Firma
-            PdfPCell cellFirma = new PdfPCell();
-            cellFirma.setBorder(Rectangle.NO_BORDER);
-            cellFirma.setHorizontalAlignment(Element.ALIGN_RIGHT);
-
-            Paragraph medicoLabel = new Paragraph("Il Medico referente", fontNormale);
-            medicoLabel.setAlignment(Element.ALIGN_RIGHT);
-            cellFirma.addElement(medicoLabel);
-
-            // Recupera il nome completo del medico e il genere dal database
             String nomeMedico = "[Nome non disponibile]";
             if (dto.getAutoreEmail() != null) {
                 var userOpt = userRepository.findByEmail(dto.getAutoreEmail());
@@ -238,15 +181,48 @@ public class PdfServiceImpl implements PdfService {
                 }
             }
 
-            // Firma digitale in corsivo
-            Paragraph firmaDigitale = new Paragraph(nomeMedico, fontFirmaCorsivo);
-            firmaDigitale.setAlignment(Element.ALIGN_RIGHT);
-            firmaDigitale.setSpacingBefore(5);
-            cellFirma.addElement(firmaDigitale);
+            // Firma pagina 1
+            document.add(creaTabellaFirma(dataFormattata, nomeMedico, fontPiccolo, fontNormale, fontFirmaCorsivo));
 
-            tabellaFirma.addCell(cellFirma);
+            // === 5. SEZIONE ESAME DIAGNOSTICO (nuova pagina) ===
+            try {
+                String imgUrl = dto.getFileUrlImmagine();
+                if (imgUrl != null && !imgUrl.isEmpty()) {
+                    String blobPath = extractBlobPathFromUrl(imgUrl);
+                    if (blobPath != null) {
+                        byte[] imageBytes = blobStorageService.downloadFile(blobPath);
+                        if (imageBytes != null && imageBytes.length > 0) {
+                            // Forza nuova pagina per l'esame diagnostico
+                            document.newPage();
 
-            document.add(tabellaFirma);
+                            // Titolo sezione
+                            Paragraph titoloEsame = new Paragraph("ESAME DIAGNOSTICO", fontSottotitolo);
+                            titoloEsame.setAlignment(Element.ALIGN_CENTER);
+                            titoloEsame.setSpacingAfter(15);
+                            document.add(titoloEsame);
+
+                            // Inserisci l'immagine
+                            Image esameImg = Image.getInstance(imageBytes);
+                            // Ridimensiona per stare nella pagina (max 450px largo, max 550px alto)
+                            esameImg.scaleToFit(450, 550);
+                            esameImg.setAlignment(Element.ALIGN_CENTER);
+                            esameImg.setSpacingAfter(10);
+                            document.add(esameImg);
+
+                            log.info("Immagine esame inserita nel PDF con successo");
+
+                            // Firma pagina 2
+                            document.add(new Paragraph(" "));
+                            document.add(new Chunk(linea));
+                            document.add(new Paragraph(" "));
+                            document.add(creaTabellaFirma(dataFormattata, nomeMedico, fontPiccolo, fontNormale,
+                                    fontFirmaCorsivo));
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("Impossibile inserire l'immagine dell'esame nel PDF: {}", e.getMessage());
+            }
 
             document.close();
 
@@ -255,6 +231,40 @@ public class PdfServiceImpl implements PdfService {
         }
 
         return new ByteArrayInputStream(out.toByteArray());
+    }
+
+    /**
+     * Crea la tabella firma con data e nome medico (riutilizzabile su più pagine).
+     */
+    private PdfPTable creaTabellaFirma(String data, String nomeMedico,
+            Font fontPiccolo, Font fontNormale, Font fontFirmaCorsivo)
+            throws DocumentException {
+        PdfPTable tabellaFirma = new PdfPTable(2);
+        tabellaFirma.setWidthPercentage(100);
+        tabellaFirma.setWidths(new float[] { 1, 1 });
+
+        // Colonna sinistra - Data
+        PdfPCell cellData = new PdfPCell();
+        cellData.setBorder(Rectangle.NO_BORDER);
+        cellData.addElement(new Paragraph("Data refertazione: " + data, fontPiccolo));
+        tabellaFirma.addCell(cellData);
+
+        // Colonna destra - Firma
+        PdfPCell cellFirma = new PdfPCell();
+        cellFirma.setBorder(Rectangle.NO_BORDER);
+        cellFirma.setHorizontalAlignment(Element.ALIGN_RIGHT);
+
+        Paragraph medicoLabel = new Paragraph("Il Medico referente", fontNormale);
+        medicoLabel.setAlignment(Element.ALIGN_RIGHT);
+        cellFirma.addElement(medicoLabel);
+
+        Paragraph firmaDigitale = new Paragraph(nomeMedico, fontFirmaCorsivo);
+        firmaDigitale.setAlignment(Element.ALIGN_RIGHT);
+        firmaDigitale.setSpacingBefore(5);
+        cellFirma.addElement(firmaDigitale);
+
+        tabellaFirma.addCell(cellFirma);
+        return tabellaFirma;
     }
 
     /**

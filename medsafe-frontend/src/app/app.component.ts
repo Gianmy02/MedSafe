@@ -21,18 +21,25 @@ import { User } from './models/user.model';
             <polyline points="0,20 20,20 28,6 36,34 44,20 55,20 65,6 73,34 81,20 120,20" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </a>
-        <div class="nav-links">
-          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Dashboard</a>
-          <a *ngIf="user?.enabled" routerLink="/upload" routerLinkActive="active">Nuovo Referto</a>
-          <a routerLink="/edit" routerLinkActive="active">I miei Referti</a>
-          <a routerLink="/referti" routerLinkActive="active">Cerca Referti</a>
-          <a *ngIf="user?.role === 'ADMIN'" routerLink="/utenti" routerLinkActive="active">Elenco Utenti</a>
-          <a *ngIf="user" routerLink="/profilo" class="welcome-user" routerLinkActive="active">
+        <!-- Mobile controls: logout + hamburger -->
+        <div class="mobile-controls">
+          <button *ngIf="user" class="btn-logout mobile-logout" (click)="logout()">Logout</button>
+          <button class="hamburger" (click)="toggleMenu()" [class.open]="menuOpen" aria-label="Menu">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+        <div class="nav-links" [class.nav-open]="menuOpen">
+          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMenu()">Dashboard</a>
+          <a *ngIf="user?.enabled" routerLink="/upload" routerLinkActive="active" (click)="closeMenu()">Nuovo Referto</a>
+          <a routerLink="/edit" routerLinkActive="active" (click)="closeMenu()">I miei Referti</a>
+          <a routerLink="/referti" routerLinkActive="active" (click)="closeMenu()">Cerca Referti</a>
+          <a *ngIf="user?.role === 'ADMIN'" routerLink="/utenti" routerLinkActive="active" (click)="closeMenu()">Elenco Utenti</a>
+          <a *ngIf="user" routerLink="/profilo" class="welcome-user" routerLinkActive="active" (click)="closeMenu()">
             <span class="user-main">{{ getDoctorEmoji() }} {{ getDoctorTitle() }} {{ user.fullName }}</span>
             <span *ngIf="user.specializzazione" class="user-spec">Specializzato in: {{ formatSpecialization(user.specializzazione) }}</span>
           </a>
-          <span *ngIf="!user && !isLoading" class="welcome-user" (click)="login()" style="cursor: pointer;">👤 Login</span>
-          <button *ngIf="user" class="btn-logout" (click)="logout()">Logout</button>
+          <span *ngIf="!user && !isLoading" class="welcome-user" (click)="login(); closeMenu()" style="cursor: pointer;">👤 Login</span>
+          <button *ngIf="user" class="btn-logout desktop-logout" (click)="logout()">Logout</button>
         </div>
       </nav>
       
@@ -51,6 +58,7 @@ export class AppComponent implements OnInit {
   title = 'medsafe-frontend';
   user: User | null = null;
   isLoading = true;
+  menuOpen = false;
 
   constructor(private userService: UserService, private authService: AuthService) {
 
@@ -120,5 +128,13 @@ export class AppComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
+  }
+
+  toggleMenu(): void {
+    this.menuOpen = !this.menuOpen;
+  }
+
+  closeMenu(): void {
+    this.menuOpen = false;
   }
 }
