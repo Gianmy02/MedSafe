@@ -1,29 +1,81 @@
-<div class="dashboard-container">
-  <header class="dashboard-header">
-    <div class="header-title">
-      <img src="assets/logo.png" alt="MedSafe Logo" class="dashboard-logo">
-      <h1>MedSafe Dashboard</h1>
+<div class="dashboard-wrapper">
+  <!-- Sidebar sinistra decorativa -->
+  <aside class="deco-sidebar deco-sidebar-left">
+    <div class="deco-card">
+      <div class="deco-icon">🏥</div>
+      <h4>Sistema Ospedaliero</h4>
+      <p>Gestione sicura e centralizzata dei referti medici</p>
     </div>
-    <div *ngIf="user" class="welcome-message">
-      <span class="welcome-icon">{{ getDoctorEmoji() }}</span>
-      <div style="display: flex; flex-direction: column; align-items: center;">
-        <span class="welcome-text">
-          Benvenuto, <span class="doctor-name">{{ getDoctorTitle() }} {{ user.fullName }}</span>
-        </span>
-        <div *ngIf="user.specializzazione" class="welcome-text" style="font-size: 0.9em; margin-top: 4px;">
-          Specializzato in: <span class="doctor-name">{{ formatSpecialization(user.specializzazione) }}</span>
+    <div class="deco-card">
+      <div class="deco-icon">🔬</div>
+      <h4>Diagnostica</h4>
+      <p>TAC, Risonanza, Ecografia, Radiografia e Laboratorio</p>
+    </div>
+    <div class="deco-card">
+      <div class="deco-icon">💊</div>
+      <h4>Salute Digitale</h4>
+      <p>La tecnologia al servizio della medicina moderna</p>
+    </div>
+    <div class="deco-pulse">
+      <svg viewBox="0 0 200 60" class="heartbeat-svg">
+        <polyline points="0,30 40,30 50,10 60,50 70,30 80,30 100,30 110,10 120,50 130,30 200,30" fill="none"
+          stroke="#3b82f6" stroke-width="2" />
+      </svg>
+    </div>
+  </aside>
+
+  <!-- Dashboard centrale -->
+  <div class="dashboard-container">
+    <header class="dashboard-header">
+      <div class="header-title">
+        <img src="assets/logo.png" alt="MedSafe Logo" class="dashboard-logo">
+        <h1>MedSafe Dashboard</h1>
+      </div>
+      <div *ngIf="user" class="welcome-message">
+        <span class="welcome-icon">{{ getDoctorEmoji() }}</span>
+        <div style="display: flex; flex-direction: column; align-items: center;">
+          <span class="welcome-text">
+            Benvenuto, <span class="doctor-name">{{ getDoctorTitle() }} {{ user.fullName }}</span>
+          </span>
+          <div *ngIf="user.specializzazione" class="welcome-text" style="font-size: 0.9em; margin-top: 4px;">
+            Specializzato in: <span class="doctor-name">{{ formatSpecialization(user.specializzazione) }}</span>
+          </div>
         </div>
       </div>
+    </header>
 
+    <div class="dashboard-grid">
+      <a *ngFor="let card of cards" [routerLink]="card.route" class="dashboard-card" [attr.data-color]="card.color">
+        <div class="card-icon">{{ card.icon }}</div>
+        <h2 class="card-title">{{ card.title }}</h2>
+        <p class="card-description">{{ card.description }}</p>
+        <span class="card-arrow">→</span>
+      </a>
     </div>
-  </header>
-
-  <div class="dashboard-grid">
-    <a *ngFor="let card of cards" [routerLink]="card.route" class="dashboard-card" [attr.data-color]="card.color">
-      <div class="card-icon">{{ card.icon }}</div>
-      <h2 class="card-title">{{ card.title }}</h2>
-      <p class="card-description">{{ card.description }}</p>
-      <span class="card-arrow">→</span>
-    </a>
   </div>
+
+  <!-- Sidebar destra decorativa -->
+  <aside class="deco-sidebar deco-sidebar-right">
+    <div class="deco-card">
+      <div class="deco-icon">🛡️</div>
+      <h4>Sicurezza</h4>
+      <p>Dati crittografati e protetti su cloud Azure</p>
+    </div>
+    <div class="deco-card">
+      <div class="deco-icon">📊</div>
+      <h4>Archiviazione</h4>
+      <p>Referti archiviati in modo sicuro e sempre accessibili</p>
+    </div>
+    <div class="deco-card deco-quote">
+      <div class="deco-icon">⚕️</div>
+      <h4>Ippocrate</h4>
+      <p><em>"La vita è breve, l'arte è lunga, l'occasione fugace."</em></p>
+    </div>
+    <div class="deco-pulse">
+      <svg viewBox="0 0 200 60" class="heartbeat-svg">
+        <polyline points="0,30 40,30 50,10 60,50 70,30 80,30 100,30 110,10 120,50 130,30 200,30" fill="none"
+          stroke="#10b981" stroke-width="2" />
+      </svg>
+    </div>
+  </aside>
 </div>

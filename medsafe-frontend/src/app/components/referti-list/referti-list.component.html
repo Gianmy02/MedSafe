@@ -43,8 +43,8 @@
         <span class="badge" [ngClass]="getBadgeClass(referto.tipoEsame)">{{ formatTipoEsame(referto.tipoEsame) }}</span>
       </div>
       <p *ngIf="isMyReferto(referto)" class="my-referto-label">👤 Tuo referto</p>
-      <p><strong>CF:</strong> {{ referto.codiceFiscale }}</p>
-      <p><strong>Medico:</strong> {{ referto.autoreEmail }}</p>
+      <p><strong>CF Paziente:</strong> {{ referto.codiceFiscale }}</p>
+      <p><strong>Email Medico:</strong> {{ referto.autoreEmail }}</p>
       <p><strong>Data:</strong> {{ referto.dataCaricamento | date:'dd/MM/yyyy HH:mm' }}</p>
       <p *ngIf="referto.testoReferto"><strong>Referto:</strong> {{ referto.testoReferto }}</p>
       <p *ngIf="referto.conclusioni"><strong>Conclusioni:</strong> {{ referto.conclusioni }}</p>

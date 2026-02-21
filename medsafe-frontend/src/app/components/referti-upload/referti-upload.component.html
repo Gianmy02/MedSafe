@@ -78,15 +78,17 @@
       </div>
 
       <div class="form-group">
-        <label for="testoReferto">Descrizione Referto *</label>
+        <label for="testoReferto">Descrizione Referto * <small>(max 320 caratteri)</small></label>
         <textarea id="testoReferto" name="testoReferto" [(ngModel)]="formData.testoReferto" rows="4" required
-          placeholder="Descrizione del referto..."></textarea>
+          maxlength="320" placeholder="Descrizione del referto..."></textarea>
+        <small class="char-counter">{{ formData.testoReferto?.length || 0 }}/320</small>
       </div>
 
       <div class="form-group">
-        <label for="conclusioni">Conclusioni *</label>
+        <label for="conclusioni">Conclusioni * <small>(max 200 caratteri)</small></label>
         <textarea id="conclusioni" name="conclusioni" [(ngModel)]="formData.conclusioni" rows="3" required
-          placeholder="Conclusioni diagnostiche..."></textarea>
+          maxlength="200" placeholder="Conclusioni diagnostiche..."></textarea>
+        <small class="char-counter">{{ formData.conclusioni?.length || 0 }}/200</small>
       </div>
 
       <div class="form-group">
