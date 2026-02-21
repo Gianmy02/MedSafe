@@ -232,8 +232,8 @@ public class PdfServiceImpl implements PdfService {
                     nomeMedico = user.getFullName();
                     // Aggiungi "Dott." o "Dott.ssa" in base al genere
                     if (!nomeMedico.toLowerCase().startsWith("dott") && !nomeMedico.toLowerCase().startsWith("dr")) {
-                        String titolo = (user.getGenere() == Genere.FEMMINA) ? "Dott.ssa " : "Dott. ";
-                        nomeMedico = titolo + nomeMedico;
+                        String tit = (user.getGenere() == Genere.FEMMINA) ? "Dott.ssa " : "Dott. ";
+                        nomeMedico = tit + nomeMedico;
                     }
                 }
             }
