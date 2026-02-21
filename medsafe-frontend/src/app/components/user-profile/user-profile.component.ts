@@ -191,4 +191,13 @@ export class UserProfileComponent implements OnInit {
     if (!spec) return '';
     return spec.replace(/_/g, ' ');
   }
+
+  getGenereEmoji(genere?: string): string {
+    if (!genere) return '🩺';
+    switch (genere) {
+      case 'MASCHIO': return '👨🏻‍⚕️';
+      case 'FEMMINA': return '👩🏻‍⚕️';
+      default: return '🩺';
+    }
+  }
 }

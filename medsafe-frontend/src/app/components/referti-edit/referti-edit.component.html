@@ -1,7 +1,17 @@
 <div class="edit-container">
   <header class="page-header">
+    <div class="header-icon">📋</div>
     <h1>I miei referti</h1>
     <p>Visualizza, modifica ed elimina i tuoi referti</p>
+    <div class="header-stats" *ngIf="referti.length > 0">
+      <span class="stat-badge">
+        <span class="stat-number">{{ referti.length }}</span>
+        <span class="stat-label">Referti Caricati</span>
+      </span>
+    </div>
+    <div class="header-deco">
+      <span>🩺</span><span>📊</span><span>🔬</span><span>💊</span><span>🏥</span>
+    </div>
   </header>
 
   <!-- Messages -->
