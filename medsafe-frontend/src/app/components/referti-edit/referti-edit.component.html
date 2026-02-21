@@ -126,11 +126,44 @@
 
       <div class="form-group full-width">
         <label for="editImmagine">Immagine Corrente:</label>
-        <div class="current-file-info" *ngIf="selectedReferto?.fileUrlImmagine">
-          <span class="file-icon">🖼️</span>
-          <span class="file-name">{{ getImageFileName(selectedReferto?.fileUrlImmagine) }}</span>
-          <span class="file-status">✓ Già caricato</span>
+
+        <!-- Existing image preview -->
+        <div class="image-preview-section" *ngIf="existingImageUrl && !newFilePreviewUrl">
+          <div class="preview-wrapper">
+            <img [src]="existingImageUrl" alt="Immagine corrente" class="preview-img">
+          </div>
+          <div class="current-file-info">
+            <span class="file-icon">🖼️</span>
+            <span class="file-name">{{ getImageFileName(selectedReferto?.fileUrlImmagine) }}</span>
+            <span class="file-status">✓ Immagine attuale</span>
+          </div>
         </div>
+
+        <!-- No image available -->
+        <div class="no-image-info" *ngIf="!existingImageUrl && !newFilePreviewUrl && !selectedFile">
+          <span class="file-icon">📷</span>
+          <span>Nessuna immagine caricata</span>
+        </div>
+
+        <!-- New file preview -->
+        <div class="image-preview-section new-preview" *ngIf="newFilePreviewUrl">
+          <div class="preview-wrapper">
+            <img [src]="newFilePreviewUrl" alt="Nuova immagine" class="preview-img">
+          </div>
+          <div class="current-file-info">
+            <span class="file-icon">🆕</span>
+            <span class="file-name">{{ selectedFile?.name }}</span>
+            <span class="file-status new-status">⟳ Sostituirà l'immagine attuale</span>
+          </div>
+        </div>
+
+        <!-- New file is PDF (no preview) -->
+        <div class="no-image-info" *ngIf="selectedFile && !newFilePreviewUrl">
+          <span class="file-icon">📄</span>
+          <span class="file-name">{{ selectedFile.name }}</span>
+          <span class="pdf-hint">Anteprima non disponibile per i PDF</span>
+        </div>
+
         <label for="editImmagine" class="mt-2">Cambia Immagine (opzionale):</label>
         <input type="file" id="editImmagine" (change)="onFileSelected($event)" accept="image/*"
           class="form-control file-input">

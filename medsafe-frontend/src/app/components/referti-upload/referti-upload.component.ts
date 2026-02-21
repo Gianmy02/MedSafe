@@ -27,6 +27,7 @@ export class RefertiUploadComponent implements OnInit {
   };
 
   selectedFile: File | null = null;
+  filePreviewUrl: string | null = null;
   loading = false;
   errorMessage = '';
   successMessage = '';
@@ -67,12 +68,23 @@ export class RefertiUploadComponent implements OnInit {
       if (!validExtensions.some(ext => fileName.endsWith(ext))) {
         this.errorMessage = 'Formato file non supportato. Estensioni consentite: PNG, JPG, JPEG, PDF';
         this.selectedFile = null;
+        this.filePreviewUrl = null;
         input.value = '';
         return;
       }
 
       this.selectedFile = file;
       this.errorMessage = '';
+
+      // Generate preview
+      if (this.filePreviewUrl) {
+        URL.revokeObjectURL(this.filePreviewUrl);
+      }
+      if (file.type.startsWith('image/')) {
+        this.filePreviewUrl = URL.createObjectURL(file);
+      } else {
+        this.filePreviewUrl = null; // PDF - no image preview
+      }
     }
   }
 
@@ -142,6 +154,10 @@ export class RefertiUploadComponent implements OnInit {
       nomeFile: ''
     };
     this.selectedFile = null;
+    if (this.filePreviewUrl) {
+      URL.revokeObjectURL(this.filePreviewUrl);
+      this.filePreviewUrl = null;
+    }
     this.errorMessage = '';
     this.successMessage = '';
   }

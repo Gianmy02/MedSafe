@@ -17,6 +17,9 @@ import { User } from './models/user.model';
             <img src="assets/logo.png" alt="MedSafe Logo">
           </div>
           <h1>MedSafe</h1>
+          <svg class="navbar-heartbeat" viewBox="0 0 120 40" width="80" height="28">
+            <polyline points="0,20 20,20 28,6 36,34 44,20 55,20 65,6 73,34 81,20 120,20" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </a>
         <div class="nav-links">
           <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Dashboard</a>
@@ -24,7 +27,10 @@ import { User } from './models/user.model';
           <a routerLink="/edit" routerLinkActive="active">I miei Referti</a>
           <a routerLink="/referti" routerLinkActive="active">Cerca Referti</a>
           <a *ngIf="user?.role === 'ADMIN'" routerLink="/utenti" routerLinkActive="active">Elenco Utenti</a>
-          <a *ngIf="user" routerLink="/profilo" class="welcome-user" routerLinkActive="active">{{ getDoctorEmoji() }} {{ getDoctorTitle() }} {{ user.fullName }}</a>
+          <a *ngIf="user" routerLink="/profilo" class="welcome-user" routerLinkActive="active">
+            <span class="user-main">{{ getDoctorEmoji() }} {{ getDoctorTitle() }} {{ user.fullName }}</span>
+            <span *ngIf="user.specializzazione" class="user-spec">Specializzato in: {{ formatSpecialization(user.specializzazione) }}</span>
+          </a>
           <span *ngIf="!user && !isLoading" class="welcome-user" (click)="login()" style="cursor: pointer;">👤 Login</span>
           <button *ngIf="user" class="btn-logout" (click)="logout()">Logout</button>
         </div>
@@ -86,6 +92,11 @@ export class AppComponent implements OnInit {
       case 'NON_SPECIFICATO': return 'Dr.';
       default: return 'Dr.';
     }
+  }
+
+  formatSpecialization(spec?: string): string {
+    if (!spec) return '';
+    return spec.replace(/_/g, ' ');
   }
 
   loadUser() {

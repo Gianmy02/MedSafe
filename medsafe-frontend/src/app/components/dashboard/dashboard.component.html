@@ -71,10 +71,34 @@
       <h4>Ippocrate</h4>
       <p><em>"La vita è breve, l'arte è lunga, l'occasione fugace."</em></p>
     </div>
-    <div class="deco-pulse">
-      <svg viewBox="0 0 200 60" class="heartbeat-svg">
-        <polyline points="0,30 40,30 50,10 60,50 70,30 80,30 100,30 110,10 120,50 130,30 200,30" fill="none"
-          stroke="#10b981" stroke-width="2" />
+    <div class="deco-dna">
+      <svg viewBox="0 0 60 200" class="dna-svg">
+        <!-- Strand 1 -->
+        <path d="M10,10 Q50,30 10,50 Q-30,70 10,90 Q50,110 10,130 Q-30,150 10,170 Q50,190 10,210" fill="none"
+          stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" class="dna-strand-1" />
+        <!-- Strand 2 -->
+        <path d="M50,10 Q10,30 50,50 Q90,70 50,90 Q10,110 50,130 Q90,150 50,170 Q10,190 50,210" fill="none"
+          stroke="#10b981" stroke-width="2.5" stroke-linecap="round" class="dna-strand-2" />
+        <!-- Bonds -->
+        <line x1="18" y1="20" x2="42" y2="20" stroke="#94a3b8" stroke-width="1.5" class="dna-bond" />
+        <line x1="10" y1="50" x2="50" y2="50" stroke="#94a3b8" stroke-width="1.5" class="dna-bond" />
+        <line x1="18" y1="80" x2="42" y2="80" stroke="#94a3b8" stroke-width="1.5" class="dna-bond" />
+        <line x1="10" y1="110" x2="50" y2="110" stroke="#94a3b8" stroke-width="1.5" class="dna-bond" />
+        <line x1="18" y1="140" x2="42" y2="140" stroke="#94a3b8" stroke-width="1.5" class="dna-bond" />
+        <line x1="10" y1="170" x2="50" y2="170" stroke="#94a3b8" stroke-width="1.5" class="dna-bond" />
+        <!-- Dots on bonds -->
+        <circle cx="18" cy="20" r="3" fill="#3b82f6" class="dna-dot" />
+        <circle cx="42" cy="20" r="3" fill="#10b981" class="dna-dot" />
+        <circle cx="10" cy="50" r="3" fill="#3b82f6" class="dna-dot" />
+        <circle cx="50" cy="50" r="3" fill="#10b981" class="dna-dot" />
+        <circle cx="18" cy="80" r="3" fill="#3b82f6" class="dna-dot" />
+        <circle cx="42" cy="80" r="3" fill="#10b981" class="dna-dot" />
+        <circle cx="10" cy="110" r="3" fill="#3b82f6" class="dna-dot" />
+        <circle cx="50" cy="110" r="3" fill="#10b981" class="dna-dot" />
+        <circle cx="18" cy="140" r="3" fill="#3b82f6" class="dna-dot" />
+        <circle cx="42" cy="140" r="3" fill="#10b981" class="dna-dot" />
+        <circle cx="10" cy="170" r="3" fill="#3b82f6" class="dna-dot" />
+        <circle cx="50" cy="170" r="3" fill="#10b981" class="dna-dot" />
       </svg>
     </div>
   </aside>

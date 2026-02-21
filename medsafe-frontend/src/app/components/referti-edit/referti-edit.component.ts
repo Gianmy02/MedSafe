@@ -34,6 +34,8 @@ export class RefertiEditComponent implements OnInit {
     conclusioni: ''
   };
   selectedFile: File | null = null;
+  existingImageUrl: string | null = null;
+  newFilePreviewUrl: string | null = null;
 
   constructor(
     private refertiService: RefertiService,
@@ -103,6 +105,8 @@ export class RefertiEditComponent implements OnInit {
 
     this.isEditMode = true;
     this.selectedFile = null;
+    this.newFilePreviewUrl = null;
+    this.existingImageUrl = null;
     this.editData = {
       codiceFiscalePaziente: this.selectedReferto.codiceFiscale,
       tipoEsame: this.selectedReferto.tipoEsame,
@@ -111,12 +115,32 @@ export class RefertiEditComponent implements OnInit {
       testoReferto: this.selectedReferto.testoReferto || '',
       conclusioni: this.selectedReferto.conclusioni || ''
     };
+
+    // Load existing image preview
+    if (this.selectedReferto.id && this.selectedReferto.fileUrlImmagine) {
+      this.refertiService.downloadImmagine(this.selectedReferto.id).subscribe({
+        next: (blob) => {
+          this.existingImageUrl = URL.createObjectURL(blob);
+        },
+        error: () => {
+          this.existingImageUrl = null;
+        }
+      });
+    }
   }
 
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
       this.selectedFile = file;
+      if (this.newFilePreviewUrl) {
+        URL.revokeObjectURL(this.newFilePreviewUrl);
+      }
+      if (file.type.startsWith('image/')) {
+        this.newFilePreviewUrl = URL.createObjectURL(file);
+      } else {
+        this.newFilePreviewUrl = null;
+      }
     }
   }
 
@@ -124,6 +148,15 @@ export class RefertiEditComponent implements OnInit {
     this.isEditMode = false;
     this.errorMessage = '';
     this.successMessage = '';
+    this.selectedFile = null;
+    if (this.newFilePreviewUrl) {
+      URL.revokeObjectURL(this.newFilePreviewUrl);
+      this.newFilePreviewUrl = null;
+    }
+    if (this.existingImageUrl) {
+      URL.revokeObjectURL(this.existingImageUrl);
+      this.existingImageUrl = null;
+    }
   }
 
   saveEdit() {

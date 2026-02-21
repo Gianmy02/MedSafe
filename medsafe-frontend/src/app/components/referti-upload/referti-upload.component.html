@@ -97,6 +97,18 @@
           required>
         <small *ngIf="selectedFile">File selezionato: {{ selectedFile.name }} ({{ formatFileSize(selectedFile.size)
           }})</small>
+
+        <!-- File Preview -->
+        <div *ngIf="selectedFile" class="file-preview">
+          <div *ngIf="filePreviewUrl" class="preview-image-wrapper">
+            <img [src]="filePreviewUrl" alt="Anteprima file" class="preview-image">
+          </div>
+          <div *ngIf="!filePreviewUrl && selectedFile" class="preview-pdf">
+            <span class="pdf-icon">📄</span>
+            <span class="pdf-label">{{ selectedFile.name }}</span>
+            <span class="pdf-hint">Anteprima non disponibile per i PDF</span>
+          </div>
+        </div>
       </div>
 
       <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>

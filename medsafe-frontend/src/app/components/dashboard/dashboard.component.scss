@@ -79,11 +79,113 @@
   0% {
     stroke-dashoffset: 400;
   }
+
   50% {
     stroke-dashoffset: 0;
   }
+
   100% {
     stroke-dashoffset: -400;
+  }
+}
+
+.deco-dna {
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-md) 0;
+
+  .dna-svg {
+    width: 50px;
+    height: 160px;
+    opacity: 0.7;
+    animation: dnaFloat 4s ease-in-out infinite;
+  }
+
+  .dna-strand-1 {
+    stroke-dasharray: 500;
+    stroke-dashoffset: 500;
+    animation: dnaStrandDraw 3s ease-in-out infinite;
+  }
+
+  .dna-strand-2 {
+    stroke-dasharray: 500;
+    stroke-dashoffset: -500;
+    animation: dnaStrandDraw2 3s ease-in-out infinite;
+  }
+
+  .dna-bond {
+    opacity: 0.4;
+    animation: dnaBondPulse 2s ease-in-out infinite;
+  }
+
+  .dna-dot {
+    animation: dnaDotPulse 2.5s ease-in-out infinite;
+  }
+}
+
+@keyframes dnaFloat {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes dnaStrandDraw {
+  0% {
+    stroke-dashoffset: 500;
+  }
+
+  50% {
+    stroke-dashoffset: 0;
+  }
+
+  100% {
+    stroke-dashoffset: -500;
+  }
+}
+
+@keyframes dnaStrandDraw2 {
+  0% {
+    stroke-dashoffset: -500;
+  }
+
+  50% {
+    stroke-dashoffset: 0;
+  }
+
+  100% {
+    stroke-dashoffset: 500;
+  }
+}
+
+@keyframes dnaBondPulse {
+
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes dnaDotPulse {
+
+  0%,
+  100% {
+    r: 3;
+    opacity: 0.8;
+  }
+
+  50% {
+    r: 4;
+    opacity: 1;
   }
 }
 
@@ -340,11 +442,15 @@
     font-size: 2.5rem;
   }
 }
+
 // Animazioni
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0px);
   }
+
   50% {
     transform: translateY(-10px);
   }
@@ -355,6 +461,7 @@
     transform: translateY(-100%);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -366,6 +473,7 @@
     transform: translateY(20px);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -376,6 +484,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
