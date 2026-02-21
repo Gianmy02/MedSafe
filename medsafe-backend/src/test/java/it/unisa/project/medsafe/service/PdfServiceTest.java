@@ -1,6 +1,7 @@
 package it.unisa.project.medsafe.service;
 
 import it.unisa.project.medsafe.dto.RefertoDTO;
+import it.unisa.project.medsafe.entity.Genere;
 import it.unisa.project.medsafe.entity.TipoEsame;
 import it.unisa.project.medsafe.entity.User;
 import it.unisa.project.medsafe.entity.UserRole;
@@ -30,15 +31,21 @@ public class PdfServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private BlobStorageService blobStorageService;
+
     @BeforeEach
     void setUp() {
-        // Mock di default: restituisce un utente con nome completo
+        // Mock di default: restituisce un utente con nome completo e genere MASCHIO
         User mockUser = User.builder()
                 .fullName("Mario Rossi")
                 .email("medico@test.com")
                 .role(UserRole.MEDICO)
+                .genere(Genere.MASCHIO)
                 .build();
-        when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(mockUser));
+        lenient().when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(mockUser));
+        // Mock di default: nessuna immagine disponibile
+        lenient().when(blobStorageService.downloadFile(anyString())).thenReturn(new byte[0]);
     }
 
     @Nested
@@ -329,6 +336,121 @@ public class PdfServiceTest {
                     .tipoEsame(null)
                     .testoReferto("Testo")
                     .conclusioni("Conclusioni")
+                    .build();
+
+            // Act
+            ByteArrayInputStream result = pdfService.generaPdf(dto);
+
+            // Assert
+            assertNotNull(result);
+            assertTrue(result.available() > 0);
+        }
+    }
+
+    @Nested
+    @DisplayName("Test firma con genere e immagine esame")
+    class FirmaEImmagine {
+
+        @Test
+        @DisplayName("Firma con Dott.ssa per medico donna")
+        void testFirmaDottoressa() throws IOException {
+            // Arrange
+            User dottoressa = User.builder()
+                    .fullName("Maria Bianchi")
+                    .email("maria.bianchi@hospital.com")
+                    .role(UserRole.MEDICO)
+                    .genere(Genere.FEMMINA)
+                    .build();
+            when(userRepository.findByEmail("maria.bianchi@hospital.com")).thenReturn(Optional.of(dottoressa));
+
+            RefertoDTO dto = RefertoDTO.builder()
+                    .nomePaziente("Paziente Test")
+                    .codiceFiscale("PZNTST80A01H501X")
+                    .tipoEsame(TipoEsame.TAC)
+                    .testoReferto("Testo referto")
+                    .conclusioni("Conclusioni")
+                    .autoreEmail("maria.bianchi@hospital.com")
+                    .nomeFile("referto_test_dottssa")
+                    .build();
+
+            // Act
+            ByteArrayInputStream result = pdfService.generaPdf(dto);
+
+            // Assert
+            assertNotNull(result);
+            assertTrue(result.available() > 0);
+            verify(userRepository).findByEmail("maria.bianchi@hospital.com");
+        }
+
+        @Test
+        @DisplayName("Firma con Dott. per medico uomo")
+        void testFirmaDottore() throws IOException {
+            // Arrange
+            User dottore = User.builder()
+                    .fullName("Giuseppe Verdi")
+                    .email("giuseppe.verdi@hospital.com")
+                    .role(UserRole.MEDICO)
+                    .genere(Genere.MASCHIO)
+                    .build();
+            when(userRepository.findByEmail("giuseppe.verdi@hospital.com")).thenReturn(Optional.of(dottore));
+
+            RefertoDTO dto = RefertoDTO.builder()
+                    .nomePaziente("Paziente Test")
+                    .codiceFiscale("PZNTST80A01H501X")
+                    .tipoEsame(TipoEsame.Radiografia)
+                    .testoReferto("Testo referto")
+                    .conclusioni("Conclusioni")
+                    .autoreEmail("giuseppe.verdi@hospital.com")
+                    .nomeFile("referto_test_dott")
+                    .build();
+
+            // Act
+            ByteArrayInputStream result = pdfService.generaPdf(dto);
+
+            // Assert
+            assertNotNull(result);
+            assertTrue(result.available() > 0);
+            verify(userRepository).findByEmail("giuseppe.verdi@hospital.com");
+        }
+
+        @Test
+        @DisplayName("PDF con URL immagine esame null gestito correttamente")
+        void testPdfConImmagineNull() throws IOException {
+            // Arrange
+            RefertoDTO dto = RefertoDTO.builder()
+                    .nomePaziente("Test Immagine")
+                    .codiceFiscale("TSTIMG80A01H501Z")
+                    .tipoEsame(TipoEsame.Ecografia)
+                    .testoReferto("Testo")
+                    .conclusioni("Conclusioni")
+                    .fileUrlImmagine(null)
+                    .autoreEmail("medico@test.com")
+                    .nomeFile("referto_no_img")
+                    .build();
+
+            // Act
+            ByteArrayInputStream result = pdfService.generaPdf(dto);
+
+            // Assert
+            assertNotNull(result);
+            assertTrue(result.available() > 0);
+        }
+
+        @Test
+        @DisplayName("PDF con immagine esame non disponibile (download vuoto)")
+        void testPdfConImmagineNonDisponibile() throws IOException {
+            // Arrange
+            when(blobStorageService.downloadFile(anyString())).thenReturn(new byte[0]);
+
+            RefertoDTO dto = RefertoDTO.builder()
+                    .nomePaziente("Test Download Vuoto")
+                    .codiceFiscale("TSTDWN80A01H501Y")
+                    .tipoEsame(TipoEsame.TAC)
+                    .testoReferto("Testo")
+                    .conclusioni("Conclusioni")
+                    .fileUrlImmagine("https://storage.blob.core.windows.net/upload-dir/immagini/test.png")
+                    .autoreEmail("medico@test.com")
+                    .nomeFile("referto_empty_download")
                     .build();
 
             // Act

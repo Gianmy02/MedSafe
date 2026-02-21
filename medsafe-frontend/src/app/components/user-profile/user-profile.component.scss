@@ -1,8 +1,111 @@
+/* ==================== WRAPPER LAYOUT ==================== */
+.profile-wrapper {
+  display: flex;
+  gap: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+  align-items: flex-start;
+}
+
+/* ==================== SIDEBARS ==================== */
+.profile-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: sticky;
+  top: 100px;
+
+  .sidebar-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 14px;
+    padding: 1.25rem;
+    border: 1px solid rgba(59, 130, 246, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+    text-align: center;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(59, 130, 246, 0.12);
+    }
+
+    .sidebar-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    h4 {
+      margin: 0 0 0.4rem;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #1e3a8a;
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.78rem;
+      color: #64748b;
+      line-height: 1.4;
+    }
+
+    &.sidebar-quote p {
+      font-style: italic;
+      color: #475569;
+    }
+  }
+
+  .sidebar-pulse {
+    padding: 0.5rem 0;
+
+    .heartbeat-line {
+      width: 100%;
+      height: 30px;
+      opacity: 0.5;
+
+      polyline {
+        stroke-dasharray: 400;
+        stroke-dashoffset: 400;
+        animation: heartDraw 3s ease-in-out infinite;
+      }
+    }
+  }
+}
+
+@keyframes heartDraw {
+  0% {
+    stroke-dashoffset: 400;
+  }
+
+  50% {
+    stroke-dashoffset: 0;
+  }
+
+  100% {
+    stroke-dashoffset: -400;
+  }
+}
+
+// Responsive: hide sidebars
+@media (max-width: 1200px) {
+  .profile-sidebar {
+    display: none;
+  }
+
+  .profile-wrapper {
+    padding: var(--spacing-lg);
+  }
+}
+
 /* ==================== PROFILE CONTAINER ==================== */
 .profile-container {
+  flex: 1;
+  min-width: 0;
   max-width: 800px;
   margin: 0 auto;
-  padding: 0 1rem 2rem;
+  padding: 0;
   animation: fadeIn 0.5s ease-in;
 }
 

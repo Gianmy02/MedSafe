@@ -6,8 +6,10 @@ import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import com.lowagie.text.pdf.draw.LineSeparator;
 import it.unisa.project.medsafe.dto.RefertoDTO;
+import it.unisa.project.medsafe.entity.Genere;
 import it.unisa.project.medsafe.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.awt.Color;
@@ -19,9 +21,11 @@ import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PdfServiceImpl implements PdfService {
 
     private final UserRepository userRepository;
+    private final BlobStorageService blobStorageService;
 
     @Override
     public ByteArrayInputStream generaPdf(RefertoDTO dto) throws IOException {
@@ -41,12 +45,14 @@ public class PdfServiceImpl implements PdfService {
             Font fontSottotitolo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14);
             Font fontNormale = FontFactory.getFont(FontFactory.HELVETICA, 11);
             Font fontPiccolo = FontFactory.getFont(FontFactory.HELVETICA, 10);
-            Font fontFirmaCorsivo = FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 14, new Color(0, 0, 139)); // Corsivo blu scuro
+            Font fontFirmaCorsivo = FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 14, new Color(0, 0, 139)); // Corsivo
+                                                                                                                  // blu
+                                                                                                                  // scuro
 
             // === 1. INTESTAZIONE CON LOGO A SINISTRA E TITOLO CENTRATO ===
             PdfPTable headerTable = new PdfPTable(3);
             headerTable.setWidthPercentage(100);
-            headerTable.setWidths(new float[]{1.5f, 3, 1.5f});
+            headerTable.setWidths(new float[] { 1.5f, 3, 1.5f });
 
             // Logo a sinistra (immagine grande)
             PdfPCell logoCell = new PdfPCell();
@@ -59,7 +65,8 @@ public class PdfServiceImpl implements PdfService {
                 logoCell.addElement(logoImage);
             } catch (Exception e) {
                 // Se il logo non esiste, usa il testo di fallback
-                Paragraph logoText = new Paragraph("MS", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 48, new Color(0, 128, 0)));
+                Paragraph logoText = new Paragraph("MS",
+                        FontFactory.getFont(FontFactory.HELVETICA_BOLD, 48, new Color(0, 128, 0)));
                 logoCell.addElement(logoText);
             }
             headerTable.addCell(logoCell);
@@ -120,7 +127,8 @@ public class PdfServiceImpl implements PdfService {
 
             Paragraph tipoEsamePara = new Paragraph();
             tipoEsamePara.add(new Chunk("Tipo d'esame: ", fontLabelBold));
-            tipoEsamePara.add(new Chunk(dto.getTipoEsame() != null ? dto.getTipoEsame().getDescrizione() : "", fontValue));
+            tipoEsamePara
+                    .add(new Chunk(dto.getTipoEsame() != null ? dto.getTipoEsame().getDescrizione() : "", fontValue));
             document.add(tipoEsamePara);
             document.add(new Paragraph(" "));
 
@@ -151,23 +159,52 @@ public class PdfServiceImpl implements PdfService {
                 document.add(rigaTesto);
             }
 
-            // Linee vuote per spazio firma
+            // === 4. SEZIONE ESAME DIAGNOSTICO (immagine) ===
             document.add(new Paragraph(" "));
             document.add(new Chunk(linea));
-            document.add(new Paragraph(" "));
-            document.add(new Chunk(linea));
-            document.add(new Paragraph(" "));
-            document.add(new Chunk(linea));
-            document.add(new Paragraph(" "));
-            document.add(new Chunk(linea));
-            document.add(new Paragraph(" "));
-            document.add(new Paragraph(" "));
             document.add(new Paragraph(" "));
 
-            // === 4. FOOTER - FIRMA MEDICO ===
+            try {
+                String imgUrl = dto.getFileUrlImmagine();
+                if (imgUrl != null && !imgUrl.isEmpty()) {
+                    String blobPath = extractBlobPathFromUrl(imgUrl);
+                    if (blobPath != null) {
+                        byte[] imageBytes = blobStorageService.downloadFile(blobPath);
+                        if (imageBytes != null && imageBytes.length > 0) {
+                            // Titolo sezione
+                            Paragraph titoloEsame = new Paragraph("ESAME DIAGNOSTICO", fontSottotitolo);
+                            titoloEsame.setAlignment(Element.ALIGN_CENTER);
+                            titoloEsame.setSpacingAfter(10);
+                            document.add(titoloEsame);
+
+                            // Inserisci l'immagine
+                            Image esameImg = Image.getInstance(imageBytes);
+                            // Ridimensiona per stare nella pagina (max 450px largo, max 350px alto)
+                            esameImg.scaleToFit(450, 350);
+                            esameImg.setAlignment(Element.ALIGN_CENTER);
+                            esameImg.setSpacingAfter(10);
+                            document.add(esameImg);
+
+                            log.info("Immagine esame inserita nel PDF con successo");
+                        } else {
+                            document.add(new Paragraph("Immagine esame non disponibile.", fontPiccolo));
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("Impossibile inserire l'immagine dell'esame nel PDF: {}", e.getMessage());
+                document.add(new Paragraph("Immagine esame non disponibile.", fontPiccolo));
+            }
+
+            // Spazio prima della firma
+            document.add(new Paragraph(" "));
+            document.add(new Chunk(linea));
+            document.add(new Paragraph(" "));
+
+            // === 5. FOOTER - FIRMA MEDICO ===
             PdfPTable tabellaFirma = new PdfPTable(2);
             tabellaFirma.setWidthPercentage(100);
-            tabellaFirma.setWidths(new float[]{1, 1});
+            tabellaFirma.setWidths(new float[] { 1, 1 });
 
             // Colonna sinistra - Data
             String dataFormattata = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
@@ -185,15 +222,18 @@ public class PdfServiceImpl implements PdfService {
             medicoLabel.setAlignment(Element.ALIGN_RIGHT);
             cellFirma.addElement(medicoLabel);
 
-            // Recupera il nome completo del medico dal database
+            // Recupera il nome completo del medico e il genere dal database
             String nomeMedico = "[Nome non disponibile]";
             if (dto.getAutoreEmail() != null) {
                 var userOpt = userRepository.findByEmail(dto.getAutoreEmail());
-                if (userOpt.isPresent() && userOpt.get().getFullName() != null && !userOpt.get().getFullName().isEmpty()) {
-                    nomeMedico = userOpt.get().getFullName();
-                    // Aggiungi "Dott." se non presente
+                if (userOpt.isPresent() && userOpt.get().getFullName() != null
+                        && !userOpt.get().getFullName().isEmpty()) {
+                    var user = userOpt.get();
+                    nomeMedico = user.getFullName();
+                    // Aggiungi "Dott." o "Dott.ssa" in base al genere
                     if (!nomeMedico.toLowerCase().startsWith("dott") && !nomeMedico.toLowerCase().startsWith("dr")) {
-                        nomeMedico = "Dott. " + nomeMedico;
+                        String titolo = (user.getGenere() == Genere.FEMMINA) ? "Dott.ssa " : "Dott. ";
+                        nomeMedico = titolo + nomeMedico;
                     }
                 }
             }
@@ -215,5 +255,29 @@ public class PdfServiceImpl implements PdfService {
         }
 
         return new ByteArrayInputStream(out.toByteArray());
+    }
+
+    /**
+     * Estrae il percorso del blob dall'URL completo di Azure.
+     * Formato atteso: https://<account>.blob.core.windows.net/<container>/<path>
+     */
+    private String extractBlobPathFromUrl(String url) {
+        if (url == null || url.isEmpty())
+            return null;
+        try {
+            String containerName = "upload-dir";
+            int index = url.indexOf("/" + containerName + "/");
+            if (index != -1) {
+                String encodedPath = url.substring(index + containerName.length() + 2);
+                return java.net.URLDecoder.decode(encodedPath, java.nio.charset.StandardCharsets.UTF_8);
+            }
+            if (url.startsWith(containerName + "/")) {
+                String encodedPath = url.substring(containerName.length() + 1);
+                return java.net.URLDecoder.decode(encodedPath, java.nio.charset.StandardCharsets.UTF_8);
+            }
+        } catch (Exception e) {
+            log.warn("Errore estrazione blob path dall'URL: {}", e.getMessage());
+        }
+        return null;
     }
 }

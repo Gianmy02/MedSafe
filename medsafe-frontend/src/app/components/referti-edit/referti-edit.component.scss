@@ -455,33 +455,207 @@ textarea.form-control {
   }
 }
 
+// Section Header (shared between details and edit)
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 3px solid transparent;
+  border-image: linear-gradient(90deg, #3b82f6, #10b981) 1;
+
+  .section-icon {
+    font-size: 2rem;
+    animation: floatBounce 3s ease-in-out infinite;
+  }
+
+  h2 {
+    font-size: 1.6rem;
+    color: var(--gray-900);
+    font-weight: 700;
+    margin: 0;
+    padding: 0;
+    border: none;
+  }
+}
+
 // Details Section
 .details-section {
   animation: slideUp 0.3s ease-out;
 
   .details-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: var(--spacing-lg);
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-md);
     margin-bottom: var(--spacing-lg);
 
     .detail-item {
       display: flex;
-      flex-direction: column;
-      gap: var(--spacing-xs);
+      align-items: flex-start;
+      gap: var(--spacing-md);
+      padding: var(--spacing-md);
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border-radius: 12px;
+      border: 1px solid rgba(59, 130, 246, 0.08);
+      transition: all 0.3s ease;
 
-      label {
-        font-weight: 600;
-        color: var(--gray-700);
-        font-size: 0.9rem;
+      &:hover {
+        background: linear-gradient(135deg, #eff6ff 0%, #e0f2fe 100%);
+        border-color: rgba(59, 130, 246, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.1);
       }
 
-      span {
-        color: var(--gray-900);
-        font-size: 1rem;
+      .detail-icon {
+        font-size: 1.5rem;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        flex-shrink: 0;
+      }
+
+      .detail-content {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+
+        label {
+          font-weight: 600;
+          color: var(--gray-500);
+          font-size: 0.8rem;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        span {
+          color: var(--gray-900);
+          font-size: 1rem;
+          font-weight: 500;
+          word-break: break-word;
+        }
+
+        .mono-text {
+          font-family: 'Courier New', monospace;
+          letter-spacing: 1px;
+          background: rgba(59, 130, 246, 0.06);
+          padding: 2px 6px;
+          border-radius: 4px;
+          font-size: 0.95rem;
+        }
+
+        .badge-inline {
+          display: inline-block;
+          padding: 3px 10px;
+          border-radius: 6px;
+          font-size: 0.85rem;
+          font-weight: 700;
+        }
       }
     }
   }
+
+  // Text blocks for referto/conclusioni
+  .detail-text-section {
+    margin-bottom: var(--spacing-md);
+
+    .text-block {
+      padding: var(--spacing-lg);
+      background: linear-gradient(135deg, #f0f9ff 0%, #e8f4f8 100%);
+      border-radius: 12px;
+      border-left: 4px solid #3b82f6;
+
+      h4 {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #1e3a8a;
+        margin-bottom: var(--spacing-sm);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+
+        .text-icon {
+          font-size: 1.1rem;
+        }
+      }
+
+      p {
+        color: var(--gray-700);
+        font-size: 0.95rem;
+        line-height: 1.7;
+        margin: 0;
+      }
+
+      &.conclusioni-block {
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        border-left-color: #10b981;
+
+        h4 {
+          color: #065f46;
+        }
+      }
+    }
+  }
+
+  // Actions buttons
+  .details-actions {
+    flex-wrap: wrap;
+    padding-top: var(--spacing-md);
+    border-top: 1px solid rgba(59, 130, 246, 0.1);
+  }
+}
+
+// Button glow effect
+.btn-with-glow {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -60%;
+    width: 50%;
+    height: 200%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    transform: skewX(-25deg);
+    transition: left 0.5s ease;
+  }
+
+  &:hover::after {
+    left: 120%;
+  }
+}
+
+// Info button style
+.btn-info {
+  background: linear-gradient(135deg, #0ea5e9, #0284c7);
+  color: white;
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, #0284c7, #0369a1);
+  }
+}
+
+// Label icons in forms
+.label-icon {
+  margin-right: 2px;
+}
+
+// Character counter
+.char-counter {
+  display: block;
+  text-align: right;
+  font-size: 0.8rem;
+  color: var(--gray-400);
+  margin-top: 4px;
+  font-weight: 500;
 }
 
 // Edit Form

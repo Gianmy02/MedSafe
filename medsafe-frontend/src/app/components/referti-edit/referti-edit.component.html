@@ -48,47 +48,88 @@
 
   <!-- Selected Referto Details -->
   <div *ngIf="selectedReferto && !isEditMode" class="details-section card">
-    <h2>Dettagli Referto</h2>
+    <div class="section-header">
+      <span class="section-icon">📄</span>
+      <h2>Dettagli Referto</h2>
+    </div>
 
     <div class="details-grid">
       <div class="detail-item">
-        <label>Nome File:</label>
-        <span>{{ selectedReferto.nomeFile }}</span>
+        <div class="detail-icon">📁</div>
+        <div class="detail-content">
+          <label>Nome File</label>
+          <span>{{ selectedReferto.nomeFile }}</span>
+        </div>
       </div>
       <div class="detail-item">
-        <label>Tipo Esame:</label>
-        <span>{{ formatTipoEsame(selectedReferto.tipoEsame) }}</span>
+        <div class="detail-icon">🔬</div>
+        <div class="detail-content">
+          <label>Tipo Esame</label>
+          <span class="badge-inline" [ngClass]="getBadgeClass(selectedReferto.tipoEsame)">{{
+            formatTipoEsame(selectedReferto.tipoEsame) }}</span>
+        </div>
       </div>
       <div class="detail-item">
-        <label>Codice Fiscale Paziente:</label>
-        <span>{{ selectedReferto.codiceFiscale }}</span>
+        <div class="detail-icon">🆔</div>
+        <div class="detail-content">
+          <label>Codice Fiscale Paziente</label>
+          <span class="mono-text">{{ selectedReferto.codiceFiscale }}</span>
+        </div>
       </div>
       <div class="detail-item">
-        <label>Data Caricamento:</label>
-        <span>{{ selectedReferto.dataCaricamento | date:'dd/MM/yyyy HH:mm' }}</span>
+        <div class="detail-icon">👤</div>
+        <div class="detail-content">
+          <label>Nome Paziente</label>
+          <span>{{ selectedReferto.nomePaziente }}</span>
+        </div>
       </div>
       <div class="detail-item">
-        <label>Email Medico:</label>
-        <span>{{ selectedReferto.autoreEmail }}</span>
+        <div class="detail-icon">📅</div>
+        <div class="detail-content">
+          <label>Data Caricamento</label>
+          <span>{{ selectedReferto.dataCaricamento | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-icon">🩺</div>
+        <div class="detail-content">
+          <label>Email Medico</label>
+          <span>{{ selectedReferto.autoreEmail }}</span>
+        </div>
       </div>
     </div>
 
-    <div class="button-group">
-      <button (click)="downloadPdf(selectedReferto.id!)" class="btn btn-primary">
+    <!-- Testo e conclusioni in evidenza -->
+    <div class="detail-text-section" *ngIf="selectedReferto.testoReferto">
+      <div class="text-block">
+        <h4><span class="text-icon">📝</span> Descrizione Referto</h4>
+        <p>{{ selectedReferto.testoReferto }}</p>
+      </div>
+    </div>
+    <div class="detail-text-section" *ngIf="selectedReferto.conclusioni">
+      <div class="text-block conclusioni-block">
+        <h4><span class="text-icon">✅</span> Conclusioni</h4>
+        <p>{{ selectedReferto.conclusioni }}</p>
+      </div>
+    </div>
+
+    <div class="button-group details-actions">
+      <button (click)="downloadPdf(selectedReferto.id!)" class="btn btn-primary btn-with-glow">
         <span class="btn-icon">📝</span>
         <span class="btn-text">Scarica Documento Referto</span>
       </button>
-      <button (click)="downloadImmagine(selectedReferto.id!)" class="btn btn-info">
+      <button (click)="downloadImmagine(selectedReferto.id!)" class="btn btn-info btn-with-glow">
         <span class="btn-icon">🖼️</span>
         <span class="btn-text">Scarica Esame</span>
       </button>
       <ng-container *ngIf="currentUser?.enabled">
-        <button (click)="enterEditMode()" class="btn btn-accent">
+        <button (click)="enterEditMode()" class="btn btn-accent btn-with-glow">
           <span class="btn-icon">✏️</span>
           <span class="btn-text">Modifica</span>
         </button>
-        <button (click)="deleteReferto()" class="btn btn-danger">
-          🗑️ Elimina
+        <button (click)="deleteReferto()" class="btn btn-danger btn-with-glow">
+          <span class="btn-icon">🗑️</span>
+          <span class="btn-text">Elimina</span>
         </button>
       </ng-container>
     </div>
@@ -96,17 +137,20 @@
 
   <!-- Edit Form -->
   <div *ngIf="isEditMode" class="edit-section card">
-    <h2>Modifica Referto</h2>
+    <div class="section-header">
+      <span class="section-icon">✏️</span>
+      <h2>Modifica Referto</h2>
+    </div>
 
     <form class="edit-form">
       <div class="form-group">
-        <label for="editNomeFile">Nome File:</label>
+        <label for="editNomeFile"><span class="label-icon">📁</span> Nome File <span class="required">*</span></label>
         <input type="text" id="editNomeFile" [(ngModel)]="editData.nomeFile" name="nomeFile" class="form-control"
-          required>
+          required placeholder="referto_001">
       </div>
 
       <div class="form-group">
-        <label for="editTipoEsame">Tipo Esame:</label>
+        <label for="editTipoEsame"><span class="label-icon">🔬</span> Tipo Esame <span class="required">*</span></label>
         <select id="editTipoEsame" [(ngModel)]="editData.tipoEsame" name="tipoEsame" class="form-control" required>
           <option value="TAC">TAC</option>
           <option value="Radiografia">Radiografia</option>
@@ -117,25 +161,31 @@
       </div>
 
       <div class="form-group">
-        <label for="editCodiceFiscale">Codice Fiscale Paziente:</label>
+        <label for="editCodiceFiscale"><span class="label-icon">🆔</span> Codice Fiscale Paziente <span
+            class="required">*</span></label>
         <input type="text" id="editCodiceFiscale" [(ngModel)]="editData.codiceFiscalePaziente" name="codiceFiscale"
-          class="form-control" maxlength="16" required>
+          class="form-control" maxlength="16" required placeholder="RSSMRA80A01H501U"
+          (input)="editData.codiceFiscalePaziente = editData.codiceFiscalePaziente.toUpperCase()">
       </div>
 
       <div class="form-group full-width">
-        <label for="editTestoReferto">Testo Referto: <span class="required">*</span></label>
+        <label for="editTestoReferto"><span class="label-icon">📝</span> Descrizione Referto <span
+            class="required">*</span> <small>(max 320 caratteri)</small></label>
         <textarea id="editTestoReferto" [(ngModel)]="editData.testoReferto" name="testoReferto" class="form-control"
-          rows="6" placeholder="Inserisci il testo del referto..." required></textarea>
+          rows="5" maxlength="320" placeholder="Inserisci il testo del referto..." required></textarea>
+        <small class="char-counter">{{ editData.testoReferto?.length || 0 }}/320</small>
       </div>
 
       <div class="form-group full-width">
-        <label for="editConclusioni">Conclusioni: <span class="required">*</span></label>
+        <label for="editConclusioni"><span class="label-icon">✅</span> Conclusioni <span class="required">*</span>
+          <small>(max 500 caratteri)</small></label>
         <textarea id="editConclusioni" [(ngModel)]="editData.conclusioni" name="conclusioni" class="form-control"
-          rows="4" placeholder="Inserisci le conclusioni..." required></textarea>
+          rows="4" maxlength="500" placeholder="Inserisci le conclusioni..." required></textarea>
+        <small class="char-counter">{{ editData.conclusioni?.length || 0 }}/500</small>
       </div>
 
       <div class="form-group full-width">
-        <label for="editImmagine">Immagine Corrente:</label>
+        <label for="editImmagine"><span class="label-icon">🖼️</span> Immagine Corrente</label>
 
         <!-- Existing image preview -->
         <div class="image-preview-section" *ngIf="existingImageUrl && !newFilePreviewUrl">
@@ -174,7 +224,7 @@
           <span class="pdf-hint">Anteprima non disponibile per i PDF</span>
         </div>
 
-        <label for="editImmagine" class="mt-2">Cambia Immagine (opzionale):</label>
+        <label for="editImmagine" class="mt-2"><span class="label-icon">📎</span> Cambia Immagine (opzionale):</label>
         <input type="file" id="editImmagine" (change)="onFileSelected($event)" accept="image/*"
           class="form-control file-input">
         <small class="form-help">Lascia vuoto per mantenere l'immagine corrente, oppure seleziona una nuova immagine per
@@ -182,11 +232,13 @@
       </div>
 
       <div class="button-group">
-        <button type="button" (click)="saveEdit()" [disabled]="isLoading" class="btn btn-primary">
-          💾 Salva Modifiche
+        <button type="button" (click)="saveEdit()" [disabled]="isLoading" class="btn btn-primary btn-with-glow">
+          <span class="btn-icon">💾</span>
+          <span class="btn-text">Salva Modifiche</span>
         </button>
         <button type="button" (click)="cancelEdit()" class="btn btn-secondary">
-          ✖ Annulla
+          <span class="btn-icon">✖</span>
+          <span class="btn-text">Annulla</span>
         </button>
       </div>
     </form>
