@@ -56,6 +56,7 @@ import { UserRole, UserGenere } from './models/constants';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
+  protected readonly UserRole = UserRole;
   title = 'medsafe-frontend';
   user: User | null = null;
   isLoading = true;
