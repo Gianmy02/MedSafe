@@ -28,10 +28,35 @@
 
   <!-- Results List -->
   <div *ngIf="referti.length > 0" class="results-section">
-    <h2>Risultati: {{ referti.length }}</h2>
+    <h2>I miei referti: {{ referti.length }}</h2>
     <div class="referti-grid">
       <div *ngFor="let referto of referti" class="referto-card" [class.selected]="selectedReferto?.id === referto.id"
         (click)="selectReferto(referto)">
+        <div class="referto-header">
+          <h3>{{ referto.nomeFile }}</h3>
+          <span class="badge" [ngClass]="getBadgeClass(referto.tipoEsame)">{{ formatTipoEsame(referto.tipoEsame)
+            }}</span>
+        </div>
+        <div class="referto-body">
+          <p><strong>CF Paziente:</strong> {{ referto.codiceFiscale }}</p>
+          <p><strong>Data Caricamento:</strong> {{ referto.dataCaricamento | date:'dd/MM/yyyy HH:mm' }}</p>
+          <p><strong>Medico:</strong> {{ referto.autoreEmail }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin: All Other Reports -->
+  <div *ngIf="currentUser?.role === 'ADMIN' && allReferti.length > 0" class="results-section admin-section">
+    <div class="section-divider"></div>
+    <header class="admin-header">
+      <div class="admin-icon">🛡️</div>
+      <h2>Altri Referti (Amministrazione)</h2>
+      <p>Gestisci i referti caricati da altri medici</p>
+    </header>
+    <div class="referti-grid">
+      <div *ngFor="let referto of allReferti" class="referto-card admin-card"
+        [class.selected]="selectedReferto?.id === referto.id" (click)="selectReferto(referto)">
         <div class="referto-header">
           <h3>{{ referto.nomeFile }}</h3>
           <span class="badge" [ngClass]="getBadgeClass(referto.tipoEsame)">{{ formatTipoEsame(referto.tipoEsame)

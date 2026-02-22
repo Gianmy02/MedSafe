@@ -16,8 +16,8 @@ export class RefertiEditComponent implements OnInit {
   private userEmail = '';
   currentUser: User | null = null;
 
-  // Results
   referti: RefertoDTO[] = [];
+  allReferti: RefertoDTO[] = [];
   selectedReferto: RefertoDTO | null = null;
   isLoading = false;
   errorMessage = '';
@@ -51,6 +51,9 @@ export class RefertiEditComponent implements OnInit {
           this.currentUser = user;
           this.userEmail = user.email;
           this.loadMyReferti();
+          if (this.currentUser.role === 'ADMIN') {
+            this.loadAllReferti();
+          }
         } else {
           this.isLoading = false;
           this.errorMessage = 'Utente non autenticato';
@@ -90,6 +93,21 @@ export class RefertiEditComponent implements OnInit {
         } else {
           this.errorMessage = 'Errore durante il caricamento dei referti: ' + (error.message || 'Errore sconosciuto');
         }
+      }
+    });
+  }
+
+  loadAllReferti() {
+    this.isLoading = true;
+    this.refertiService.getAllReferti().subscribe({
+      next: (data) => {
+        this.isLoading = false;
+        // Filtriamo quelli dell'utente corrente che sono già in 'referti'
+        this.allReferti = data.filter(r => r.autoreEmail !== this.userEmail);
+      },
+      error: (error: any) => {
+        this.isLoading = false;
+        console.error('Errore durante il caricamento di tutti i referti', error);
       }
     });
   }
@@ -206,6 +224,10 @@ export class RefertiEditComponent implements OnInit {
         if (index !== -1) {
           this.referti[index] = this.selectedReferto;
         }
+        const allIndex = this.allReferti.findIndex(r => r.id === this.selectedReferto!.id);
+        if (allIndex !== -1) {
+          this.allReferti[allIndex] = this.selectedReferto;
+        }
       },
       error: (error: any) => {
         this.isLoading = false;
@@ -230,6 +252,7 @@ export class RefertiEditComponent implements OnInit {
         this.successMessage = 'Referto eliminato con successo';
         // Rimuovi il referto dalla lista locale immediatamente
         this.referti = this.referti.filter(r => r.id !== this.selectedReferto?.id);
+        this.allReferti = this.allReferti.filter(r => r.id !== this.selectedReferto?.id);
         this.selectedReferto = null;
         this.isEditMode = false;
         this.isLoading = false;
