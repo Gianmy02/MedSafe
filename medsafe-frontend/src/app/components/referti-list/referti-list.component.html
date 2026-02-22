@@ -40,7 +40,7 @@
     <div class="referto-card" [ngClass]="{'my-referto': isMyReferto(referto)}" *ngFor="let referto of referti">
       <div class="referto-header">
         <h4>{{ referto.nomePaziente }}</h4>
-        <span class="badge" [ngClass]="getBadgeClass(referto.tipoEsame)">{{ formatTipoEsame(referto.tipoEsame) }}</span>
+        <app-referto-badge [tipoEsame]="referto.tipoEsame"></app-referto-badge>
       </div>
       <p *ngIf="isMyReferto(referto)" class="my-referto-label">👤 Tuo referto</p>
       <p><strong>CF Paziente:</strong> {{ referto.codiceFiscale }}</p>

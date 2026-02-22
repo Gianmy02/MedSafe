@@ -4,6 +4,7 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { UserService } from './services/user.service';
 import { AuthService } from './services/auth.service';
 import { User } from './models/user.model';
+import { UserRole, UserGenere } from './models/constants';
 
 @Component({
   selector: 'app-root',
@@ -33,7 +34,7 @@ import { User } from './models/user.model';
           <a *ngIf="user?.enabled" routerLink="/upload" routerLinkActive="active" (click)="closeMenu()">Nuovo Referto</a>
           <a routerLink="/edit" routerLinkActive="active" (click)="closeMenu()">I miei Referti</a>
           <a routerLink="/referti" routerLinkActive="active" (click)="closeMenu()">Cerca Referti</a>
-          <a *ngIf="user?.role === 'ADMIN'" routerLink="/utenti" routerLinkActive="active" (click)="closeMenu()">Elenco Utenti</a>
+          <a *ngIf="user?.role === UserRole.ADMIN" routerLink="/utenti" routerLinkActive="active" (click)="closeMenu()">Elenco Utenti</a>
           <a *ngIf="user" routerLink="/profilo" class="welcome-user" routerLinkActive="active" (click)="closeMenu()">
             <span class="user-main">{{ getDoctorEmoji() }} {{ getDoctorTitle() }} {{ user.fullName }}</span>
             <span *ngIf="user.specializzazione" class="user-spec">Specializzato in: {{ formatSpecialization(user.specializzazione) }}</span>
@@ -85,9 +86,9 @@ export class AppComponent implements OnInit {
   getDoctorEmoji(): string {
     if (!this.user?.genere) return '🩺';
     switch (this.user.genere) {
-      case 'MASCHIO': return '👨🏻‍⚕️';
-      case 'FEMMINA': return '👩🏻‍⚕️';
-      case 'NON_SPECIFICATO': return '🩺';
+      case UserGenere.MASCHIO: return '👨🏻‍⚕️';
+      case UserGenere.FEMMINA: return '👩🏻‍⚕️';
+      case UserGenere.NON_SPECIFICATO: return '🩺';
       default: return '🩺';
     }
   }
@@ -95,9 +96,9 @@ export class AppComponent implements OnInit {
   getDoctorTitle(): string {
     if (!this.user?.genere) return 'Dr.';
     switch (this.user.genere) {
-      case 'MASCHIO': return 'Dr.';
-      case 'FEMMINA': return 'Dott.ssa';
-      case 'NON_SPECIFICATO': return 'Dr.';
+      case UserGenere.MASCHIO: return 'Dr.';
+      case UserGenere.FEMMINA: return 'Dott.ssa';
+      case UserGenere.NON_SPECIFICATO: return 'Dr.';
       default: return 'Dr.';
     }
   }

@@ -5,11 +5,13 @@ import { RefertiService, RefertoDTO } from '../../services/referti.service';
 
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
+import { RefertoBadgeComponent } from '../shared/referto-badge/referto-badge.component';
+import { TipoEsame } from '../../models/constants';
 
 @Component({
   selector: 'app-referti-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RefertoBadgeComponent],
   templateUrl: './referti-list.component.html',
   styleUrl: './referti-list.component.scss'
 })
@@ -164,42 +166,6 @@ export class RefertiListComponent implements OnInit {
     });
   }
 
-  getBadgeClass(tipoEsame: string): string {
-    const tipo = tipoEsame?.toUpperCase() || '';
-    switch (tipo) {
-      case 'RADIOGRAFIA':
-      case 'Radiografia'.toUpperCase():
-        return 'badge-radiografia';
-      case 'ECOGRAFIA':
-      case 'Ecografia'.toUpperCase():
-        return 'badge-ecografia';
-      case 'TAC':
-        return 'badge-tac';
-      case 'RISONANZA':
-      case 'RISONANZA MAGNETICA':
-      case 'Risonanza'.toUpperCase():
-        return 'badge-risonanza';
-      case 'ESAMI_LABORATORIO':
-      case 'ESAMI DI LABORATORIO':
-      case 'Esami_Laboratorio'.toUpperCase():
-        return 'badge-laboratorio';
-      default:
-        // Tipo esame non riconosciuto, nessun badge specifico
-        return '';
-    }
-  }
-
-  formatTipoEsame(tipoEsame: string): string {
-    const tipo = tipoEsame?.toUpperCase() || '';
-    switch (tipo) {
-      case 'ESAMI_LABORATORIO':
-        return 'Esami di laboratorio';
-      case 'RISONANZA':
-        return 'Risonanza magnetica';
-      default:
-        return tipoEsame;
-    }
-  }
 
   downloadPdf(id: number): void {
     this.refertiService.downloadPdf(id).subscribe({

@@ -123,7 +123,8 @@ h3 {
   border-top: 1px solid var(--gray-200);
 }
 
-.btn-search, .btn-reset {
+.btn-search,
+.btn-reset {
   padding: var(--spacing-md) var(--spacing-xl);
   border: none;
   border-radius: var(--radius-md);
@@ -229,41 +230,6 @@ h3 {
     align-items: flex-start;
     margin-bottom: var(--spacing-md);
 
-    .badge {
-      background: var(--primary-100);
-      color: var(--primary-700);
-      padding: var(--spacing-xs) var(--spacing-sm);
-      border-radius: var(--border-radius-sm);
-      font-size: 0.85rem;
-      font-weight: 700;
-      white-space: nowrap;
-      margin-left: var(--spacing-sm);
-
-      &.badge-radiografia {
-        background: #d1fae5;
-        color: #065f46;
-      }
-
-      &.badge-ecografia {
-        background: #dbeafe;
-        color: #1e40af;
-      }
-
-      &.badge-tac {
-        background: #ede9fe;
-        color: #5b21b6;
-      }
-
-      &.badge-risonanza {
-        background: #e5e7eb;
-        color: #374151;
-      }
-
-      &.badge-laboratorio {
-        background: #fee2e2;
-        color: #991b1b;
-      }
-    }
   }
 
   h4 {
@@ -410,7 +376,8 @@ h3 {
   .search-actions {
     flex-direction: column;
 
-    .btn-search, .btn-reset {
+    .btn-search,
+    .btn-reset {
       width: 100%;
     }
   }
@@ -437,7 +404,7 @@ h3 {
 @media (max-width: 480px) {
   h2 {
     font-size: var(--text-xl);
-    
+
     &::before {
       font-size: var(--text-2xl);
     }

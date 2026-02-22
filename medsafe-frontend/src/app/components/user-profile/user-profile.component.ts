@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { User } from '../../models/user.model';
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
+import { UserGenere } from '../../models/constants';
 
 @Component({
   selector: 'app-user-profile',
@@ -26,9 +27,9 @@ export class UserProfileComponent implements OnInit {
   };
 
   // Liste per dropdown
-  generi: any[] = [];
-  specializzazioni: any[] = [];
-  filteredSpecializzazioni: any[] = [];
+  generi: UserGenere[] = [];
+  specializzazioni: string[] = [];
+  filteredSpecializzazioni: string[] = [];
   showSpecializzazioniDropdown = false;
 
   constructor(
@@ -128,7 +129,7 @@ export class UserProfileComponent implements OnInit {
 
   enableEditMode() {
     this.isEditMode = true;
-    this.editData.genere = this.user?.genere || 'NON_SPECIFICATO';
+    this.editData.genere = this.user?.genere || UserGenere.NON_SPECIFICATO;
     this.editData.specializzazione = this.user?.specializzazione || '';
     this.error = null;
     this.successMessage = null;
@@ -157,7 +158,7 @@ export class UserProfileComponent implements OnInit {
     // Creo un oggetto User completo con le modifiche
     const updatedUser: User = {
       ...this.user,
-      genere: this.editData.genere as 'MASCHIO' | 'FEMMINA' | 'NON_SPECIFICATO',
+      genere: this.editData.genere as UserGenere,
       specializzazione: this.editData.specializzazione
     };
 
@@ -177,12 +178,12 @@ export class UserProfileComponent implements OnInit {
     });
   }
 
-  getGenereLabel(genere?: string): string {
+  getGenereLabel(genere?: UserGenere): string {
     if (!genere) return 'Non specificato';
     switch (genere) {
-      case 'MASCHIO': return 'Maschio';
-      case 'FEMMINA': return 'Femmina';
-      case 'NON_SPECIFICATO': return 'Non specificato';
+      case UserGenere.MASCHIO: return 'Maschio';
+      case UserGenere.FEMMINA: return 'Femmina';
+      case UserGenere.NON_SPECIFICATO: return 'Non specificato';
       default: return 'Non specificato';
     }
   }
@@ -192,11 +193,11 @@ export class UserProfileComponent implements OnInit {
     return spec.replace(/_/g, ' ');
   }
 
-  getGenereEmoji(genere?: string): string {
+  getGenereEmoji(genere?: UserGenere): string {
     if (!genere) return '🩺';
     switch (genere) {
-      case 'MASCHIO': return '👨🏻‍⚕️';
-      case 'FEMMINA': return '👩🏻‍⚕️';
+      case UserGenere.MASCHIO: return '👨🏻‍⚕️';
+      case UserGenere.FEMMINA: return '👩🏻‍⚕️';
       default: return '🩺';
     }
   }

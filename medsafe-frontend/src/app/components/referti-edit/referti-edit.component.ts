@@ -4,11 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { RefertiService, RefertoDTO } from '../../services/referti.service';
 import { UserService } from '../../services/user.service';
 import { User } from '../../models/user.model';
+import { TipoEsame, UserRole } from '../../models/constants';
+import { RefertoBadgeComponent } from '../shared/referto-badge/referto-badge.component';
 
 @Component({
   selector: 'app-referti-edit',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RefertoBadgeComponent],
   templateUrl: './referti-edit.component.html',
   styleUrl: './referti-edit.component.scss'
 })
@@ -51,7 +53,7 @@ export class RefertiEditComponent implements OnInit {
           this.currentUser = user;
           this.userEmail = user.email;
           this.loadMyReferti();
-          if (this.currentUser.role === 'ADMIN') {
+          if (this.currentUser.role === UserRole.ADMIN) {
             this.loadAllReferti();
           }
         } else {
@@ -272,41 +274,6 @@ export class RefertiEditComponent implements OnInit {
     });
   }
 
-  getBadgeClass(tipoEsame: string): string {
-    const tipo = tipoEsame?.toUpperCase() || '';
-    switch (tipo) {
-      case 'RADIOGRAFIA':
-      case 'Radiografia'.toUpperCase():
-        return 'badge-radiografia';
-      case 'ECOGRAFIA':
-      case 'Ecografia'.toUpperCase():
-        return 'badge-ecografia';
-      case 'TAC':
-        return 'badge-tac';
-      case 'RISONANZA':
-      case 'RISONANZA MAGNETICA':
-      case 'Risonanza'.toUpperCase():
-        return 'badge-risonanza';
-      case 'ESAMI_LABORATORIO':
-      case 'ESAMI DI LABORATORIO':
-      case 'Esami_Laboratorio'.toUpperCase():
-        return 'badge-laboratorio';
-      default:
-        return '';
-    }
-  }
-
-  formatTipoEsame(tipoEsame: string): string {
-    const tipo = tipoEsame?.toUpperCase() || '';
-    switch (tipo) {
-      case 'ESAMI_LABORATORIO':
-        return 'Esami di laboratorio';
-      case 'RISONANZA':
-        return 'Risonanza magnetica';
-      default:
-        return tipoEsame;
-    }
-  }
 
   getImageFileName(url?: string): string {
     const fileUrl = url || this.selectedReferto?.fileUrlImmagine;

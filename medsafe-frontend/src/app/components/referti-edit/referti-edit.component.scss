@@ -404,42 +404,6 @@ textarea.form-control {
       word-break: break-word;
     }
 
-    .badge {
-      background: var(--primary-100);
-      color: var(--primary-700);
-      padding: var(--spacing-xs) var(--spacing-sm);
-      border-radius: var(--border-radius-sm);
-      font-size: 0.85rem;
-      font-weight: 700;
-      white-space: nowrap;
-      margin-left: var(--spacing-sm);
-
-      // Colori badge per tipo esame
-      &.badge-radiografia {
-        background: #d1fae5;
-        color: #065f46;
-      }
-
-      &.badge-ecografia {
-        background: #dbeafe;
-        color: #1e40af;
-      }
-
-      &.badge-tac {
-        background: #ede9fe;
-        color: #5b21b6;
-      }
-
-      &.badge-risonanza {
-        background: #e5e7eb;
-        color: #374151;
-      }
-
-      &.badge-laboratorio {
-        background: #fee2e2;
-        color: #991b1b;
-      }
-    }
   }
 
   .referto-body {

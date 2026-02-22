@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { RefertiService } from '../../services/referti.service';
+import { TipoEsame } from '../../models/constants';
 
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
@@ -20,7 +21,7 @@ export class RefertiUploadComponent implements OnInit {
   formData = {
     nomePaziente: '',
     codiceFiscale: '',
-    tipoEsame: '',
+    tipoEsame: '' as TipoEsame | '',
     testoReferto: '',
     conclusioni: '',
     nomeFile: ''

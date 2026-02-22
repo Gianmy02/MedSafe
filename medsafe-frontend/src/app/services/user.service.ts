@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { User } from '../models/user.model';
+import { UserGenere } from '../models/constants';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,7 @@ import { User } from '../models/user.model';
 export class UserService {
   private apiUrl = `${environment.apiUrl}/users`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   /**
    * Recupera le informazioni dell'utente corrente autenticato
@@ -50,14 +51,14 @@ export class UserService {
   /**
    * Recupera l'elenco di tutti i generi disponibili
    */
-  getGeneri(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/generi`);
+  getGeneri(): Observable<UserGenere[]> {
+    return this.http.get<UserGenere[]>(`${this.apiUrl}/generi`);
   }
 
   /**
    * Recupera l'elenco di tutte le specializzazioni disponibili
    */
-  getSpecializzazioni(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/specializzazioni`);
+  getSpecializzazioni(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/specializzazioni`);
   }
 }

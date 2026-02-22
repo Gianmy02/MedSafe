@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { TipoEsame } from '../models/constants';
 
 export interface RefertoDTO {
   id?: number;
   nomePaziente: string;
   codiceFiscale: string;
-  tipoEsame: 'TAC' | 'Radiografia' | 'Ecografia' | 'Risonanza' | 'Esami_Laboratorio';
+  tipoEsame: TipoEsame;
   testoReferto?: string;
   conclusioni?: string;
   fileUrlImmagine?: string;

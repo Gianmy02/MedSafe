@@ -13,6 +13,20 @@ export interface ClientPrincipal {
     id_token?: string;
 }
 
+export interface EasyAuthClaim {
+    typ: string;
+    val: string;
+}
+
+export interface EasyAuthPayload {
+    provider_name: string;
+    user_id: string;
+    user_claims?: EasyAuthClaim[];
+    access_token?: string;
+    id_token?: string;
+    clientPrincipal?: ClientPrincipal;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -27,14 +41,13 @@ export class AuthService {
      * Recupera le informazioni dell'utente loggato dall'endpoint di Easy Auth.
      */
     getUserInfo(): Observable<ClientPrincipal | null> {
-
-        return this.http.get<any[]>(`${this.authUrl}/me`, { withCredentials: true }).pipe(
+        return this.http.get<EasyAuthPayload | EasyAuthPayload[]>(`${this.authUrl}/me`, { withCredentials: true }).pipe(
             map(response => {
-                const payload = Array.isArray(response) && response.length > 0 ? response[0] : response;
+                const payload = Array.isArray(response) && response.length > 0 ? response[0] : response as EasyAuthPayload;
                 // FIX: Torniamo a dare priorità all'ID_TOKEN. 
                 // L'access_token di EasyAuth per Graph è spesso cifrato/opaco e il backend lo vede come "Malformed".
                 // L'ID Token è un JWT standard che identifica l'utente e che abbiamo abilitato nel backend (Audience Frontend).
-                const possibleToken = payload.id_token || payload.access_token || (payload.clientPrincipal as any)?.id_token;
+                const possibleToken = payload.id_token || payload.access_token || payload.clientPrincipal?.id_token;
 
                 if (possibleToken) {
                     this.currentToken = possibleToken;
@@ -42,7 +55,7 @@ export class AuthService {
 
                 return payload.user_claims ?
                     this.normalizeClaims(payload) :
-                    (payload.clientPrincipal || payload);
+                    (payload.clientPrincipal || (payload as unknown as ClientPrincipal));
             }),
             tap(() => this.authInitialized$.next(true)),
             catchError((error) => {
@@ -79,11 +92,11 @@ export class AuthService {
         window.location.href = `${this.authUrl}/logout?post_logout_redirect_uri=/`;
     }
 
-    private normalizeClaims(payload: any): ClientPrincipal {
+    private normalizeClaims(payload: EasyAuthPayload): ClientPrincipal {
         const claims = payload.user_claims || [];
         const roles = claims
-            .filter((c: any) => c.typ === 'roles')
-            .map((c: any) => c.val);
+            .filter((c: EasyAuthClaim) => c.typ === 'roles')
+            .map((c: EasyAuthClaim) => c.val);
 
         return {
             identityProvider: payload.provider_name || 'aad',
