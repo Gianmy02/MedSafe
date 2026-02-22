@@ -100,11 +100,6 @@
             <scope>runtime</scope>
         </dependency>
 		<dependency>
-			<groupId>com.mysql</groupId>
-			<artifactId>mysql-connector-j</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.mapstruct</groupId>
 			<artifactId>mapstruct</artifactId>
 			<version>${mapstruct.version}</version>
@@ -174,6 +169,8 @@
 						<exclude>**/MedsafeApplication.class</exclude>
 						<exclude>**/config/**</exclude>
 						<exclude>**/BlobStorageServiceImpl.class</exclude>
+						<!-- Classi generate automaticamente da MapStruct -->
+						<exclude>**/*MapperImpl.class</exclude>
 					</excludes>
 				</configuration>
 				<executions>
@@ -203,7 +200,7 @@
 										<limit>
 											<counter>LINE</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.60</minimum>
+											<minimum>0.80</minimum>
 										</limit>
 									</limits>
 								</rule>

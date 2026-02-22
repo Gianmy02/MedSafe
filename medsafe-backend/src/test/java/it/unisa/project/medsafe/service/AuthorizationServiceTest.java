@@ -117,6 +117,7 @@ class AuthorizationServiceTest {
         // Arrange
         when(jwtHelper.getCurrentUserEmail()).thenReturn("admin@medsafe.local");
         when(userRepository.findByEmail("admin@medsafe.local")).thenReturn(Optional.of(adminUser));
+        when(jwtHelper.hasRole("ADMIN")).thenReturn(true);
 
         // Act & Assert - Non deve lanciare eccezione
         assertDoesNotThrow(() -> authorizationService.checkCanModifyReferto(refertoMedico1, "modificare"));
@@ -124,11 +125,11 @@ class AuthorizationServiceTest {
     }
 
     @Test
-    @DisplayName("ADMIN può modificare referto anche con verifica JWT")
+    @DisplayName("ADMIN può modificare referto con verifica JWT")
     void testAdminPuoModificareConJwt() {
         // Arrange
         when(jwtHelper.getCurrentUserEmail()).thenReturn("admin@medsafe.local");
-        when(userRepository.findByEmail("admin@medsafe.local")).thenReturn(Optional.empty());
+        when(userRepository.findByEmail("admin@medsafe.local")).thenReturn(Optional.of(adminUser));
         when(jwtHelper.hasRole("ADMIN")).thenReturn(true);
 
         // Act & Assert
@@ -171,6 +172,7 @@ class AuthorizationServiceTest {
         // Arrange
         when(jwtHelper.getCurrentUserEmail()).thenReturn("admin@medsafe.local");
         when(userRepository.findByEmail("admin@medsafe.local")).thenReturn(Optional.of(adminUser));
+        when(jwtHelper.hasRole("ADMIN")).thenReturn(true);
 
         // Act & Assert
         assertDoesNotThrow(() -> authorizationService.checkCanModifyReferto(refertoMedico1, "eliminare"));
@@ -194,29 +196,28 @@ class AuthorizationServiceTest {
     // ==================== TEST Fallback Email ====================
 
     @Test
-    @DisplayName("Usa email di fallback quando JWT è null")
-    void testFallbackEmail() {
-        // Arrange
+    @DisplayName("Email null dal JWT causa UnauthorizedException (utente non trovato)")
+    void testNullEmailThrowsUnauthorized() {
+        // Arrange - Nessun fallback, email null causa "Utente non trovato"
         when(jwtHelper.getCurrentUserEmail()).thenReturn(null);
-        when(userRepository.findByEmail("admin@medsafe.local")).thenReturn(Optional.empty());
-        when(jwtHelper.hasRole("ADMIN")).thenReturn(false);
+        when(userRepository.findByEmail(null)).thenReturn(Optional.empty());
 
-        // Crea referto con autore = fallback email
         Referto refertoFallback = new Referto();
         refertoFallback.setId(3);
         refertoFallback.setAutoreEmail("admin@medsafe.local");
 
-        // Act & Assert - Con fallback deve funzionare
-        assertDoesNotThrow(() -> authorizationService.checkCanModifyReferto(refertoFallback, "modificare"));
+        // Act & Assert - Senza utente nel DB, viene lanciata UnauthorizedException
+        UnauthorizedException ex = assertThrows(UnauthorizedException.class,
+                () -> authorizationService.checkCanModifyReferto(refertoFallback, "modificare"));
+        assertTrue(ex.getMessage().contains("Utente non trovato"));
     }
 
     @Test
-    @DisplayName("Fallback email NON può modificare referto di altri")
-    void testFallbackNonPuoModificareAltri() {
+    @DisplayName("Email null NON può modificare referto di altri")
+    void testNullEmailNonPuoModificareAltri() {
         // Arrange
         when(jwtHelper.getCurrentUserEmail()).thenReturn(null);
-        when(userRepository.findByEmail("admin@medsafe.local")).thenReturn(Optional.empty());
-        when(jwtHelper.hasRole("ADMIN")).thenReturn(false);
+        when(userRepository.findByEmail(null)).thenReturn(Optional.empty());
 
         // Act & Assert
         assertThrows(UnauthorizedException.class,
@@ -239,24 +240,24 @@ class AuthorizationServiceTest {
     }
 
     @Test
-    @DisplayName("getCurrentUserEmailPublic() ritorna fallback se JWT è null")
-    void testGetCurrentUserEmailPublicFallback() {
+    @DisplayName("getCurrentUserEmailPublic() ritorna null se JWT è null")
+    void testGetCurrentUserEmailPublicNull() {
         // Arrange
         when(jwtHelper.getCurrentUserEmail()).thenReturn(null);
 
         // Act
         String email = authorizationService.getCurrentUserEmailPublic();
 
-        // Assert
-        assertEquals("admin@medsafe.local", email);
+        // Assert - Nessun fallback, ritorna null
+        assertNull(email);
     }
 
     @Test
-    @DisplayName("isCurrentUserAdmin() ritorna true per admin nel DB")
-    void testIsCurrentUserAdminDb() {
-        // Arrange
+    @DisplayName("isCurrentUserAdmin() ritorna true per admin dal JWT")
+    void testIsCurrentUserAdminFromJwt() {
+        // Arrange - isAdmin() ora controlla solo il JWT, non il DB
         when(jwtHelper.getCurrentUserEmail()).thenReturn("admin@medsafe.local");
-        when(userRepository.findByEmail("admin@medsafe.local")).thenReturn(Optional.of(adminUser));
+        when(jwtHelper.hasRole("ADMIN")).thenReturn(true);
 
         // Act
         boolean isAdmin = authorizationService.isCurrentUserAdmin();
@@ -270,7 +271,6 @@ class AuthorizationServiceTest {
     void testIsCurrentUserAdminJwt() {
         // Arrange
         when(jwtHelper.getCurrentUserEmail()).thenReturn("admin@azure.com");
-        when(userRepository.findByEmail("admin@azure.com")).thenReturn(Optional.empty());
         when(jwtHelper.hasRole("ADMIN")).thenReturn(true);
 
         // Act
@@ -285,7 +285,6 @@ class AuthorizationServiceTest {
     void testIsCurrentUserAdminFalse() {
         // Arrange
         when(jwtHelper.getCurrentUserEmail()).thenReturn("medico1@medsafe.local");
-        when(userRepository.findByEmail("medico1@medsafe.local")).thenReturn(Optional.of(medicoUser));
         when(jwtHelper.hasRole("ADMIN")).thenReturn(false);
 
         // Act

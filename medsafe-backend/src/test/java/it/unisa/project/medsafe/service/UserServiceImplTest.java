@@ -95,7 +95,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    @DisplayName("Aggiorna utente esistente da Azure AD")
+    @DisplayName("Aggiorna utente esistente da Azure AD (ruolo preservato)")
     void testSyncAggiornaUtenteEsistente() {
         // Arrange
         when(userRepository.findByEmail("medico1@medsafe.local")).thenReturn(Optional.of(medicoUser));
@@ -106,14 +106,15 @@ class UserServiceImplTest {
                 "medico1@medsafe.local",
                 "Dr. Mario Rossi UPDATED",
                 "azure-oid-999",
-                UserRole.ADMIN // Cambia ruolo
+                UserRole.ADMIN // Ruolo passato, ma viene ignorato per utenti esistenti
         );
 
         // Assert
         assertNotNull(result);
         assertEquals("Dr. Mario Rossi UPDATED", result.getFullName());
         assertEquals("azure-oid-999", result.getAzureOid());
-        assertEquals(UserRole.ADMIN, result.getRole());
+        // Il ruolo NON viene aggiornato per preservare modifiche manuali dell'admin
+        assertEquals(UserRole.MEDICO, result.getRole());
 
         // Verify save called
         verify(userRepository).save(medicoUser);

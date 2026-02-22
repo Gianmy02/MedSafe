@@ -96,31 +96,76 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("GET /users/me senza JWT usa fallback")
+    @DisplayName("GET /users/me senza JWT crea utente automaticamente (primo login)")
     void testGetCurrentUserSenzaJwt() {
         // Arrange
         when(jwtHelper.getCurrentUserEmail()).thenReturn(null);
-        when(userService.findByEmail("admin@medsafe.local")).thenReturn(Optional.empty());
+        when(userService.findByEmail(null)).thenReturn(Optional.empty());
+        when(jwtHelper.getCurrentUserFullName()).thenReturn(null);
+        when(jwtHelper.getCurrentUserAzureOid()).thenReturn(null);
+
+        // Il controller crea automaticamente l'utente al primo login
+        User autoCreatedUser = User.builder()
+                .id(10)
+                .email(null)
+                .fullName(null)
+                .role(UserRole.MEDICO)
+                .enabled(true)
+                .build();
+        UserDTO autoCreatedDTO = UserDTO.builder()
+                .id(10)
+                .role(UserRole.MEDICO)
+                .enabled(true)
+                .build();
+
+        when(userService.syncUserFromAzureAd(eq(null), any(), eq(null), eq(UserRole.MEDICO)))
+                .thenReturn(autoCreatedUser);
+        when(userMapper.userToUserDTO(autoCreatedUser)).thenReturn(autoCreatedDTO);
 
         // Act
         ResponseEntity<UserDTO> response = userController.getCurrentUser();
 
-        // Assert
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        // Assert - Il controller ora crea l'utente automaticamente e ritorna 200
+        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
-    @DisplayName("GET /users/me ritorna 404 se utente non trovato")
+    @DisplayName("GET /users/me crea utente automaticamente se non trovato (primo login)")
     void testGetCurrentUserNonTrovato() {
         // Arrange
         when(jwtHelper.getCurrentUserEmail()).thenReturn("nonexistent@test.com");
         when(userService.findByEmail("nonexistent@test.com")).thenReturn(Optional.empty());
+        when(jwtHelper.getCurrentUserFullName()).thenReturn("New User");
+        when(jwtHelper.getCurrentUserAzureOid()).thenReturn("oid-new");
+
+        User autoCreatedUser = User.builder()
+                .id(99)
+                .email("nonexistent@test.com")
+                .fullName("New User")
+                .azureOid("oid-new")
+                .role(UserRole.MEDICO)
+                .enabled(true)
+                .build();
+        UserDTO autoCreatedDTO = UserDTO.builder()
+                .id(99)
+                .email("nonexistent@test.com")
+                .fullName("New User")
+                .role(UserRole.MEDICO)
+                .enabled(true)
+                .build();
+
+        when(userService.syncUserFromAzureAd("nonexistent@test.com", "New User", "oid-new", UserRole.MEDICO))
+                .thenReturn(autoCreatedUser);
+        when(userMapper.userToUserDTO(autoCreatedUser)).thenReturn(autoCreatedDTO);
 
         // Act
         ResponseEntity<UserDTO> response = userController.getCurrentUser();
 
-        // Assert
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        // Assert - Il controller ora crea l'utente automaticamente e ritorna 200
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("nonexistent@test.com", response.getBody().getEmail());
+        assertEquals(UserRole.MEDICO, response.getBody().getRole());
     }
 
     // ==================== TEST updateProfile ====================

@@ -6,6 +6,7 @@ import it.unisa.project.medsafe.entity.TipoEsame;
 import it.unisa.project.medsafe.exception.RefertoNotFoundException;
 import it.unisa.project.medsafe.repository.RefertoRepository;
 import it.unisa.project.medsafe.utils.RefertoMapper;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -157,14 +158,20 @@ public class RefertoServiceTest {
         }
 
         @Test
-        public void editRefertoSuccessTest() {
-            RefertoDTO dto = RefertoDTO.builder().id(1).autoreEmail("test@medsafe.local").build();
+        public void editRefertoSuccessTest() throws IOException {
+            RefertoDTO dto = RefertoDTO.builder().id(1).autoreEmail("test@medsafe.local").nomeFile("test_referto")
+                    .build();
             Referto referto = Referto.builder().id(1).autoreEmail("test@medsafe.local").build();
 
-            when(refertoMapper.refertoDTOToReferto(dto)).thenReturn(referto);
             when(refertoRepository.existsById(1)).thenReturn(true);
             when(refertoRepository.findById(1)).thenReturn(Optional.of(referto));
             doNothing().when(authorizationService).checkCanModifyReferto(referto, "modificare");
+
+            // editReferto now regenerates PDF
+            ByteArrayInputStream pdfStream = new ByteArrayInputStream(new byte[0]);
+            when(pdfService.generaPdf(any())).thenReturn(pdfStream);
+            when(blobStorageService.uploadPdf(any(), any())).thenReturn("http://blob/referto.pdf");
+
             when(refertoRepository.save(referto)).thenReturn(referto);
 
             boolean result = refertoService.editReferto(dto, null);
@@ -173,6 +180,7 @@ public class RefertoServiceTest {
             verify(refertoRepository).existsById(1);
             verify(refertoRepository).findById(1);
             verify(authorizationService).checkCanModifyReferto(referto, "modificare");
+            verify(refertoMapper).updateRefertoFromDTO(dto, referto);
             verify(refertoRepository).save(referto);
         }
 
@@ -322,6 +330,142 @@ public class RefertoServiceTest {
             assertEquals("Luigi Bianchi", result.get(2).getNomePaziente());
             verify(refertoRepository).findAll();
             verify(refertoMapper).refertiToRefertiDTO(referti);
+        }
+    }
+
+    @Nested
+    @DisplayName("Test ExtraCorrect - branch coverage")
+    class ExtraCorrect {
+
+        @Test
+        @DisplayName("removeReferto con id esistente rimuove e ritorna true")
+        void testRemoveRefertoSuccess() {
+            Referto referto = Referto.builder().id(1).autoreEmail("medico@test.com")
+                    .fileUrlImmagine("https://account.blob.core.windows.net/upload-dir/imgs/img.jpg")
+                    .urlPdfGenerato("https://account.blob.core.windows.net/upload-dir/pdfs/doc.pdf")
+                    .build();
+
+            when(refertoRepository.existsById(1)).thenReturn(true);
+            when(refertoRepository.findById(1)).thenReturn(Optional.of(referto));
+            doNothing().when(authorizationService).checkCanModifyReferto(referto, "eliminare");
+
+            boolean result = refertoService.removeReferto(1);
+
+            assertTrue(result);
+            verify(refertoRepository).deleteById(1);
+        }
+
+        @Test
+        @DisplayName("removeReferto con id inesistente ritorna false")
+        void testRemoveRefertoNonTrovato() {
+            when(refertoRepository.existsById(999)).thenReturn(false);
+
+            boolean result = refertoService.removeReferto(999);
+
+            assertFalse(result);
+            verify(refertoRepository, never()).deleteById(anyInt());
+        }
+
+        @Test
+        @DisplayName("addReferto propaga IOException come RuntimeException")
+        void testAddRefertoIOException() throws IOException {
+            RefertoDTO dto = RefertoDTO.builder().nomeFile("test").build();
+            MultipartFile file = mock(MultipartFile.class);
+            when(file.getOriginalFilename()).thenReturn("img.jpg");
+
+            doNothing().when(authorizationService).checkCanAddReferto();
+            when(blobStorageService.uploadFile(any(), any())).thenThrow(new IOException("Errore upload"));
+
+            assertThrows(RuntimeException.class, () -> refertoService.addReferto(dto, file));
+        }
+
+        @Test
+        @DisplayName("editReferto con nuovo file aggiorna immagine e PDF")
+        void testEditRefertoConNuovoFile() throws IOException {
+            RefertoDTO dto = RefertoDTO.builder().id(1).autoreEmail("medico@test.com")
+                    .nomeFile("referto_aggiornato").build();
+            Referto referto = Referto.builder().id(1).autoreEmail("medico@test.com")
+                    .fileUrlImmagine("https://account.blob.core.windows.net/upload-dir/old.jpg")
+                    .urlPdfGenerato("https://account.blob.core.windows.net/upload-dir/old.pdf")
+                    .build();
+            MultipartFile newFile = mock(MultipartFile.class);
+            when(newFile.isEmpty()).thenReturn(false);
+            when(newFile.getOriginalFilename()).thenReturn("new_img.jpg");
+
+            when(refertoRepository.existsById(1)).thenReturn(true);
+            when(refertoRepository.findById(1)).thenReturn(Optional.of(referto));
+            doNothing().when(authorizationService).checkCanModifyReferto(referto, "modificare");
+            when(blobStorageService.uploadFile(any(), any()))
+                    .thenReturn("https://account.blob.core.windows.net/upload-dir/new.jpg");
+            when(pdfService.generaPdf(any())).thenReturn(new ByteArrayInputStream(new byte[0]));
+            when(blobStorageService.uploadPdf(any(), any()))
+                    .thenReturn("https://account.blob.core.windows.net/upload-dir/new.pdf");
+            when(refertoRepository.save(referto)).thenReturn(referto);
+
+            boolean result = refertoService.editReferto(dto, newFile);
+
+            assertTrue(result);
+            verify(blobStorageService).uploadFile(any(), any());
+            verify(pdfService).generaPdf(any());
+        }
+
+        @Test
+        @DisplayName("getRefertoByCodiceFiscale con lista vuota lancia RefertoNotFoundException")
+        void testGetRefertoByCodiceFiscaleVuota() {
+            when(refertoRepository.findByCodiceFiscale("XXXXXX00X00X000X")).thenReturn(List.of());
+
+            assertThrows(RefertoNotFoundException.class,
+                    () -> refertoService.getRefertoByCodiceFiscale("XXXXXX00X00X000X"));
+        }
+
+        @Test
+        @DisplayName("getRefertoByNomeFile con null lancia RefertoNotFoundException")
+        void testGetRefertoByNomeFileNull() {
+            when(refertoRepository.findByNomeFile("inesistente")).thenReturn(null);
+
+            assertThrows(RefertoNotFoundException.class,
+                    () -> refertoService.getRefertoByNomeFile("inesistente"));
+        }
+
+        @Test
+        @DisplayName("getRefertiByTipoEsame con lista vuota lancia RefertoNotFoundException")
+        void testGetRefertiByTipoEsameVuota() {
+            when(refertoRepository.findByTipoEsame(TipoEsame.TAC)).thenReturn(List.of());
+
+            assertThrows(RefertoNotFoundException.class,
+                    () -> refertoService.getRefertiByTipoEsame(TipoEsame.TAC));
+        }
+
+        @Test
+        @DisplayName("getRefertiByAutoreEmail con lista vuota lancia RefertoNotFoundException")
+        void testGetRefertiByAutoreEmailVuota() {
+            when(refertoRepository.findByAutoreEmail("nessuno@test.com")).thenReturn(List.of());
+
+            assertThrows(RefertoNotFoundException.class,
+                    () -> refertoService.getRefertiByAutoreEmail("nessuno@test.com"));
+        }
+
+        @Test
+        @DisplayName("getRefertoById con id esistente ritorna DTO")
+        void testGetRefertoByIdSuccess() {
+            Referto referto = Referto.builder().id(5).nomePaziente("Test Paziente").build();
+            RefertoDTO dto = RefertoDTO.builder().id(5).nomePaziente("Test Paziente").build();
+
+            when(refertoRepository.findById(5)).thenReturn(Optional.of(referto));
+            when(refertoMapper.refertoToRefertoDTO(referto)).thenReturn(dto);
+
+            RefertoDTO result = refertoService.getRefertoById(5);
+
+            assertNotNull(result);
+            assertEquals(5, result.getId());
+        }
+
+        @Test
+        @DisplayName("getRefertoById con id inesistente lancia RefertoNotFoundException")
+        void testGetRefertoByIdNonTrovato() {
+            when(refertoRepository.findById(999)).thenReturn(Optional.empty());
+
+            assertThrows(RefertoNotFoundException.class, () -> refertoService.getRefertoById(999));
         }
     }
 }

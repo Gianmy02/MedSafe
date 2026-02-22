@@ -8,10 +8,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @DisplayName("Test GlobalExceptionHandler")
 class GlobalExceptionHandlerTest {
@@ -149,7 +153,8 @@ class GlobalExceptionHandlerTest {
 
         @SuppressWarnings("unchecked")
         Map<String, String> body = (Map<String, String>) response.getBody();
-        assertEquals(message, body.get("error"));
+        assertEquals("Errore generico del server", body.get("error"));
+        assertEquals(message, body.get("details"));
     }
 
     @Test
@@ -179,7 +184,8 @@ class GlobalExceptionHandlerTest {
 
         @SuppressWarnings("unchecked")
         Map<String, String> body = (Map<String, String>) response.getBody();
-        assertEquals("Argomento non valido", body.get("error"));
+        assertEquals("Errore generico del server", body.get("error"));
+        assertEquals("Argomento non valido", body.get("details"));
     }
 
     // ==================== TEST Edge Cases ====================
@@ -236,7 +242,8 @@ class GlobalExceptionHandlerTest {
 
         @SuppressWarnings("unchecked")
         Map<String, String> body = (Map<String, String>) response.getBody();
-        assertNull(body.get("error"));
+        assertEquals("Errore generico del server", body.get("error"));
+        assertNull(body.get("details"));
     }
 
     // ==================== TEST Integrazione ====================
@@ -284,5 +291,123 @@ class GlobalExceptionHandlerTest {
         assertEquals(messageWithSpecialChars, response.get("error"));
         assertTrue(response.get("error").contains("@"));
         assertTrue(response.get("error").contains("'"));
+    }
+    // ==================== TEST handleMaxSizeException ====================
+
+    @Test
+    @DisplayName("handleMaxSizeException ritorna 413 Payload Too Large")
+    void testHandleMaxSizeException() {
+        // Arrange
+        MaxUploadSizeExceededException exception = new MaxUploadSizeExceededException(5_000_000L);
+
+        // Act
+        ResponseEntity<?> response = exceptionHandler.handleMaxSizeException(exception);
+
+        // Assert
+        assertEquals(HttpStatus.PAYLOAD_TOO_LARGE, response.getStatusCode());
+        @SuppressWarnings("unchecked")
+        Map<String, String> body = (Map<String, String>) response.getBody();
+        assertNotNull(body);
+        assertEquals("Il file è troppo grande!", body.get("error"));
+        assertNotNull(body.get("details"));
+    }
+
+    @Test
+    @DisplayName("handleMaxSizeException ha sempre error field con messaggio corretto")
+    void testHandleMaxSizeExceptionMessaggio() {
+        // Arrange
+        MaxUploadSizeExceededException exception = new MaxUploadSizeExceededException(1024L);
+
+        // Act
+        ResponseEntity<?> response = exceptionHandler.handleMaxSizeException(exception);
+
+        // Assert
+        @SuppressWarnings("unchecked")
+        Map<String, String> body = (Map<String, String>) response.getBody();
+        assertTrue(body.containsKey("error"));
+        assertTrue(body.containsKey("details"));
+    }
+
+    // ==================== TEST handleTypeMismatch ====================
+
+    @Test
+    @DisplayName("handleTypeMismatch ritorna 400 Bad Request con dettagli")
+    void testHandleTypeMismatch() {
+        // Arrange - usiamo mock perché MethodArgumentTypeMismatchException ha
+        // costruttore complesso
+        MethodArgumentTypeMismatchException exception = mock(MethodArgumentTypeMismatchException.class);
+        when(exception.getName()).thenReturn("id");
+        when(exception.getRequiredType()).thenReturn((Class) Integer.class);
+        when(exception.getValue()).thenReturn("abc");
+
+        // Act
+        ResponseEntity<?> response = exceptionHandler.handleTypeMismatch(exception);
+
+        // Assert
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        @SuppressWarnings("unchecked")
+        Map<String, String> body = (Map<String, String>) response.getBody();
+        assertNotNull(body);
+        assertEquals("Errore di validazione dati", body.get("error"));
+        assertTrue(body.get("details").contains("id"));
+        assertTrue(body.get("details").contains("Integer"));
+        assertTrue(body.get("details").contains("abc"));
+    }
+
+    @Test
+    @DisplayName("handleTypeMismatch con requiredType null")
+    void testHandleTypeMismatchRequiredTypeNull() {
+        // Arrange
+        MethodArgumentTypeMismatchException exception = mock(MethodArgumentTypeMismatchException.class);
+        when(exception.getName()).thenReturn("param");
+        when(exception.getRequiredType()).thenReturn(null);
+        when(exception.getValue()).thenReturn("valore");
+
+        // Act
+        ResponseEntity<?> response = exceptionHandler.handleTypeMismatch(exception);
+
+        // Assert
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        @SuppressWarnings("unchecked")
+        Map<String, String> body = (Map<String, String>) response.getBody();
+        assertTrue(body.get("details").contains("unknown"));
+    }
+
+    // ==================== TEST handleMissingParams ====================
+
+    @Test
+    @DisplayName("handleMissingParams ritorna 400 Bad Request con nome parametro")
+    void testHandleMissingParams() {
+        // Arrange
+        MissingServletRequestParameterException exception = new MissingServletRequestParameterException("codiceFiscale",
+                "String");
+
+        // Act
+        ResponseEntity<?> response = exceptionHandler.handleMissingParams(exception);
+
+        // Assert
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        @SuppressWarnings("unchecked")
+        Map<String, String> body = (Map<String, String>) response.getBody();
+        assertNotNull(body);
+        assertEquals("Dati mancanti", body.get("error"));
+        assertTrue(body.get("details").contains("codiceFiscale"));
+    }
+
+    @Test
+    @DisplayName("handleMissingParams include il nome del parametro nei dettagli")
+    void testHandleMissingParamsNomeParametro() {
+        // Arrange
+        MissingServletRequestParameterException exception = new MissingServletRequestParameterException("nomeFile",
+                "String");
+
+        // Act
+        ResponseEntity<?> response = exceptionHandler.handleMissingParams(exception);
+
+        // Assert
+        @SuppressWarnings("unchecked")
+        Map<String, String> body = (Map<String, String>) response.getBody();
+        assertTrue(body.get("details").contains("nomeFile"));
+        assertTrue(body.get("details").contains("obbligatorio"));
     }
 }
