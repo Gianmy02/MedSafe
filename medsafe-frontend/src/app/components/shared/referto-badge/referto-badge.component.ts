@@ -3,15 +3,15 @@ import { CommonModule } from '@angular/common';
 import { TipoEsame } from '../../../models/constants';
 
 @Component({
-    selector: 'app-referto-badge',
-    standalone: true,
-    imports: [CommonModule],
-    template: `
+  selector: 'app-referto-badge',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
     <span class="badge" [ngClass]="getBadgeClass()">
       {{ getLabel() }}
     </span>
   `,
-    styles: [`
+  styles: [`
     .badge {
       display: inline-block;
       padding: 0.25rem 0.6rem;
@@ -29,26 +29,26 @@ import { TipoEsame } from '../../../models/constants';
   `]
 })
 export class RefertoBadgeComponent {
-    @Input({ required: true }) tipoEsame!: string;
+  @Input({ required: true }) tipoEsame!: string;
 
-    getBadgeClass(): string {
-        const tipo = this.tipoEsame?.toUpperCase() || '';
-        switch (tipo) {
-            case TipoEsame.RADIOGRAFIA: return 'badge-radiografia';
-            case TipoEsame.ECOGRAFIA: return 'badge-ecografia';
-            case TipoEsame.TAC: return 'badge-tac';
-            case TipoEsame.RISONANZA: return 'badge-risonanza';
-            case TipoEsame.ESAMI_LABORATORIO: return 'badge-laboratorio';
-            default: return '';
-        }
+  getBadgeClass(): string {
+    const tipo = this.tipoEsame?.toUpperCase() || '';
+    switch (tipo) {
+      case TipoEsame.RADIOGRAFIA.toUpperCase(): return 'badge-radiografia';
+      case TipoEsame.ECOGRAFIA.toUpperCase(): return 'badge-ecografia';
+      case TipoEsame.TAC.toUpperCase(): return 'badge-tac';
+      case TipoEsame.RISONANZA.toUpperCase(): return 'badge-risonanza';
+      case TipoEsame.ESAMI_LABORATORIO.toUpperCase(): return 'badge-laboratorio';
+      default: return '';
     }
+  }
 
-    getLabel(): string {
-        const tipo = this.tipoEsame?.toUpperCase() || '';
-        switch (tipo) {
-            case TipoEsame.ESAMI_LABORATORIO: return 'Esami di laboratorio';
-            case TipoEsame.RISONANZA: return 'Risonanza magnetica';
-            default: return this.tipoEsame;
-        }
+  getLabel(): string {
+    const tipo = this.tipoEsame?.toUpperCase() || '';
+    switch (tipo) {
+      case TipoEsame.ESAMI_LABORATORIO.toUpperCase(): return 'Esami di laboratorio';
+      case TipoEsame.RISONANZA.toUpperCase(): return 'Risonanza magnetica';
+      default: return this.tipoEsame;
     }
+  }
 }
