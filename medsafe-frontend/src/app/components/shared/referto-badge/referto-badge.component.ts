@@ -14,18 +14,23 @@ import { TipoEsame } from '../../../models/constants';
   styles: [`
     .badge {
       display: inline-block;
-      padding: 0.25rem 0.6rem;
-      border-radius: 9999px;
-      font-size: 0.75rem;
+      padding: var(--spacing-sm, 0.5rem) var(--spacing-md, 1rem); /* Fallback to 0.5rem 1rem if vars missing */
+      border-radius: 8px; /* Matched from referti-upload.scss */
+      font-size: 0.9rem; /* Matched from referti-upload.scss */
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.025em;
+      transition: all 0.3s ease;
     }
-    .badge-tac { background-color: #fee2e2; color: #991b1b; }
-    .badge-radiografia { background-color: #e0f2fe; color: #075985; }
-    .badge-ecografia { background-color: #dcfce7; color: #166534; }
-    .badge-risonanza { background-color: #f3e8ff; color: #6b21a8; }
-    .badge-laboratorio { background-color: #fef3c7; color: #92400e; }
+    .badge:hover {
+      transform: translateX(8px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    }
+    .badge-tac { background-color: #ede9fe; color: #5b21b6; }
+    .badge-radiografia { background-color: #d1fae5; color: #065f46; }
+    .badge-ecografia { background-color: #dbeafe; color: #1e40af; }
+    .badge-risonanza { background-color: #e5e7eb; color: #374151; }
+    .badge-laboratorio { background-color: #fee2e2; color: #991b1b; }
   `]
 })
 export class RefertoBadgeComponent {
