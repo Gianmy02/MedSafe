@@ -10,7 +10,6 @@ import it.unisa.project.medsafe.service.RefertoService;
 import it.unisa.project.medsafe.utils.JwtHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,14 +26,9 @@ import java.util.List;
 @Tag(name = "Referti", description = "API per la gestione dei referti medici")
 public class RefertoController {
 
-    @Autowired
-    private RefertoService refertoService;
-
-    @Autowired
-    private BlobStorageService blobStorageService;
-
-    @Autowired
-    private JwtHelper jwtHelper;
+    private final RefertoService refertoService;
+    private final BlobStorageService blobStorageService;
+    private final JwtHelper jwtHelper;
 
     @Operation(summary = "Carica nuovo referto", description = "Carica un referto medico con immagine diagnostica")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
