@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 @Configuration
-@Profile({ "local", "dev", "docker", "azure" })
+@Profile({ "local", "dev", "docker" })
 public class OpenApiConfig {
 
         @Bean
