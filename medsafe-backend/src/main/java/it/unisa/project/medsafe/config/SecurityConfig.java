@@ -31,7 +31,7 @@ import java.util.List;
 @EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 @Slf4j
-@Profile({ "azure", "prod" })
+@Profile({ "azure" })
 
 public class SecurityConfig {
 
